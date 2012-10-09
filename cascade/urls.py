@@ -7,7 +7,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'cascade.views.home', name='home'),
-    # url(r'^cascade/', include('cascade.foo.urls')),
+    url(r'^cascadecart/', include('cartmanager.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

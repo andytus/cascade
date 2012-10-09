@@ -1,6 +1,12 @@
 from django.db import models
 from django.db.models.deletion import DO_NOTHING
+from django.core.files.storage import FileSystemStorage
+import datetime
+from django import forms
+import os
 
+#Note: os.path.dirname(__file__) used to upload files into the app directory
+UPLOADEDFILES = FileSystemStorage(location= os.path.dirname(__file__) + '/uploads')
 
 class Address(models.Model):
 
@@ -31,14 +37,16 @@ class CollectionAddress(Address):
 class Cart(models.Model):
 
     """
-    CART model stores all cart information. All the physical characteristics are loaded into
-    the database from the manufacturing system.
+    CART model stores all cart information.
+    These fields are loaded from manufacturing:
+    1) Size, 2) Cart Type, 3)RFID, 4) Serial Number, 5)Born data, and Owner.
+    Location comes from Services Center, A & D or from customer delivery services.
     """
 
     CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard Waste', 'Yard Waste'), ('Other','Other') )
     CART_SIZE = ((35, 35), (64, 64), (96, 96))
     owner = models.OneToOneField(Owner, on_delete=DO_NOTHING, to_field='customer_number')
-    location = models.ForeignKey(CollectionAddress)
+    location = models.ForeignKey(CollectionAddress, null=True)
     rfid = models.CharField(max_length=30, unique=True)
     serial_number = models.CharField(max_length=30)
     size = models.IntegerField(choices=CART_SIZE)
@@ -60,6 +68,32 @@ class CartTickets(models.Model):
 
 class Users(models.Model):
     pass
+
+class UploadFile(models.Model):
+    TYPE = ( ('CUSTOMER UPLOAD', 'CUSTOMER UPLOAD'),
+             ('CART UPLOAD', 'CART UPLOAD'),
+             ('TICKET UPLOAD', 'TICKET UPLOAD'),
+          )
+
+    STATUSES = (
+        ("PENDING", "PENDING"),
+        ("PROCESSED", "PROCESSED"),
+        ("FAILED", "FAILED"),
+        )
+    file_path = models.FileField(storage=UPLOADEDFILES, upload_to='carts/')
+    type = models.CharField(max_length=25, choices=TYPE)
+    #uploaded_by = models.ForeignKey('auth.User')
+    date_uploaded = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=64, choices=STATUSES, default='PENDING')
+    num_records = models.PositiveIntegerField(default=0)
+    date_start_processing = models.DateTimeField(null=True)
+    date_end_processing = models.DateTimeField(null=True)
+
+class UploadCartsFileForm(forms.Form):
+    cart_file = forms.FileField()
+
+
+
 
 
 
