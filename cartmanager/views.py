@@ -1,19 +1,19 @@
-from models import Cart, UploadFile, UploadCartsFileForm
+from models import Cart, CartsUploadFile, CartsUploadFileForm
 from django.views.generic.edit import FormView
 
 
 class CartUploadView(FormView):
     template_name = 'cartupload.html'
-    form_class =  UploadCartsFileForm
+    form_class =  CartsUploadFileForm
     success_url = '/worked/'
 
     def form_valid(self, form):
-        upload_file = UploadFile()
+        upload_file = CartsUploadFile()
         cart_file = self.request.FILES['cart_file']
 
         if cart_file.content_type == "application/vnd.ms-excel":
             upload_file.file_path = cart_file
-            upload_file.type = "CART UPLOAD"
+            upload_file.size = cart_file.size
             upload_file.save()
 
 #            with open(upload_file, 'wb+') as destination:

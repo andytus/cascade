@@ -70,27 +70,36 @@ class Users(models.Model):
     pass
 
 class UploadFile(models.Model):
-    TYPE = ( ('CUSTOMER UPLOAD', 'CUSTOMER UPLOAD'),
-             ('CART UPLOAD', 'CART UPLOAD'),
-             ('TICKET UPLOAD', 'TICKET UPLOAD'),
-          )
-
     STATUSES = (
         ("PENDING", "PENDING"),
         ("PROCESSED", "PROCESSED"),
         ("FAILED", "FAILED"),
         )
-    file_path = models.FileField(storage=UPLOADEDFILES, upload_to='carts/')
-    type = models.CharField(max_length=25, choices=TYPE)
     #uploaded_by = models.ForeignKey('auth.User')
+    size = models.PositiveIntegerField()
     date_uploaded = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=64, choices=STATUSES, default='PENDING')
     num_records = models.PositiveIntegerField(default=0)
     date_start_processing = models.DateTimeField(null=True)
     date_end_processing = models.DateTimeField(null=True)
 
-class UploadCartsFileForm(forms.Form):
+    class Meta:
+        abstract = True
+
+class CartsUploadFile(UploadFile):
+    file_path = models.FileField(storage=UPLOADEDFILES, upload_to="test")
+
+class TicketsUploadFile(UploadFile):
+    pass
+
+class CustomersUploadFile(UploadFile):
+    pass
+
+
+class CartsUploadFileForm(forms.Form):
     cart_file = forms.FileField()
+
+
 
 
 
