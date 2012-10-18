@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Errors</title>
+</head>
+<body>
+<table border="1">
+    <tr>
+        <td>Date</td><td>Type</td><td>Message</td> <td>Failed Data</td>
+    </tr>
+        {% for records in data_errors %}
+        <tr>
+        <td>{{records.error_date}}</td><td>{{records.failed_type}}</td>
+        <td>{{records.error_message}}</td><td>{{records.failed_data}}</td>
+        </tr>
+        {% endfor %}
+
+</table>
+
+</body>
+</html>

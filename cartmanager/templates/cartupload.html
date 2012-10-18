@@ -8,8 +8,8 @@
 {% if completed  %}
     TOTAL RECORDS PROCESSED: {{ total_count }}
     TOTAL GOOD:  {{ good_count }}
-    TOTAL ERROR: {{ error_count }}
-   <a href="{% url cartuploads %}"> Upload Carts </a>
+    TOTAL ERROR: <a href="{% url upload-errors %}"> {{ error_count }}</a>
+   <a href="{% url cart-uploads %}"> Upload Carts </a>
 {% else %}
 
     <form action="./" method="POST" enctype="multipart/form-data">

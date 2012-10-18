@@ -4,6 +4,17 @@ from django.utils import timezone
 
 
 
+class ProcessCartUpload(TestCase):
+
+
+    def test_create_a_upload_file(self):
+        pass
+
+    def test_process_cart_data(self):
+        pass
+
+
+
 
 class CartModelTest(TestCase):
 
@@ -11,8 +22,6 @@ class CartModelTest(TestCase):
         """
         Test save of on Cart
         """
-        owner = Owner(customer_number=1)
-        owner.save()
         cart = Cart()
         location = CollectionAddress()
         location.save()
@@ -29,5 +38,6 @@ class CartModelTest(TestCase):
 
         all_carts_in_database = Cart.objects.all()
         self.assertEqual(len(all_carts_in_database), 1)
+
 
 
