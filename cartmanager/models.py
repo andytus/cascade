@@ -7,12 +7,15 @@ from django import forms
 import os
 
 #Note: os.path.dirname(__file__) used to upload files into the app directory
-UPLOADEDFILES = FileSystemStorage(location= os.path.dirname(__file__) + '/uploads')
+UPLOADEDFILES = FileSystemStorage(location= os.path.join(os.path.dirname(__file__), '/uploads'))
 
 class Route(models.Model):
+    ROUTE_TYPE = (("General","General"),("Recycling","Recycling"),
+                  ("Refuse","Refuse"), ("Yard-Organics","Yard-Organics"))
     #May turn this into a GeoManaged model for GIS capabilities
     route = models.CharField(max_length=15, null=True)
     route_day = models.CharField(max_length=15, null=True)
+    route_type = models.CharField(max_length=20, null=True)
 
 
 class Address(models.Model):
@@ -21,13 +24,13 @@ class Address(models.Model):
     ST = "NA"
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
-    unit = models.CharField(max_length=6, null=True)
+    unit = models.CharField(max_length=6, null=True, blank=True)
     city = models.CharField(max_length=25, default=CITY)
     state = models.CharField(max_length=2, default=ST)
     zipcode = models.IntegerField()
-    latitude = models.DecimalField(max_digits=10, decimal_places=10, null=True)
-    longitude = models.DecimalField(max_digits=10, decimal_places=10, null=True)
-    route = models.ForeignKey(Route, null=True)
+    latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    route = models.ForeignKey(Route, null=True, blank=True)
 
     def __unicode__(self):
         return "%s: %s, %s" %(str(self.id), self.house_number, self.street_name)
@@ -47,7 +50,7 @@ class CollectionCustomer(models.Model):
     other_system_id = models.CharField(max_length=50)
     first_name = models.CharField(max_length=25, default="UNKNOWN")
     last_name = models.CharField(max_length=50, default="UNKNOWN")
-    phone_number = PhoneNumberField()
+    phone_number = PhoneNumberField(null=True)
     email = models.EmailField(max_length=75, null=True)
 
     def __unicode__(self):
@@ -59,11 +62,8 @@ class CollectionCustomer(models.Model):
     full_name = property(_get_full_name)
 
 class CollectionAddress(Address):
-    STATUS = (('None','None'),('Open','Open'),('Closed','Closed'))
     billing = models.BooleanField(default=True)
     customer = models.ForeignKey(CollectionCustomer)
-    #Updated when service is requested (Open) or completed (Close)
-    service_request_status = models.CharField(default="None", choices=STATUS, max_length=6)
 
 
 class Cart(models.Model):
@@ -73,7 +73,7 @@ class Cart(models.Model):
     1) Size, 2) Cart Type, 3)RFID, 4) Serial Number, 5)Born data, and Owner.
     Location comes from Services Center, A & D or from customer delivery services.
     """
-    CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard Waste', 'Yard Waste'), ('Other','Other') )
+    CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard-Organics', 'Yard-Organics'), ('Other','Other') )
     CART_SIZE = ((35, 35), (64, 64), (96, 96))
     location = models.ForeignKey(CollectionAddress, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
@@ -88,12 +88,33 @@ class Cart(models.Model):
         return "RFID: %s and Type: %s" % (self.rfid, self.cart_type)
 
 
-class CartServices(models.Model):
-    #Will contain the history as query of closed
-    pass
+class CartServiceTicket(models.Model):
+    TYPE = (("Delivery","Del"), ("Swap","Swap"), ("Removal","Rem"),("Repair","Rep"), ("Audit","Aud"))
+    CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard-Organics', 'Yard-Organics'), ('Other','Other') )
+    STATUS = (('Requested','Requested'),('Open','Open'),('Completed','Completed'))
 
-class CartTickets(models.Model):
-    pass
+    location = models.ForeignKey(CollectionAddress)
+    cart = models.ForeignKey(Cart, null=True, blank=True)
+
+    service_type = models.CharField(max_length=12, choices=TYPE)
+    cart_type = models.CharField(max_length=10, choices=CART_TYPE)
+
+    status = models.CharField(default="Requested", choices=STATUS, max_length=12)
+    date_completed = models.DateTimeField(null=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_last_accessed = models.DateTimeField(auto_now=True)
+    #TODO created and completed by.... hook to user.
+    #created_by
+    #completed_by
+
+    def get_tickets(self):
+        #TODO query for street, housenumber, service_type, etc for Ticket download.
+        #TODO remember to concatenate service_type and cart_type (i.e Del-Refuse) and system_id from customer.
+        pass
+
+    def __unicode__(self):
+        return "Service Type: %s, Status: %s, Location: %s, RFID: %s" % (self.service_type,
+                                                                         self.status, self.location, self.cart.rfid)
 
 class Users(models.Model):
     pass
@@ -129,8 +150,12 @@ class UploadFile(models.Model):
         pass
 
     def process(self):
+        self.num_records = 0
+        self.num_good = 0
+        self.num_error = 0
+
         file = self.file_path
-        #read just the first header row:
+        #Read just the first header row:
         file.readline()
         self.status = 'PROCESSED'
         self.date_start_processing = datetime.now()
@@ -164,20 +189,65 @@ class CartsUploadFile(UploadFile):
             self.num_error +=1
             error = DataErrors(error_message=e.message, error_type = type(e), failed_data=line)
             error.save()
-            print "%s, (%s)" % (e.message, type(e))
+            #print "%s, (%s)" % (e.message, type(e))
 
 class TicketsUploadFile(UploadFile):
-    pass
+    file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
 
 class CustomersUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="customers")
 
+    def save_records(self, line):
+       try:
 
+           #Customer setup & save:
 
+           systemid, first_name, last_name, phone, email, house_number, street_name,unit,city,\
+           state, zipcode, latitude, longitude, recycle, refuse, yard_organics, route, route_day = line.split(',')
+
+           customer = CollectionCustomer(first_name=first_name, last_name=last_name, email=email,
+                      other_system_id = systemid, phone_number = phone)
+           customer.full_clean()
+           customer.save()
+
+           #######################################################################################################
+
+           #Collection_Address setup & save:
+           collection_address = CollectionAddress(customer=customer, house_number=house_number,
+           street_name=street_name, unit=unit, city=city, zipcode=zipcode, state=state,
+           latitude=latitude, longitude=longitude)
+           collection_address.full_clean()
+           collection_address.save()
+           ########################################################################################################
+
+           #Tickets setup & save for Refuse, Recycling, Yard\Organics:
+           #Refactor to dictionary for keys, then for values.
+           service = "Delivery"
+           print "here"
+           for x in range(int(refuse)):
+               print "in for+"
+               CartServiceTicket(cart_type="Refuse", service_type = service, location= collection_address).save()
+           for x in range(int(recycle)):
+               CartServiceTicket(cart_type="Recycling", service_type = service, location= collection_address).save()
+           for x in range(int(yard_organics)):
+               CartServiceTicket(cart_type="Yard-Organics", service_type = service, location= collection_address).save()
+
+           self.num_good += 1
+
+       except Exception as e:
+
+           #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket
+           self.status = "FAILED"
+           self.num_error +=1
+           error = DataErrors(error_message=e, error_type = type(e), failed_data=line)
+           error.save()
 
 
 class CartsUploadFileForm(forms.Form):
     cart_file = forms.FileField()
+
+class CustomerUploadFileForm(forms.Form):
+    customer_file = forms.FileField()
 
 class DataErrors(models.Model):
     #TODO Add datetime stamp and order by it in meta
