@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+from django.db.transaction import TransactionManagementError
+from django.db.utils import DatabaseError, IntegrityError
 from django.utils.timezone import datetime
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django import forms
@@ -89,17 +91,17 @@ class Cart(models.Model):
 
 
 class CartServiceTicket(models.Model):
-    TYPE = (("Delivery","Del"), ("Swap","Swap"), ("Removal","Rem"),("Repair","Rep"), ("Audit","Aud"))
-    CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard-Organics', 'Yard-Organics'), ('Other','Other') )
-    STATUS = (('Requested','Requested'),('Open','Open'),('Completed','Completed'))
+    SERVICE_TYPE = (("delivery","delivery"), ("swap","swap"), ("removal","removal"),("repair","repair"), ("audit","audit"))
+    CART_TYPE = (('recycle', 'recycle'), ('refuse', 'refuse'), ('yard_organics', 'yard_organics'), ('other','other'), ('yard','yard'), ('organics','organics') )
+    STATUS = (('requested','requested'),('open','open'),('completed','completed'))
 
     location = models.ForeignKey(CollectionAddress)
     cart = models.ForeignKey(Cart, null=True, blank=True)
 
-    service_type = models.CharField(max_length=12, choices=TYPE)
+    service_type = models.CharField(max_length=12, choices=SERVICE_TYPE)
     cart_type = models.CharField(max_length=10, choices=CART_TYPE)
 
-    status = models.CharField(default="Requested", choices=STATUS, max_length=12)
+    status = models.CharField(default="requested", choices=STATUS, max_length=12)
     date_completed = models.DateTimeField(null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_last_accessed = models.DateTimeField(auto_now=True)
@@ -107,14 +109,11 @@ class CartServiceTicket(models.Model):
     #created_by
     #completed_by
 
-    def get_tickets(self):
-        #TODO query for street, housenumber, service_type, etc for Ticket download.
-        #TODO remember to concatenate service_type and cart_type (i.e Del-Refuse) and system_id from customer.
-        pass
+    class Meta:
+        ordering = ["-date_created"]
 
     def __unicode__(self):
-        return "Service Type: %s, Status: %s, Location: %s, RFID: %s" % (self.service_type,
-                                                                         self.status, self.location, self.cart.rfid)
+        return "Service Type: %s, Status: %s, Location: %s" % (self.service_type, self.status, self.location)
 
 class Users(models.Model):
     pass
@@ -184,15 +183,24 @@ class CartsUploadFile(UploadFile):
             cart.full_clean()
             cart.save()
             self.num_good += 1
-        except Exception as e:
+        except (Exception, ValidationError, ValueError, IntegrityError) as e:
             self.status = "FAILED"
             self.num_error +=1
-            error = DataErrors(error_message=e.message, error_type = type(e), failed_data=line)
+            error_message = e.message
+            if e.message_dict:
+                for key, value in e.message_dict.iteritems():
+                    error_message += "%s: %s " % (str(key).upper(), ','.join(value))
+            error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
             error.save()
-            #print "%s, (%s)" % (e.message, type(e))
 
 class TicketsUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
+
+    def save_records(self, line):
+        try:
+
+
+
 
 class CustomersUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="customers")
@@ -218,30 +226,31 @@ class CustomersUploadFile(UploadFile):
            latitude=latitude, longitude=longitude)
            collection_address.full_clean()
            collection_address.save()
+
            ########################################################################################################
 
            #Tickets setup & save for Refuse, Recycling, Yard\Organics:
            #Refactor to dictionary for keys, then for values.
-           service = "Delivery"
-           print "here"
+           service = "delivery"
+
            for x in range(int(refuse)):
-               print "in for+"
-               CartServiceTicket(cart_type="Refuse", service_type = service, location= collection_address).save()
+               CartServiceTicket(cart_type="refuse", service_type = service, location= collection_address).save()
            for x in range(int(recycle)):
-               CartServiceTicket(cart_type="Recycling", service_type = service, location= collection_address).save()
+               CartServiceTicket(cart_type="recycling", service_type = service, location= collection_address).save()
            for x in range(int(yard_organics)):
-               CartServiceTicket(cart_type="Yard-Organics", service_type = service, location= collection_address).save()
+               CartServiceTicket(cart_type="yard-organics", service_type = service, location= collection_address).save()
 
            self.num_good += 1
 
        except Exception as e:
-
-           #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket
+           #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket)
            self.status = "FAILED"
            self.num_error +=1
            error = DataErrors(error_message=e, error_type = type(e), failed_data=line)
            error.save()
 
+class TicketsUploadFileForm(forms.Form):
+    ticket_file = forms.FileField()
 
 class CartsUploadFileForm(forms.Form):
     cart_file = forms.FileField()

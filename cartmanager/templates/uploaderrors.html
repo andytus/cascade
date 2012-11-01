@@ -9,9 +9,9 @@
         <td>Date</td><td>Type</td><td>Message</td> <td>Failed Data</td>
     </tr>
         {% for records in data_errors %}
-        <tr>
+         <tr>
         <td>{{records.error_date}}</td><td>{{records.failed_type}}</td>
-        <td>{{records.error_message}}</td><td>{{records.failed_data}}</td>
+        <td>{{records.error_message|escape}}</td><td>{{records.failed_data}}</td>
         </tr>
         {% endfor %}
 
