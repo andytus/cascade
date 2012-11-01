@@ -20,7 +20,7 @@ class DataErrorsView(ListView):
         context = super(DataErrorsView, self).get_context_data(**kwargs)
         return context
 
-class UploadForm(FormView):
+class UploadFormView(FormView):
     template_name = 'upload_form.html'
     form_class = None
     MODEL = None
@@ -47,14 +47,14 @@ class UploadForm(FormView):
             context['completed'] = True
             return self.render_to_response(context)
 
-class CartUploadView(UploadForm):
+class CartUploadView(UploadFormView):
     form_class = CartsUploadFileForm
     MODEL = CartsUploadFile()
     FILE = 'cart_file'
     KIND = 'Cart'
     LINK = 'Cart File Upload'
 
-class CustomerUploadView(UploadForm):
+class CustomerUploadView(UploadFormView):
     form_class = CustomerUploadFileForm
     MODEL = CustomersUploadFile()
     FILE = 'customer_file' #is an attribute on CustomerUploadFileForm
@@ -127,9 +127,9 @@ class TicketsDownloadView(CSVResponseMixin, ListView):
         return context
 
 
-class TicketsUploadView(FormView):
-    form_class = TicketsUploadFileForm
-    MODEL = TicketsUploadFile()
+class TicketsCompletedUploadView(UploadFormView):
+    form_class = TicketsCompletedUploadFileForm
+    MODEL = TicketsCompleteUploadFile()
     FILE  = 'ticket_file'
     KIND = 'Ticket'
     LINK = 'Ticket Upload'

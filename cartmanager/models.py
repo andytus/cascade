@@ -78,6 +78,8 @@ class Cart(models.Model):
     CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard-Organics', 'Yard-Organics'), ('Other','Other') )
     CART_SIZE = ((35, 35), (64, 64), (96, 96))
     location = models.ForeignKey(CollectionAddress, null=True, blank=True)
+    current_latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    current_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
     serial_number = models.CharField(max_length=30, null=True, blank=True)
     size = models.IntegerField(choices=CART_SIZE)
@@ -93,7 +95,7 @@ class Cart(models.Model):
 class CartServiceTicket(models.Model):
     SERVICE_TYPE = (("delivery","delivery"), ("swap","swap"), ("removal","removal"),("repair","repair"), ("audit","audit"))
     CART_TYPE = (('recycle', 'recycle'), ('refuse', 'refuse'), ('yard_organics', 'yard_organics'), ('other','other'), ('yard','yard'), ('organics','organics') )
-    STATUS = (('requested','requested'),('open','open'),('completed','completed'))
+    STATUS = (('requested','requested'),('open','open'),('completed','completed'), ('unsuccessful', 'unsuccessful'))
 
     location = models.ForeignKey(CollectionAddress)
     cart = models.ForeignKey(Cart, null=True, blank=True)
@@ -105,7 +107,11 @@ class CartServiceTicket(models.Model):
     date_completed = models.DateTimeField(null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_last_accessed = models.DateTimeField(auto_now=True)
+    latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    device_name = models.CharField(max_length=50, null=True, blank=True)
     #TODO created and completed by.... hook to user.
+    #TODO going to need reason code for incomplete
     #created_by
     #completed_by
 
@@ -179,7 +185,7 @@ class CartsUploadFile(UploadFile):
     def save_records(self, line):
         try:
             rfid, size, cart_type, born_date = line.split(',')
-            cart = Cart(rfid=rfid, size=size, cart_type=cart_type, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+            cart = Cart(rfid=rfid, size=size, cart_type=cart_type, current_status='born', born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
             cart.full_clean()
             cart.save()
             self.num_good += 1
@@ -193,11 +199,58 @@ class CartsUploadFile(UploadFile):
             error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
             error.save()
 
-class TicketsUploadFile(UploadFile):
+class TicketsCompleteUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
 
     def save_records(self, line):
         try:
+            system_id, street, house_number, unit_number, container_size, container_type, rfid, status, service_type, \
+            complete_datetime, device_name, lat, lon, broken_component, broken_comments = line.split(',')
+
+            #TODO get ticket from CartServiceTicket
+            #TODO then check if completed, else save as incomplete (need a reason code)
+            #TODO if complete check if adhoc ...think about this... would be good to save to systemid as ADHOC need to create ticket?
+            #TODO if complete and not adhoc ...check service type
+            #TODO if delivery look up cart by RFID (separate upload errors?...yes soon)
+            #TODO then save RFID to CartServiceTicket and create CollectionAddress from ticket location and save to Cart
+            #TODO then change the CartServiceTicket to completed
+            #TODO BREAK SOME LOGIC INTO METHODS ON THE CLASS ...easier to manage (i.e. adhoc)
+            #TODO thoughts on adhoc ...will have a table with values needed to create save a ticket properly...than make the user verify (i.e. find customer by address, a pop up) and select each value
+
+            ticket = CartServiceTicket.objects.get(id=system_id)
+            cart = Cart.objects.get(rfid__exact=rfid)
+            time_format = '%m/%d/%Y %H:%M' #matches time as 11/1/2012 15:20
+
+            if ticket.status != 'completed':
+
+                if lat and lon:
+                    ticket.latitude = lat
+                    ticket.longitude = lon
+
+                if status == "COMPLETED":
+                    if ticket.service_type == "delivery":
+                        ticket.cart = cart
+                        ticket.date_completed= datetime.strptime(complete_datetime.strip(), time_format)
+                        ticket.device_name = device_name
+                        ticket.status = "completed"
+                        ticket.save()
+                        cart.location = ticket.location #may need CollectionAddress object here
+                        cart.current_status = "delivered"
+                        if lat and lon:
+                            cart.current_latitude = lat
+                            cart.current_longitude = lon
+                        cart.save()
+
+                elif status == "UNSUCCESSFUL":
+                    ticket.status = "unsuccessful"
+                else:
+                    pass
+            else:
+                pass
+                #will need to get a count of ticket attempts
+
+        except (Exception, ValidationError, ValueError, IntegrityError) as e:
+            print e.message
 
 
 
@@ -249,7 +302,7 @@ class CustomersUploadFile(UploadFile):
            error = DataErrors(error_message=e, error_type = type(e), failed_data=line)
            error.save()
 
-class TicketsUploadFileForm(forms.Form):
+class TicketsCompletedUploadFileForm(forms.Form):
     ticket_file = forms.FileField()
 
 class CartsUploadFileForm(forms.Form):
