@@ -32,7 +32,7 @@ class UploadFormView(FormView):
         context = self.get_context_data(**kwargs)
         upload_file = self.MODEL
         file = self.request.FILES[self.FILE]
-        print file
+
         if file.content_type == "application/vnd.ms-excel":
             upload_file.file_path = file
             upload_file.size = file.size
@@ -75,7 +75,6 @@ class CSVResponseMixin(object):
         """Constructs HttpResponse and send to the convert_to_csv for write to csv.
            Return CSV containing 'context' as payload"""
 
-        print type(context[self.context_object_name])
         header = []
         if  context['csv_header']:
             header = context['csv_header']
@@ -111,20 +110,37 @@ class TicketsDownloadView(CSVResponseMixin, ListView):
 
     def get_queryset(self):
         #query = CartServiceTicket.objects.all()
-        query = CartServiceTicket.objects.values('location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
+        query = CartServiceTicket.objects.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
 
         if self.kwargs['status'] != 'all':
             query = query.filter(status=self.kwargs['status'])
         if self.kwargs['cart_type'] != 'all':
             query = query.filter(cart_type=self.kwargs['cart_type'])
         if self.kwargs['service_type'] != 'all':
-            query = query.filter(service_type=self.kwargs['service_type'])
+            query = query.filter(service_type__contains=self.kwargs['service_type'])
         return query
 
     def get_context_data(self, **kwargs):
         context = super(TicketsDownloadView, self).get_context_data(**kwargs)
-        context['csv_header'] = ['SystemID', 'House_Number', 'Street_Name', 'Unit', 'Service_Type']
         return context
+
+    def render_to_response(self, context,**httpresponse_kwargs ):
+
+        if not context[self.context_object_name]:
+            context["message"] = "No Values"
+            return render(self.request, self.template_name, context)
+        else:
+            if self.request.GET.get('format', 'html') == 'csv':
+                context['csv_header'] = ['RFID', 'SystemID', 'House_Number', 'Street_Name', 'Unit', 'Service_Type']
+                return CSVResponseMixin.render_to_response(self, context)
+            elif self.request.GET.get('format', 'html') == 'json':
+                #TODO get json
+                context["message"] = "json"
+                return render(self.request, self.template_name, context)
+            else:
+                #TODO html page
+                context["message"] = "just html here"
+                return render(self.request, self.template_name, context)
 
 
 class TicketsCompletedUploadView(UploadFormView):

@@ -4,16 +4,7 @@
     <title>Download Tickets</title>
 </head>
 <body>
-hello
-
-{% for records in tickets %}
-
-
-    {{ records.status}}, {{ records.cart_type}}, {{ records.service_type }}          {{ records.location.customer.last_name}}
-    <br />
-
-{% endfor %}
-
+{{ message }} {{ csv_header }}
 
 </body>
 </html>
