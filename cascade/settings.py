@@ -123,7 +123,7 @@ ROOT_URLCONF = 'cascade.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'cascade.wsgi.application'
 
-TEMPLATE_DIRS = ('C:/pyprojects/vdjangotraining/cascade/templates',)
+TEMPLATE_DIRS = ('C:/pyprojects/vdjangotraining/cascade/cascade/configure/templates',)
 
 INSTALLED_APPS = (
     'django.contrib.auth',

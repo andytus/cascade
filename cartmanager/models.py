@@ -86,17 +86,17 @@ class Cart(models.Model):
     size = models.IntegerField(choices=CART_SIZE)
     current_status = models.CharField(max_length=30, null=True, blank=True)
     cart_type = models.CharField(max_length=25, choices=CART_TYPE)
-    last_updated = models.DateTimeField(default=datetime.now)
+    last_updated = models.DateTimeField(auto_now=datetime.now)
     born_date = models.DateTimeField()
 
     def __unicode__(self):
         return "RFID: %s and Type: %s" % (self.rfid, self.cart_type)
 
-
 class CartServiceTicket(models.Model):
     SERVICE_TYPE = (("delivery","delivery"), ("swap","swap"), ("removal","removal"),("repair","repair"), ("audit","audit"))
     CART_TYPE = (('recycle', 'recycle'), ('refuse', 'refuse'), ('yard_organics', 'yard_organics'), ('other','other'), ('yard','yard'), ('organics','organics') )
     STATUS = (('requested','requested'),('open','open'),('completed','completed'), ('unsuccessful', 'unsuccessful'))
+    AUDIT_STATUS = (('No Change','No Change'), ('Changed','Changed'))
 
     location = models.ForeignKey(CollectionAddress)
     cart = models.ForeignKey(Cart, null=True, blank=True)
@@ -113,10 +113,13 @@ class CartServiceTicket(models.Model):
     device_name = models.CharField(max_length=50, null=True, blank=True)
     swap_to_rfid = models.CharField(max_length=24, null=True, blank=True)
     success_attempts = models.IntegerField()
+    audit_status = models.CharField(max_length=15, null=True, blank=True, choices=AUDIT_STATUS)
+    broken_component = models.CharField(max_length=60, null=True, blank=True)
+    broken_comments = models.CharField(max_length=60, null=True, blank=True)
     #TODO created and completed by.... hook to user.
     #TODO going to need reason code for incomplete
     #created_by
-    #completed_by
+    #completed_bys
 
     class Meta:
         ordering = ["-date_created"]
@@ -214,6 +217,7 @@ class TicketsCompleteUploadFile(UploadFile):
 
     def save_records(self, line):
         try:
+            #Get imported files data
             system_id, street, house_number, unit_number, container_size, container_type, rfid, status, service_type, \
             complete_datetime, device_name, lat, lon, broken_component, broken_comments = line.split(',')
 
@@ -239,13 +243,13 @@ class TicketsCompleteUploadFile(UploadFile):
                 #status from the upload file
                 if status == "COMPLETED":
                     cart = Cart.objects.get(rfid__exact=rfid)
+                    if lat and lon:
+                        cart.last_latitude = lat
+                        cart.last_longitude = lon
                     if "delivery" in ticket.service_type:
                         self.delivery_count += 1
                         ticket.cart = cart
                         cart.current_status = "delivered"
-                        if lat and lon:
-                            cart.last_latitude = lat
-                            cart.last_longitude = lon
 
                     elif "swap" in ticket.service_type or  "removal" in ticket.service_type:
                         #check to see if the swapped cart is still at the ticket location before removing
@@ -264,12 +268,21 @@ class TicketsCompleteUploadFile(UploadFile):
                         else:
                             self.removal_count += 1
 
-                    elif ticket.service_type == "audit":
+                    elif  "audit" in ticket.service_type:
                         self.audit_count +=1
+                        #check to see if the cart was changed
+                        if ticket.cart == cart:
+                            ticket.audit_status = "No Change"
+                        else:
+                            cart.location = ticket.location
+                            cart.current_status = "delivered"
+                            ticket.swap_to_rfid = cart.rfid
+                            ticket.audit_status = "Changed"
 
-
-                    elif ticket.service_type == "repair":
+                    elif "repair" in ticket.service_type:
                         self.repair_count +=1
+                        ticket.broken_component = broken_component
+                        ticket.broken_commens = broken_comments
 
 
                     ticket.date_completed= datetime.strptime(complete_datetime.strip(), time_format)
@@ -283,15 +296,18 @@ class TicketsCompleteUploadFile(UploadFile):
                     ticket.success_attempts +=1
                 else:
                     pass
+
                 ticket.save()
             self.num_good += 1
 
 
         except (Exception, ValidationError, ValueError, IntegrityError) as e:
+
             self.status = "FAILED"
             self.num_error +=1
             error_message = e.message
-            if e.message_dict:
+            print error_message
+            if hasattr(e, 'message_dict'):
                 for key, value in e.message_dict.iteritems():
                     error_message += "%s: %s " % (str(key).upper(), ','.join(value))
             error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)

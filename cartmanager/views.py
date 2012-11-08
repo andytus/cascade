@@ -10,7 +10,7 @@ from django.http import HttpResponse
 class DataErrorsView(ListView):
     #TODO Change to a queryset of objects to operate on (get only recent errors) i.e parameter of last 5 days
     #TODO ...then query based on date.
-    template_name ='uploaderrors.html'
+    template_name = '../cascade/templates/cartmanager/uploaderrors.html'
     context_object_name = "data_errors"
     queryset = DataErrors.objects.filter(fix_date__isnull=True)
     #for all DataErrors use model
@@ -21,7 +21,7 @@ class DataErrorsView(ListView):
         return context
 
 class UploadFormView(FormView):
-    template_name = 'upload_form.html'
+    template_name = '../cascade/templates/cartmanager/upload_form.html'
     form_class = None
     MODEL = None
     FILE = None
@@ -105,11 +105,11 @@ class CSVResponseMixin(object):
         return writer
 
 class TicketsDownloadView(CSVResponseMixin, ListView):
-    template_name = 'ticketdownload.html'
+    template_name = '../cascade/templates/cartmanager/ticketdownload.html'
     context_object_name = 'tickets'
 
     def get_queryset(self):
-        #query = CartServiceTicket.objects.all()
+
         query = CartServiceTicket.objects.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
 
         if self.kwargs['status'] != 'all':
@@ -131,7 +131,7 @@ class TicketsDownloadView(CSVResponseMixin, ListView):
             return render(self.request, self.template_name, context)
         else:
             if self.request.GET.get('format', 'html') == 'csv':
-                context['csv_header'] = ['RFID', 'SystemID', 'House_Number', 'Street_Name', 'Unit', 'Service_Type']
+                context['csv_header'] = ['RFID', 'SystemID', 'HouseNumber', 'StreetName', 'UnitNumber', 'ServiceType']
                 return CSVResponseMixin.render_to_response(self, context)
             elif self.request.GET.get('format', 'html') == 'json':
                 #TODO get json
