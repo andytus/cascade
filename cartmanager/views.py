@@ -1,27 +1,145 @@
 import csv
-from django.core.urlresolvers import reverse
-from django.template import Context, Template
 from django.shortcuts import render_to_response, render, get_object_or_404
 from models import *
-from django.views.generic import FormView,TemplateView, ListView
+from django.views.generic import FormView, TemplateView, ListView
+from django.http import Http404
+from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpResponse
+from rest_framework.views import APIView
+from rest_framework.generics import MultipleObjectAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.mixins import ListModelMixin
+
+from serializer import CartLocationSearchSerializer, CartDetailsSerializer
+
+
+class LocationSearchAPI(ListAPIView):
+    model = Cart
+    serializer_class = CartLocationSearchSerializer
+    house_number = None
+    address = None
+    serial_number = None
+    size = None
+    cart_type = None
+    search_type = None
+
+    def get(self, request, *args, **kwargs):
+        """
+        Gets all the expected query parameters and assigns them.
+        """
+        self.house_number = request.QUERY_PARAMS.get('address').split(' ')[0]  or None
+        self.street_name = request.QUERY_PARAMS.get('address').split(' ')[1] or None
+        self.serial_number = request.QUERY_PARAMS.get('serial_number') or None
+        self.size = request.QUERY_PARAMS.get('size') or None
+        self.type = request.QUERY_PARAMS.get('type') or None
+        self.search_type = request.QUERY_PARAMS.get('search') or None
+        return self.list(self, request, *args, **kwargs)
+
+    def get_queryset(self):
+        """
+        Performs search query for Carts
+        """
+        query = Cart.objects.all()
+        if self.house_number and self.street_name:
+            return query.filter()
+
+
+
+        return query
+
+
+
+
+#    def get_queryset(self):
+#        """
+#        Performs the search query.
+#        """
+#        query = CollectionAddress.objects.all()
+#        if self.search_type == 'location':
+#            if self.house_number and self.street_name:
+#                return query.filter(house_number=self.house_number, street_name=self.street_name)
+#        elif self.search_type == 'cart':
+#            if self.serial_number:
+#                return query.filter(location__serial_number= self.serial_number)
+#
+#            elif self.search_type == 'customer':
+#                pass
+#        else:
+#            raise Http404
+
+
+
+class CartDetailAPI(RetrieveAPIView):
+    model=Cart
+    serializer_class = CartDetailsSerializer
+
+class  CustomerDetailAPI(RetrieveAPIView):
+    pass
+
+
+#class CartSearchAPI(ListAPIView):
+#    model=Cart
+#    serializer_class = CartSearchSerializer
+#    serial = None
+#
+#    def get(self, request, *args, **kwargs):
+#        self.serial = request.QUERY_PARAMS.get('serial_number')
+#
+#        return self.list(self, request, *args, **kwargs)
+#
+#    def get_queryset(self):
+#        if self.serial:
+#            query = Cart.objects.filter(serial_number=self.serial)
+#            if query:
+#                return query
+#            else:
+#                raise Http404
+
+
+
+#class CartSearchAPI(ListModelMixin, MultipleObjectAPIView):
+#    model=Cart
+#    serializer_class = CartSerializer
+#    #queryset = Cart.objects.all()
+#
+#    def get_queryset(self):
+#        print(self.request)
+#        if self.:
+#            query = Cart.objects.filter(serial=self.kwargs['serial'])
+#        return query
+#
+#
+#    def get_object(self):
+#        try:
+#            return Cart.objects.all()
+#        except Cart.DoesNotExist:
+#            raise Http404
+#
+#    def get(self, request, *args, **kwargs):
+#
+#        #print request.QUERY_PARAMS.get('serial')
+#        #TODO Try Except ...iterate QUERY PARAMS...raise 404 (maybe just some ifs)
+#        return self.list(self, request, *args, **kwargs)
+
+
+
+class CartUpdateAPI(TemplateView):
+    pass
+
 
 
 class DataErrorsView(ListView):
-    #TODO Change to a queryset of objects to operate on (get only recent errors) i.e parameter of last 5 days
-    #TODO ...then query based on date.
-    template_name = '../cascade/templates/cartmanager/uploaderrors.html'
+    template_name = 'uploaderrors.html'
     context_object_name = "data_errors"
     queryset = DataErrors.objects.filter(fix_date__isnull=True)
-    #for all DataErrors use model
-    #model = DataErrors
+    paginate_by = 15
 
     def get_context_data(self, **kwargs):
         context = super(DataErrorsView, self).get_context_data(**kwargs)
         return context
 
 class UploadFormView(FormView):
-    template_name = '../cascade/templates/cartmanager/upload_form.html'
+    template_name = 'upload_form.html'
     form_class = None
     MODEL = None
     FILE = None
@@ -105,7 +223,7 @@ class CSVResponseMixin(object):
         return writer
 
 class TicketsDownloadView(CSVResponseMixin, ListView):
-    template_name = '../cascade/templates/cartmanager/ticketdownload.html'
+    template_name = 'ticketdownload.html'
     context_object_name = 'tickets'
 
     def get_queryset(self):
@@ -136,7 +254,9 @@ class TicketsDownloadView(CSVResponseMixin, ListView):
             elif self.request.GET.get('format', 'html') == 'json':
                 #TODO get json
                 context["message"] = "json"
-                return render(self.request, self.template_name, context)
+                #TODO
+                return "test"
+                #return render(self.request, self.template_name, context)
             else:
                 #TODO html page
                 context["message"] = "just html here"
@@ -147,8 +267,8 @@ class TicketsCompletedUploadView(UploadFormView):
     form_class = TicketsCompletedUploadFileForm
     MODEL = TicketsCompleteUploadFile()
     FILE  = 'ticket_file'
-    KIND = 'Ticket'
-    LINK = 'Ticket Upload'
+    KIND =  'Ticket'
+    LINK =  'Ticket Upload'
 
 
 

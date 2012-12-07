@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+from django.core.urlresolvers import reverse
 from django.db.transaction import TransactionManagementError
 from django.db.utils import DatabaseError, IntegrityError
 from django.utils.timezone import datetime
@@ -35,6 +36,15 @@ class Address(models.Model):
     longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     route = models.ForeignKey(Route, null=True, blank=True)
 
+    def get_coordinates(self):
+        coordinates = {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]}
+        return coordinates
+
+    def get_info(self):
+        info = {"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
+                "city":self.city, "state":self.state, "zipcode":self.zipcode}, self.get_coordinates()
+        return info
+
     def __unicode__(self):
         return "%s: %s, %s" %(str(self.id), self.house_number, self.street_name)
 
@@ -64,9 +74,15 @@ class CollectionCustomer(models.Model):
 
     full_name = property(_get_full_name)
 
+    def get_info(self):
+        info = {"id":self.id, "name":self.full_name, "url":reverse('customer-detail', args=[str(self.id)])}
+        return info
+
 class CollectionAddress(Address):
-    billing = models.BooleanField(default=True)
-    customer = models.ForeignKey(CollectionCustomer)
+    ADDRESS_TYPE = (('Inventory', 'Inventory'), ('Billing', 'Billing'))
+    type = models.CharField(max_length=9, choices=ADDRESS_TYPE, default='Billing')
+    customer = models.ForeignKey(CollectionCustomer, null=True, blank=True)
+
 
 
 class Cart(models.Model):
@@ -78,7 +94,7 @@ class Cart(models.Model):
     """
     CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard-Organics', 'Yard-Organics'), ('Other','Other') )
     CART_SIZE = ((35, 35), (64, 64), (96, 96))
-    location = models.ForeignKey(CollectionAddress, null=True, blank=True)
+    location = models.ForeignKey(CollectionAddress, null=True, blank=True, related_name='location')
     last_latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
@@ -90,7 +106,12 @@ class Cart(models.Model):
     born_date = models.DateTimeField()
 
     def __unicode__(self):
-        return "RFID: %s and Type: %s" % (self.rfid, self.cart_type)
+        return "RFID: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)
+
+    def get_info(self):
+        info =  {"serial":self.serial_number, "id":self.id, "url":reverse('cart-detail', args=[str(self.id)]), "cart_type":self.cart_type, "size": self.size }
+        return info
+
 
 class CartServiceTicket(models.Model):
     SERVICE_TYPE = (("delivery","delivery"), ("swap","swap"), ("removal","removal"),("repair","repair"), ("audit","audit"))
@@ -191,8 +212,9 @@ class CartsUploadFile(UploadFile):
 
     def save_records(self, line):
         try:
-            rfid, size, cart_type, born_date = line.split(',')
-            cart = Cart(rfid=rfid, size=size, cart_type=cart_type, current_status='born', born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+            rfid, serial, size, cart_type, born_date = line.split(',')
+            cart = Cart(rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status='born', born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+            cart.location = CollectionAddress.objects.get(pk=1)
             cart.full_clean()
             cart.save()
             self.num_good += 1
@@ -220,15 +242,6 @@ class TicketsCompleteUploadFile(UploadFile):
             #Get imported files data
             system_id, street, house_number, unit_number, container_size, container_type, rfid, status, service_type, \
             complete_datetime, device_name, lat, lon, broken_component, broken_comments = line.split(',')
-
-
-            #TODO if complete check if adhoc ...think about this... would be good to save to systemid as ADHOC need to create ticket?
-            #TODO if complete and not adhoc ...check service type
-            #TODO if delivery look up cart by RFID (separate upload errors?...yes soon)
-            #TODO then save RFID to CartServiceTicket and create CollectionAddress from ticket location and save to Cart
-            #TODO then change the CartServiceTicket to completed
-            #TODO BREAK SOME LOGIC INTO METHODS ON THE CLASS ...easier to manage (i.e. adhoc)
-            #TODO thoughts on adhoc ...will have a table with values needed to create save a ticket properly...than make the user verify (i.e. find customer by address, a pop up) and select each value
 
             ticket = CartServiceTicket.objects.get(id=system_id)
             time_format = '%m/%d/%Y %H:%M' #matches time as 11/1/2012 15:20
