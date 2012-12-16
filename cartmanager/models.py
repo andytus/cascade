@@ -20,7 +20,7 @@ class Route(models.Model):
     route = models.CharField(max_length=15, null=True)
     route_day = models.CharField(max_length=15, null=True)
     route_type = models.CharField(max_length=20, null=True)
-
+    #TODO def get_absolute_url
 
 class Address(models.Model):
     #Over ride defaults with instance applications.
@@ -37,20 +37,26 @@ class Address(models.Model):
     route = models.ForeignKey(Route, null=True, blank=True)
 
     def get_coordinates(self):
-        coordinates = {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]}
+        coordinates = {"type":"Feature", "geometry": {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]}}
         return coordinates
 
+    def get_absolute_url(self):
+        return reverse('location_api_profile', args=[str(self.id)])
+
     def get_info(self):
-        info = {"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                "city":self.city, "state":self.state, "zipcode":self.zipcode}, self.get_coordinates()
+        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
+                "city":self.city, "state":self.state, "zipcode":self.zipcode},"type":"Feature", "geometry":
+                {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]} }
+
         return info
 
     def __unicode__(self):
-        return "%s: %s, %s" %(str(self.id), self.house_number, self.street_name)
+        return "%s %s" %(self.house_number, self.street_name)
+
+    #TODO def get_absolute_url
 
     class Meta:
         abstract = True
-
 
 class ServiceCenter(models.Model):
     #service center can also be an A&D service center
@@ -74,8 +80,11 @@ class CollectionCustomer(models.Model):
 
     full_name = property(_get_full_name)
 
+    def get_absolute_url(self):
+        return reverse('customer_api_profile', args=[str(self.id)])
+
     def get_info(self):
-        info = {"id":self.id, "name":self.full_name, "url":reverse('customer-detail', args=[str(self.id)])}
+        info = {"id":self.id, "name":self.full_name, "url": self.get_absolute_url()}
         return info
 
 class CollectionAddress(Address):
@@ -83,13 +92,11 @@ class CollectionAddress(Address):
     type = models.CharField(max_length=9, choices=ADDRESS_TYPE, default='Billing')
     customer = models.ForeignKey(CollectionCustomer, null=True, blank=True)
 
-
-
 class Cart(models.Model):
     """
     CART model stores all cart information.
     These fields are loaded from manufacturing:
-    1) Size, 2) Cart Type, 3)RFID, 4) Serial Number, 5)Born data, and Owner.
+    1) Size, 2) Cart Type, 3)RFID, 4) Serial Number, and 5)Born data
     Location comes from Services Center, A & D or from customer delivery services.
     """
     CART_TYPE = (('Recycle', 'Recycle'), ('Refuse', 'Refuse'), ('Yard-Organics', 'Yard-Organics'), ('Other','Other') )
@@ -108,14 +115,20 @@ class Cart(models.Model):
     def __unicode__(self):
         return "RFID: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)
 
+
+    def get_absolute_url(self):
+        return reverse('cart_api_profile', args=[str(self.id)])
+
     def get_info(self):
-        info =  {"serial":self.serial_number, "id":self.id, "url":reverse('cart-detail', args=[str(self.id)]), "cart_type":self.cart_type, "size": self.size }
+        info =  {"serial":self.serial_number, "id":self.id, "url": self.get_absolute_url(), "cart_type":self.cart_type,
+                 "size": self.size, "born_data": self.born_date, "current_status": self.current_status }
         return info
 
-
 class CartServiceTicket(models.Model):
-    SERVICE_TYPE = (("delivery","delivery"), ("swap","swap"), ("removal","removal"),("repair","repair"), ("audit","audit"))
-    CART_TYPE = (('recycle', 'recycle'), ('refuse', 'refuse'), ('yard_organics', 'yard_organics'), ('other','other'), ('yard','yard'), ('organics','organics') )
+    SERVICE_TYPE = (("delivery","delivery"), ("swap","swap"), ("removal","removal"),("repair","repair"),
+                   ("audit","audit"))
+    CART_TYPE = (('recycle', 'recycle'), ('refuse', 'refuse'), ('yard_organics', 'yard_organics'), ('other','other'),
+                 ('yard','yard'), ('organics','organics') )
     STATUS = (('requested','requested'),('open','open'),('completed','completed'), ('unsuccessful', 'unsuccessful'))
     AUDIT_STATUS = (('No Change','No Change'), ('Changed','Changed'))
 
@@ -141,6 +154,7 @@ class CartServiceTicket(models.Model):
     #TODO going to need reason code for incomplete
     #created_by
     #completed_bys
+    #TODO def get_absolute_url
 
     class Meta:
         ordering = ["-date_created"]
@@ -205,8 +219,6 @@ class UploadFile(models.Model):
         self.file_path.close()
         return self.num_records, self.num_good, self.num_error
 
-
-
 class CartsUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="carts")
 
@@ -227,6 +239,8 @@ class CartsUploadFile(UploadFile):
                     error_message += "%s: %s " % (str(key).upper(), ','.join(value))
             error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
             error.save()
+
+            #TODO def get_absolute_url
 
 class TicketsCompleteUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
@@ -326,11 +340,12 @@ class TicketsCompleteUploadFile(UploadFile):
             error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
             error.save()
 
-
-
+            #TODO def get_absolute_url
 
 class CustomersUploadFile(UploadFile):
     file_path = models.FileField(storage=UPLOADEDFILES, upload_to="customers")
+
+    #TODO def get_absolute_url
 
     def save_records(self, line):
        try:
@@ -386,6 +401,7 @@ class CustomerUploadFileForm(forms.Form):
     customer_file = forms.FileField()
 
 class DataErrors(models.Model):
+    #TODO def get_absolute_url
     #TODO Add datetime stamp and order by it in meta
     error_message = models.CharField(max_length=200)
     error_type = models.CharField(max_length=50)

@@ -1,7 +1,6 @@
 from django.forms import widgets
-from rest_framework import serializers
+from rest_framework import serializers, pagination
 from models import Cart, CollectionAddress, CollectionCustomer
-
 
 #Monkey patch on django rest framework for supporting nulls: https://github.com/tomchristie/django-rest-framework/issues/384
 class NullSerializerPatch(serializers.BaseSerializer):
@@ -34,6 +33,12 @@ class GetInfoRelatedField(serializers.RelatedField):
         else:
             return None
 
+class CartLocationCustomerField(serializers.Field):
+    def to_native(self, value):
+        if value.customer == None:
+            return "Not Assigned"
+        else:
+            return value.customer.get_info()
 
 class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
@@ -42,61 +47,30 @@ class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
         model = CollectionCustomer
         fields = ('info',)
 
+class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = CollectionCustomer
+        depth = 1
+
 class AddressInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
     class Meta:
         model = CollectionAddress
         fields = ('info',)
 
-
-class CollectionAddressSerializer(serializers.ModelSerializer, NullSerializerPatch):
+class AddressProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     customer = CustomerInfoSerializer()
     class Meta:
         model = CollectionAddress
+        depth = 1
 
-class CartDetailsSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    location = CollectionAddressSerializer()
+class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    location = AddressProfileSerializer()
     class Meta:
         model = Cart
         depth = 1
 
-
-class CustomerInfoSearch(serializers.ModelSerializer, NullSerializerPatch):
-    class Meta:
-        model = CollectionCustomer
-
 class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
-
-    class Meta:
-        model = Cart
-
-class LocationSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    pass
-
-#    location = serializers.Field(source='get_info')
-#    customer = GetInfoRelatedField(source='customer')
-#    carts = GetInfoManyRelatedField(source='location') #serializers.ManyRelatedField(source='location').to_native("test")
-#
-#    class Meta:
-#        model = CollectionAddress
-#        fields = ('location', 'carts', 'customer')
-
-
-class LocationCustomer(serializers.ModelSerializer):
-    customer = GetInfoRelatedField(source='customer')
-    class Meta:
-        model = CollectionAddress
-        field = ('customer', 'id')
-
-class CartLocationCustomerField(serializers.Field):
-    def to_native(self, value):
-        if value.customer == None:
-            print value.customer
-            return "Not Assigned"
-        else:
-            return value.customer.get_info()
-
-class CartLocationSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = GetInfoRelatedField(source='location')
     customer = CartLocationCustomerField(source='location')
     cart = serializers.Field(source='get_info')
@@ -105,4 +79,7 @@ class CartLocationSearchSerializer(serializers.ModelSerializer, NullSerializerPa
         model = Cart
         fields = ('cart', 'customer', 'location')
 
-
+class CartLocationUpdateSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = Cart
+        fields = ('location',)

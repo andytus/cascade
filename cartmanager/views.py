@@ -1,132 +1,101 @@
 import csv
 from django.shortcuts import render_to_response, render, get_object_or_404
 from models import *
+from django.core.urlresolvers import resolve
 from django.views.generic import FormView, TemplateView, ListView
 from django.http import Http404
 from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpResponse
 from rest_framework.views import APIView
-from rest_framework.generics import MultipleObjectAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import MultipleObjectAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView, \
+    SingleObjectAPIView
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.mixins import ListModelMixin
+from rest_framework.renderers import JSONRenderer, JSONPRenderer, XMLRenderer, YAMLRenderer, BrowsableAPIRenderer
 
-from serializer import CartLocationSearchSerializer, CartDetailsSerializer
+from serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
+    CartLocationUpdateSerializer
 
 
-class LocationSearchAPI(ListAPIView):
+class CartSearch(TemplateView):
+    template_name = 'cart_search.html'
+    search_query = None
+
+    def get_context_data(self, **kwargs):
+        context = super(CartSearch, self).get_context_data(**kwargs)
+        #TODO Create a default search query ... selecting the last 50 modified and remove the raise
+        search_parameters = self.request.GET.get('search_query', None)
+        if search_parameters:
+            context['search_parameters'] = self.request.GET['search_query']
+        else:
+            raise Http404
+        return context
+
+
+######################################################################################################################
+#API VIEWS: Used to render, create and update content to applications                                                #
+######################################################################################################################
+
+class CartSearchAPI(ListAPIView):
     model = Cart
-    serializer_class = CartLocationSearchSerializer
-    house_number = None
-    address = None
-    serial_number = None
-    size = None
-    cart_type = None
-    search_type = None
-
-    def get(self, request, *args, **kwargs):
-        """
-        Gets all the expected query parameters and assigns them.
-        """
-        self.house_number = request.QUERY_PARAMS.get('address').split(' ')[0]  or None
-        self.street_name = request.QUERY_PARAMS.get('address').split(' ')[1] or None
-        self.serial_number = request.QUERY_PARAMS.get('serial_number') or None
-        self.size = request.QUERY_PARAMS.get('size') or None
-        self.type = request.QUERY_PARAMS.get('type') or None
-        self.search_type = request.QUERY_PARAMS.get('search') or None
-        return self.list(self, request, *args, **kwargs)
+    serializer_class = CartSearchSerializer
+    paginate_by = 1
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
     def get_queryset(self):
         """
         Performs search query for Carts
         """
-        query = Cart.objects.all()
-        if self.house_number and self.street_name:
-            return query.filter()
+        query = Cart.objects.filter()
+        search_type = self.request.QUERY_PARAMS.get('type', None)
+        value = self.request.QUERY_PARAMS.get('value', None)
 
-
-
+        if search_type and value:
+            if search_type == 'address':
+                query = query.filter(location__street_name=value.split(' ')[1], location__house_number = value.split(' ')[0])
+            elif search_type == 'serial_number':
+                query = query.filter(serial_number__contains=str(value))
+            elif search_type == 'type':
+                query = query.filter(cart_type=value)
+            elif  search_type == 'size':
+                query = query.filter(size=value)
+            else:
+                raise Http404
+        else:
+            raise Http404
         return query
 
 
+class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
+    model = CollectionAddress
+    serializer = AddressProfileSerializer
 
-
-#    def get_queryset(self):
-#        """
-#        Performs the search query.
-#        """
-#        query = CollectionAddress.objects.all()
-#        if self.search_type == 'location':
-#            if self.house_number and self.street_name:
-#                return query.filter(house_number=self.house_number, street_name=self.street_name)
-#        elif self.search_type == 'cart':
-#            if self.serial_number:
-#                return query.filter(location__serial_number= self.serial_number)
-#
-#            elif self.search_type == 'customer':
-#                pass
-#        else:
-#            raise Http404
-
-
-
-class CartDetailAPI(RetrieveAPIView):
+class CartProfileAPI(RetrieveUpdateDestroyAPIView):
     model=Cart
-    serializer_class = CartDetailsSerializer
+    serializer_class = CartProfileSerializer
 
-class  CustomerDetailAPI(RetrieveAPIView):
-    pass
+class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
+    model=CollectionCustomer
+    serializer_class = CustomerProfileSerializer
 
+#TODO thinking about a change location update only
+class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPIView ):
+    model = Cart
+    serializer_class = CartLocationUpdateSerializer
 
-#class CartSearchAPI(ListAPIView):
-#    model=Cart
-#    serializer_class = CartSearchSerializer
-#    serial = None
-#
-#    def get(self, request, *args, **kwargs):
-#        self.serial = request.QUERY_PARAMS.get('serial_number')
-#
-#        return self.list(self, request, *args, **kwargs)
-#
-#    def get_queryset(self):
-#        if self.serial:
-#            query = Cart.objects.filter(serial_number=self.serial)
-#            if query:
-#                return query
-#            else:
-#                raise Http404
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
-#class CartSearchAPI(ListModelMixin, MultipleObjectAPIView):
-#    model=Cart
-#    serializer_class = CartSerializer
-#    #queryset = Cart.objects.all()
-#
-#    def get_queryset(self):
-#        print(self.request)
-#        if self.:
-#            query = Cart.objects.filter(serial=self.kwargs['serial'])
-#        return query
-#
-#
-#    def get_object(self):
-#        try:
-#            return Cart.objects.all()
-#        except Cart.DoesNotExist:
-#            raise Http404
-#
-#    def get(self, request, *args, **kwargs):
-#
-#        #print request.QUERY_PARAMS.get('serial')
-#        #TODO Try Except ...iterate QUERY PARAMS...raise 404 (maybe just some ifs)
-#        return self.list(self, request, *args, **kwargs)
-
-
-
-class CartUpdateAPI(TemplateView):
-    pass
-
-
+########################################################################################################################
+#End of API Views
+########################################################################################################################
 
 class DataErrorsView(ListView):
     template_name = 'uploaderrors.html'
@@ -255,13 +224,11 @@ class TicketsDownloadView(CSVResponseMixin, ListView):
                 #TODO get json
                 context["message"] = "json"
                 #TODO
-                return "test"
                 #return render(self.request, self.template_name, context)
             else:
                 #TODO html page
                 context["message"] = "just html here"
                 return render(self.request, self.template_name, context)
-
 
 class TicketsCompletedUploadView(UploadFormView):
     form_class = TicketsCompletedUploadFileForm
