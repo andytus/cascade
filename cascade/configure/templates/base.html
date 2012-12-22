@@ -7,13 +7,17 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap/bootstrap-responsive.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cartlogic.css">
+    <script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
     <script src="{{ STATIC_URL }}js/knockout/knockout-2.2.0.js"></script>
     <script src="{{ STATIC_URL }}js/knockout/knockout.mapping.js"></script>
-    <script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/cartmanager/common.js" xmlns="http://www.w3.org/1999/html"></script>
+
 
     {% block page_scripts %}
 
     {% endblock %}
+
 
     <title>  {% block title %} {% endblock %} </title>
 </head>
@@ -30,9 +34,8 @@
                 <a id="menu-title" class="brand" href="#"> Welcome To Cart Logic </a>
                 <div class="nav-collapse collapse">
                     <!-- all will collapse or hide at 940px-->
-                    <form id="cart_search_form" class="navbar-form pull-left" data-bind="attr{action: getData">
-                        <input id="search_query" name="search_query" type="hidden"
-                               data-bind="value: search_query"/>
+                    <form id="cart_search_form" class="navbar-form pull-left" action="{% url cart_search %}">
+                        <input id="search_query" name="search_query" type="hidden" data-bind="value: search_query"/>
                         <div class="input-append input-prepend">
                             <!--Search Button Group-->
                             <div class="btn-group">
@@ -50,8 +53,7 @@
                                     <li><a id="type" title="e.g. Recycle, Refuse" data-bind="click: getSearchInfo"><i
                                             class="icon-asterisk"></i>Type</a></li>
                                 </ul>
-                                <input tabindex="2" id="cart_search_input" class="span3" type="text" placeholder="Search Carts"
-                                       data-bind="attr:{placeholder: search_placeholder}, value: search_value"/>
+                                <input tabindex="2" id="cart_search_input" class="span3" type="text" placeholder="Search Carts" data-bind="attr:{placeholder: search_placeholder}, value: search_value"/>
                                 <button tabindex="3" class="btn" type="submit"><span class="icon-search"></span></button>
                             </div>
                         </div>
@@ -82,7 +84,7 @@
 
 <div id="middle" class="row container-fluid">
 
-    <div id="left" class="span2">
+    <div id="left" class="span3">
         {% block left %}
         {% endblock %}
     </div>
@@ -98,7 +100,7 @@
     </div>
 
 </div>
-<script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
+
 
 </body>
 

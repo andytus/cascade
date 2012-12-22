@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+    {% block title %}Cart Profile {% endblock %}
+
+    {% block page_scripts %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
+    {% endblock %}
+
+{% block left %}
+{% endblock %}
+
+{% block main_content %}
+    {{ cart }}
+    <div id="cart_profile">
+
+        last_latitude: "0",
+        last_longitude: "0",
+        rfid: "121016134330111111111111",
+        serial_number: "1111112",
+        size: 96,
+        current_status: "test",
+        cart_type: "Recycle",
+        last_updated: "2012-12-08T15:33:03.147Z",
+        born_date: "2012-10-07T04:00:00Z"
+
+    <form>
+
+       Serial: <input name="serial" />
+       Size: <input name="size" />
+       Current Status: <input name="current_status"/>
+       Cart Type: <input name="cart_type" />
+
+       <p>
+           Produced on: <span id="born_date"></span>
+           Last Updated: <span id="last_updated"></span>
+       </p>
+        <input type="submit" name="updated" />
+    </form>
+
+    </div>
+
+
+{% endblock %}
+
+{% block right %}
+{% endblock %}
+
+

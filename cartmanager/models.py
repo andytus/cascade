@@ -12,6 +12,14 @@ import os
 #Note: os.path.dirname(__file__) used to upload files into the app directory
 UPLOADEDFILES = FileSystemStorage(location= os.path.join(os.path.dirname(__file__), 'uploads'))
 
+def save_error(e, line):
+    error_message = e.message
+    if hasattr(e, 'message_dict'):
+        for key, value in e.message_dict.iteritems():
+            error_message += "%s: %s " % (str(key).upper(), ','.join(value))
+    error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
+    error.save()
+
 
 class Route(models.Model):
     ROUTE_TYPE = (("General","General"),("Recycling","Recycling"),
@@ -121,7 +129,7 @@ class Cart(models.Model):
 
     def get_info(self):
         info =  {"serial":self.serial_number, "id":self.id, "url": self.get_absolute_url(), "cart_type":self.cart_type,
-                 "size": self.size, "born_data": self.born_date, "current_status": self.current_status }
+                 "size": self.size, "born_date": self.born_date, "current_status": self.current_status }
         return info
 
 class CartServiceTicket(models.Model):
@@ -233,12 +241,13 @@ class CartsUploadFile(UploadFile):
         except (Exception, ValidationError, ValueError, IntegrityError) as e:
             self.status = "FAILED"
             self.num_error +=1
-            error_message = e.message
-            if e.message_dict:
-                for key, value in e.message_dict.iteritems():
-                    error_message += "%s: %s " % (str(key).upper(), ','.join(value))
-            error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
-            error.save()
+            save_error(e, line)
+#            error_message = e.message
+#            if e.message_dict:
+#                for key, value in e.message_dict.iteritems():
+#                    error_message += "%s: %s " % (str(key).upper(), ','.join(value))
+#            error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line)
+#            error.save()
 
             #TODO def get_absolute_url
 
@@ -333,7 +342,6 @@ class TicketsCompleteUploadFile(UploadFile):
             self.status = "FAILED"
             self.num_error +=1
             error_message = e.message
-            print error_message
             if hasattr(e, 'message_dict'):
                 for key, value in e.message_dict.iteritems():
                     error_message += "%s: %s " % (str(key).upper(), ','.join(value))

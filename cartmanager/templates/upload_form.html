@@ -8,7 +8,7 @@
 {% if completed  %}
     TOTAL RECORDS PROCESSED: {{ total_count }}
     TOTAL GOOD:  {{ good_count }}
-    TOTAL ERROR: <a href="{% url upload-errors %}"> {{ error_count }}</a>
+    TOTAL ERROR: <a href="{% url upload_errors %}"> {{ error_count }}</a>
    <a href=""> {{ link }} </a>
 {% else %}
 

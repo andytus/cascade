@@ -12,7 +12,7 @@ from rest_framework.generics import MultipleObjectAPIView, ListAPIView, Retrieve
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.mixins import ListModelMixin
-from rest_framework.renderers import JSONRenderer, JSONPRenderer, XMLRenderer, YAMLRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer, JSONPRenderer, XMLRenderer, YAMLRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 
 from serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
     CartLocationUpdateSerializer
@@ -29,8 +29,22 @@ class CartSearch(TemplateView):
         if search_parameters:
             context['search_parameters'] = self.request.GET['search_query']
         else:
+           raise Http404
+        return context
+
+class CartProfile(TemplateView):
+    template_name = 'cart_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CartProfile, self).get_context_data(**kwargs)
+        if kwargs['pk']:
+            context['cart'] = kwargs['pk']
+        else:
             raise Http404
         return context
+
+
+
 
 
 ######################################################################################################################
@@ -40,7 +54,7 @@ class CartSearch(TemplateView):
 class CartSearchAPI(ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
-    paginate_by = 1
+    paginate_by = 30
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
     def get_queryset(self):
@@ -74,6 +88,22 @@ class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
 class CartProfileAPI(RetrieveUpdateDestroyAPIView):
     model=Cart
     serializer_class = CartProfileSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+
+    def get_object(self, pk):
+        try:
+            return Cart.objects.get(pk=pk)
+        except Cart.DoesNotExist:
+            return Http404
+
+    def get(self, request, pk, format=None):
+        cart = self.get_object(pk)
+        serializer = CartProfileSerializer(cart)
+        return Response(serializer.data)
+
+
+    def put(self, request, *args, **kwargs):
+        pass
 
 class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
     model=CollectionCustomer
