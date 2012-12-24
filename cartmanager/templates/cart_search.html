@@ -3,10 +3,8 @@
 {% block page_scripts %}
     <script src="{{ STATIC_URL }}js/cartmanager/cart_search.js" xmlns="http://www.w3.org/1999/html"></script>
 
+    <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript">
-        //adding the search parameters and urls incoming from the request,
-        // not in "love with this approach" but it works for now. And hey at least I didn't
-        // hard code the urls.
         var search_parameters = {{ search_parameters|safe}};
         var customer_url = "{% url customer_app_profile%}";
         var cart_url = "{% url cart_app_profile %}";

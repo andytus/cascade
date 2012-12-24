@@ -1,46 +1,54 @@
 {% extends 'base.html' %}
 
-    {% block title %}Cart Profile {% endblock %}
-
-    {% block page_scripts %}
+{% block page_scripts %}
+       <!-- Data API variables: these are used to get JSON formatted data from the server -->
+    <script type="text/javascript">
+        var serial_number = '{{ serial_number }}';
+        var cart_url = "{% url cart_api_profile %}";
+    </script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
-    {% endblock %}
+{% endblock %}
+
+{% block title %}Cart Profile {% endblock %}
 
 {% block left %}
 {% endblock %}
 
 {% block main_content %}
-    {{ cart }}
-    <div id="cart_profile">
+     <div id="cart_profile">
+        <form>
+            Serial: <input name="serial" data-bind="value: serial_number"/><br>
+            Size: <input name="size" data-bind="value:size"/><br>
+            Current Status: <input name="current_status" data-bind="value: current_status"/><br>
+            Cart Type: <input name="cart_type" data-bind="value: cart_type"/><br>
+            <p>
+                Produced on: <span id="born_date" data-bind="text:born_date"></span><br>
+                Last Updated: <span id="last_updated" data-bind="text:last_updated"></span><br>
+            </p>
+            <input type="submit" name="updated"/>
+        </form>
 
-        last_latitude: "0",
-        last_longitude: "0",
-        rfid: "121016134330111111111111",
-        serial_number: "1111112",
-        size: 96,
-        current_status: "test",
-        cart_type: "Recycle",
-        last_updated: "2012-12-08T15:33:03.147Z",
-        born_date: "2012-10-07T04:00:00Z"
+         <div id="cart_location">
+             <span>Cart Location:</span><br>
+             <span id="customer_name" data-bind="text: customer_name"></span><br>
+             Address:
+             <span id="street_address" data-bind="text: location_address"></span><br>
+         </div>
 
-    <form>
+        <div id="location_modal">
 
-       Serial: <input name="serial" />
-       Size: <input name="size" />
-       Current Status: <input name="current_status"/>
-       Cart Type: <input name="cart_type" />
 
-       <p>
-           Produced on: <span id="born_date"></span>
-           Last Updated: <span id="last_updated"></span>
-       </p>
-        <input type="submit" name="updated" />
-    </form>
+
+
+        </div>
+
 
     </div>
 
 
+
 {% endblock %}
+
 
 {% block right %}
 {% endblock %}

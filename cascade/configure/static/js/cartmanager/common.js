@@ -19,7 +19,7 @@ function CartSearchViewModel() {
     self.search_value = ko.observable();
     self.search_placeholder = ko.observable("Cart Search");
     self.search_query = ko.computed(function(){
-     console.log(self.search_type);
+
      return ko.toJSON(new CartSearch(self.search_type, self.search_value));
     });
 

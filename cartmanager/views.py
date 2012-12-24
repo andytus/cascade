@@ -32,13 +32,14 @@ class CartSearch(TemplateView):
            raise Http404
         return context
 
+
 class CartProfile(TemplateView):
     template_name = 'cart_profile.html'
 
     def get_context_data(self, **kwargs):
         context = super(CartProfile, self).get_context_data(**kwargs)
-        if kwargs['pk']:
-            context['cart'] = kwargs['pk']
+        if kwargs['serial_number']:
+            context['serial_number'] = kwargs['serial_number']
         else:
             raise Http404
         return context
@@ -90,17 +91,16 @@ class CartProfileAPI(RetrieveUpdateDestroyAPIView):
     serializer_class = CartProfileSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
-    def get_object(self, pk):
+    def get_object(self, serial_number):
         try:
-            return Cart.objects.get(pk=pk)
+            return Cart.objects.get(serial_number=serial_number)
         except Cart.DoesNotExist:
             return Http404
 
-    def get(self, request, pk, format=None):
-        cart = self.get_object(pk)
+    def get(self, request, serial_number, format=None):
+        cart = self.get_object(serial_number)
         serializer = CartProfileSerializer(cart)
         return Response(serializer.data)
-
 
     def put(self, request, *args, **kwargs):
         pass
