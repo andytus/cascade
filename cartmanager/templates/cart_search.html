@@ -26,19 +26,39 @@
 
 {% block main_content %}
 
-
+    <p id="cart-option-buttons" class="">
+        <button class="btn  btn-info btn-large active" type="button"><span class="icon-list icon-white"></span>List it!
+        </button>
+        <button class="btn  btn-info btn-large" type="button"><span class="icon-map-marker icon-white"></span>Map it!
+        </button>
+    </p>
 
     <div id="results">
         <!--knockout: view for carts-->
 
         <!-- Cart search information -->
-        <div id="result_header">
+
+        <div id="result-header" class="alert alert-info">
             Search for cart <span data-bind="text:search_for_type().replace('_', ' ')"></span>
             <i><span data-bind="text:search_for_value"></span></i>
             returned <b data-bind="text: count() || 'No'"></b> result<span
                 data-bind="visible:count() == 0 || count() > 1">s</span>:
-            <p><b data-bind="text:page"></b> of <i data-bind="text: total_pages"></i></p>
+
+            <span id="result-header-page">
+
+              <span data-bind="visible:page() > 1">
+                <a href="#results" data-bind="click: function(){getData(search_parameters, page()-1)}"> << </a>
+              </span>
+
+              <span>Page:<b data-bind="text:page"></b> of <i data-bind="text: total_pages"></i></span>
+
+              <span data-bind="visible:page() < total_pages()">
+                <a href="#top" data-bind="click: function(){getData(search_parameters, page()+1)}"> >> </a>
+              </span>
+            </span>
         </div>
+
+
         <!--- <p ><span data-bind="text:"></span></p>
          <p data-bind="text: cart_size() + ' ' + cart_type()"></p>
          Serial Number: <a data-bind="attr: {href: cart_url, title: cart_serial}, text: cart_serial"></a> -->
@@ -47,40 +67,30 @@
 
         <div id="cart-list" data-bind="foreach: {data:carts, afterRender: Decorator}, visible: carts().length > 0">
 
-            <div class="cart-info">
+            <span class="cart-info box-info">
+                <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
+                    <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial()"></span>
+                    <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image2.png"/>
+                </a>
 
-                <p class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_size()"></span>
-                    <a class="cart-info-serial" rel="tooltip"
-                       data-bind="attr: {href: cart_url}, text: cart_serial()"></a><br>
-                    <span class="cart-info-type" data-bind="text: cart_type()"></span>
-                </p>
+                <span class="cart-info-text">
+                    <p class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_size()"></span><br>
+                        <span class="cart-info-type" data-bind="text: cart_type()"></span>
 
-                <p class="pull-left btn btn-success" data-bind="text: current_status"></p>
-                <dl class=" pull-left">
-                    <dt>Address:
-                    <dd data-bind="text:address()"></dd>
-                    </dt>
-                    <dt>Produced on:
-                    <dd data-bind="text: born_date() "></dd>
-                    </dt>
-                </dl>
-
-                <br><br>
-
-            </div>
+                    <p class="cart-info-status alert" data-bind="text:current_status,  css: statusCheck"></p>
+                    Produced on:
+                    <p data-bind="text: born_date()"></p>
+                </span>
+                 <p class="cart-info-address"><a data-bind="attr: {href: customer_url()}, text:address()"></a></p>
+            </span>
         </div>
 
-        <!--display page list is count is above #TODO -->
+        <!--display page list if count is above #TODO -->
         <div data-bind="visible:count() > records_per_page() " class="pagination pagination-large pagination-centered">
             <!-- looping through the page count -->
 
             <ul>
-                <!--create the page links here, note the click calls the getData passing parameters from the server
-                   (i.e. top of the cart_search.html) and the current count (i.e. the page). Should look to
-                   remove the click function() and just create a init and update on the getData function
-                   this would be cleaner... next time.
-                 -->
-                <!-- seting to the previous page using count (see note below for more info)-->
+                <!-- setting to the previous page using count (see note below for more info)-->
                 <li class="pager" data-bind="visible:page() > 1">
                     <a href="#results" data-bind="click: function(){getData(search_parameters, page()-1)}">Previous</a>
                 </li>

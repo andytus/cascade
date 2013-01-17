@@ -28,16 +28,27 @@ DATABASES = {
 
 
 if TEST:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'C:/pyprojects/vdjangotraining/cascade/test.db', # Or path to database file if using sqlite3.
-            'USER': '',                      # Not used with sqlite3.
-            'PASSWORD': '',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-        }
+#    DATABASES = {
+#        'default': {
+#            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#            'NAME': '/home/jbennett/python_projects/cascade/test.db', # Or path to database file if using sqlite3.
+#            'USER': '',                      # Not used with sqlite3.
+#            'PASSWORD': '',                  # Not used with sqlite3.
+#            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+#            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+#        }
+#    }
+
+ DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'cartlogic',                      # Or path to database file if using sqlite3.
+        'USER': 'admin_cartlogic',                      # Not used with sqlite3.
+        'PASSWORD': 'Cap21!@',                  # Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
     }
+}
 
 
 
@@ -81,7 +92,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = 'static/'
+STATIC_ROOT = '' #'/configure/static/' #'/home/jbennett/python_projects/cascade/cascade/configure/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -89,7 +100,8 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    'C:/pyprojects/vdjangotraining/cascade/cascade/configure/static/',
+    '/home/jbennett/python_projects/cascade/cascade/configure/static/',
+    #'C:/,
 
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
@@ -101,7 +113,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+ #   'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -115,6 +127,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'cascade.middleware.MultiSiteMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -143,9 +156,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'south',
-    'rest_framework',
-    'cartmanager',
+   'south',
+   'rest_framework',
+   'cartmanager',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -176,3 +189,5 @@ LOGGING = {
         },
     }
 }
+
+LOGIN_URL = '/accounts/login/'

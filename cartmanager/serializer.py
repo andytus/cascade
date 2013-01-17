@@ -51,6 +51,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch
     class Meta:
         model = CollectionCustomer
         depth = 1
+        exclude = ('site',)
 
 class AddressInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
@@ -63,12 +64,15 @@ class AddressProfileSerializer(serializers.ModelSerializer, NullSerializerPatch)
     class Meta:
         model = CollectionAddress
         depth = 1
+        exclude = ('site',)
 
 class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = AddressProfileSerializer()
     class Meta:
         model = Cart
         depth = 1
+        exclude = ('site',)
+
 
 class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = GetInfoRelatedField(source='location')

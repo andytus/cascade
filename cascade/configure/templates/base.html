@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" lang="en">
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
+      lang="en">
 <head>
 
-    <!--#TODO compile less for production usage-->
 
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap/bootstrap-responsive.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cartlogic.css">
+
     <script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
     <script src="{{ STATIC_URL }}js/knockout/knockout-2.2.0.js"></script>
@@ -23,6 +24,7 @@
 </head>
 <body>
 <div id="top" class="row">
+    {% block navbar %}
     <div class="navbar">
         <div class="navbar-inner">
             <div class="container-fluid">
@@ -73,13 +75,19 @@
                             </ul>
                         </li>
                     </ul>
-                    <div id="login" class="pull-right">
-                        Login here
+                    <div id="login_link" class="pull-right">
+                        {% if user %}
+                            {{ user.username }} | <a href="{% url django.contrib.auth.views.logout %}">Logout</a>
+                        {% else %}
+                          <a href="{% url django.contrib.auth.views.login %}">Login</a>
+                         {% endif %}
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {% endblock %}
 </div>
 
 <div id="middle" class="row container-fluid">

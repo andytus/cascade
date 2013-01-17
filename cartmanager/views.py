@@ -1,5 +1,6 @@
 import csv
 from django.shortcuts import render_to_response, render, get_object_or_404
+from django.contrib.sites.models import get_current_site
 from models import *
 from django.core.urlresolvers import resolve
 from django.views.generic import FormView, TemplateView, ListView
@@ -17,8 +18,10 @@ from rest_framework.renderers import JSONRenderer, JSONPRenderer, XMLRenderer, Y
 from serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
     CartLocationUpdateSerializer
 
+from cascade.mixins import LoginSiteRequiredMixin
 
-class CartSearch(TemplateView):
+
+class CartSearch(LoginSiteRequiredMixin,TemplateView):
     template_name = 'cart_search.html'
     search_query = None
 
@@ -33,7 +36,7 @@ class CartSearch(TemplateView):
         return context
 
 
-class CartProfile(TemplateView):
+class CartProfile(LoginSiteRequiredMixin, TemplateView):
     template_name = 'cart_profile.html'
 
     def get_context_data(self, **kwargs):
@@ -47,22 +50,21 @@ class CartProfile(TemplateView):
 
 
 
-
 ######################################################################################################################
 #API VIEWS: Used to render, create and update content to applications                                                #
 ######################################################################################################################
 
-class CartSearchAPI(ListAPIView):
+class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
-    paginate_by = 30
+    paginate_by = 15
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
     def get_queryset(self):
         """
         Performs search query for Carts
         """
-        query = Cart.objects.filter()
+        query = Cart.on_site.filter()
         search_type = self.request.QUERY_PARAMS.get('type', None)
         value = self.request.QUERY_PARAMS.get('value', None)
 
@@ -130,7 +132,7 @@ class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPI
 class DataErrorsView(ListView):
     template_name = 'uploaderrors.html'
     context_object_name = "data_errors"
-    queryset = DataErrors.objects.filter(fix_date__isnull=True)
+    queryset = DataErrors.on_site.filter(fix_date__isnull=True)
     paginate_by = 15
 
     def get_context_data(self, **kwargs):
@@ -150,10 +152,11 @@ class UploadFormView(FormView):
         upload_file = self.MODEL
         file = self.request.FILES[self.FILE]
 
-        if file.content_type == "application/vnd.ms-excel":
+        if file.content_type == "application/vnd.ms-excel" or "text/csv":
             upload_file.file_path = file
             upload_file.size = file.size
             upload_file.file_kind = self.KIND
+            upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
             upload_file.save()
             total_count, good_count, error_count = upload_file.process()
             context['total_count'] = total_count
@@ -172,6 +175,7 @@ class CartUploadView(UploadFormView):
     LINK = 'Cart File Upload'
 
 class CustomerUploadView(UploadFormView):
+
     form_class = CustomerUploadFileForm
     MODEL = CustomersUploadFile()
     FILE = 'customer_file' #is an attribute on CustomerUploadFileForm
@@ -227,7 +231,7 @@ class TicketsDownloadView(CSVResponseMixin, ListView):
 
     def get_queryset(self):
 
-        query = CartServiceTicket.objects.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
+        query = CartServiceTicket.on_site.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
 
         if self.kwargs['status'] != 'all':
             query = query.filter(status=self.kwargs['status'])

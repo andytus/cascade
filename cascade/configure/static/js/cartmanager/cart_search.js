@@ -10,24 +10,35 @@
 
 
 function Cart(data) {
+    var self = this;
     /** Creates a Cart object returns to the view array **/
-    this.cart_serial = ko.observable((data.cart.serial) || "It's Missing");
-    this.born_date = ko.observable(new Date(data.cart.born_date).toDateString());
-    this.current_status = ko.observable(data.cart.current_status);
-    this.cart_id = ko.observable((data.cart.id));
-    this.cart_url = ko.observable((cart_url + data.cart.serial));
-    this.cart_type = ko.observable((data.cart.cart_type) || "?");
-    this.cart_size = ko.observable((data.cart.size) || "?");
-    this.customer_id = ko.observable((data.customer.id) || "");
-    this.customer_name = ko.observable((data.customer.name) || "Unknown or Not Assigned");
-    this.customer_url = ko.observable((customer_url || "") + this.customer_id);
-
-    this.address = ko.observable(data.location.properties.house_number + " " + data.location.properties.street_name);
+    self.cart_serial = ko.observable((data.cart.serial) || "It's Missing");
+    self.born_date = ko.observable(new Date(data.cart.born_date).toDateString());
+    self.current_status = ko.observable(data.cart.current_status);
+    self.cart_id = ko.observable((data.cart.id));
+    self.cart_url = ko.observable((cart_url + data.cart.serial));
+    self.cart_type = ko.observable((data.cart.cart_type) || "?");
+    self.cart_size = ko.observable((data.cart.size) || "?");
+    self.customer_id = ko.observable((data.customer.id) || "");
+    self.customer_name = ko.observable((data.customer.name) || "Unknown or Not Assigned");
+    self.customer_url = ko.observable((customer_url || "") + this.customer_id());
+    self.address = ko.observable(data.location.properties.house_number + " " + data.location.properties.street_name);
     if (data.location.properties.unit) {
         this.address(this.address() + " " + "Unit: " + data.location.properties.unit);
     }
-    this.latitude = ko.observable((data.location.geometry.coordinates[1]) || 0);
-    this.longitude = ko.observable((data.location.geometry.coordinates[0]) || 0);
+    self.latitude = ko.observable((data.location.geometry.coordinates[1]) || 0);
+    self.longitude = ko.observable((data.location.geometry.coordinates[0]) || 0);
+
+    self.statusCheck = ko.computed(function(){
+        if (self.current_status() == 'error'){
+            //#TODO change to check for missing, damaged, etc...
+            return "alert-error";
+        }else{
+           return "alert-info";
+        }
+
+
+    })
 }
 function CartListViewModel() {
     /**  **/
@@ -47,7 +58,7 @@ function CartListViewModel() {
     //methods or functions on this model class
 
     self.Decorator = function () {
-        $('.cart-info-serial').popover({
+        $('.cart-info-link').popover({
             trigger:'hover',
             placement:'bottom',
             title:'Cart Serial',
