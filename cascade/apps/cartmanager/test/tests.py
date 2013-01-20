@@ -1,5 +1,5 @@
 from django.test import TestCase
-from models import Cart, CollectionAddress, Owner
+from cascade.apps.cartmanager.models import Cart, CollectionAddress, Owner
 from django.utils import timezone
 
 

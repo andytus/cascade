@@ -17,7 +17,7 @@ body{
 }
 
 #main {
-    /*border-right: blue solid;*/
+    border: blue solid;
 
 }
 
@@ -132,14 +132,21 @@ background-color: white;
     text-shadow: black 0.1em 0.09em 0.09em;
 }
 
+.cart-info-born_date{
+    padding: 0px;
+    margin-top: -5px;
+
+
+}
+
 .cart-info-status{
      padding: 10px;
-     width: 55px;
+     width: 75px;
      text-align: center;
      text-transform: uppercase;
      font-weight: bold;
-}
 
+}
 
 /****login page****/
 #login_form{
@@ -158,5 +165,86 @@ background-color: white;
     margin-left:auto;
     margin-right:auto;
 }
+
+
+
+/****Cart Profile Page****/
+
+#cart_profile{
+
+
+}
+
+
+#cart-info-edit{
+    margin-top: 5px;
+    margin-right: 75px;
+    display: inline;
+    width: 500px;
+}
+
+
+.cart-info-edit-title{
+    margin-top: 20px;
+    text-align: center;
+    font-size: 3em;
+}
+
+#cart-info-edit-text{
+    margin-left: 15px;
+    padding: 15px;
+}
+
+#cart-info-edit-update{
+    float: right;
+
+}
+
+#cart-info-edit-customer_name{
+    font-size: 2.1em;
+
+}
+
+#cart-info-edit-street_address{
+    margin-left: 5px;
+    margin-top: 5px;
+    font-size: 1.8em;
+    color: #696969;
+}
+
+
+
+#cart-info-edit-type{
+    margin-left: 10px;
+    font-size: 1.8em;
+    color: #696969;
+    height: 1.8em;
+}
+
+
+.cart-info-edit-type-option:hover { background-color: red; }
+
+#cart-info-edit label {
+    font-size: 1.6em;
+    margin-left: 12px;
+    margin-top: 25px;
+    color: #696969;
+}
+
+
+#cart-info-edit-status{
+    margin-left: 10px;
+    font-size: 1.8em;
+    color: #696969;
+}
+
+
+#cart-info-edit-last_update{
+    font-size: .9em;
+    float: right;
+
+}
+
+
 
 

@@ -3,7 +3,6 @@ __author__ = 'jbennett'
 
 from django import http
 from django.conf import settings
-from cartmanager.models import UserAccountProfile
 from django.contrib.sites.models import Site
 
 class MultiSiteMiddleware(object):

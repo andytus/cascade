@@ -45,9 +45,9 @@ function CartProfileViewModel() {
     self.last_latitude = ko.observable();
     self.rfid = ko.observable();
     self.serial_number = ko.observable(serial_number);
+    self.cart_profile_url = ko.computed(function(){return cart_app_url + serial_number});
     self.size = ko.observable();
     self.cart_type = ko.observable();
-    self.current_status = ko.observable();
     self.last_updated = ko.observable();
     self.born_date = ko.observable();
     //location information
@@ -57,7 +57,7 @@ function CartProfileViewModel() {
     self.location_address = ko.computed(function(){
         address = self.location_house_number() + " " + self.location_street_name();
         if (self.location_unit()){
-            address = address + self.location_unit();
+            address = address + " Unit: " + self.location_unit();
         }
         return address});
     self.location_latitude = ko.observable();
@@ -65,17 +65,23 @@ function CartProfileViewModel() {
     self.location_type = ko.observable();
 
     //customer information
+    self.customer_id = ko.observable();
     self.customer_name = ko.observable();
+    self.customer_url = ko.computed(function(){return customer_app_url + self.customer_id()});
+
+
+    //status information
+    self.current_status = ko.observable();
+    self.current_status_level = ko.observable();
 
 
 
     self.getCartData = function () {
-        $.getJSON(cart_url + serial_number, function (data) {
+        $.getJSON(cart_api_url + serial_number, function (data) {
             console.log(data);
             self.rfid(data.rfid);
             self.size(data.size);
             self.cart_type(data.cart_type);
-            self.current_status(data.current_status);
             self.last_updated(new Date(data.last_updated).toDateString());
             self.born_date(new Date(data.born_date).toDateString());
 
@@ -86,7 +92,16 @@ function CartProfileViewModel() {
             self.location_latitude(data.location.latitude);
             self.location_longitude(data.location.longitude);
             self.location_type(data.location.type);
+
+            //customer information
             self.customer_name(data.location.customer.info.name);
+            self.customer_id(data.location.customer.info.id);
+
+            //status information
+            self.current_status_level(data.current_status.level);
+            self.current_status(data.current_status.label);
+
+
 
         })
     };

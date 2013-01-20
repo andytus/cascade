@@ -26,10 +26,13 @@ def save_error(e, line):
 
 
 class CartStatus(models.Model):
-    LEVEL = (("Warning", "Warning"), ("Info", "Info"), ("Alert", "Alert"), ("Success","Success" ))
+    LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
+             ("label-inverse", "Default"), ('label', 'Inverse'))
     level = models.CharField(max_length=25, choices=LEVEL)
     label = models.CharField(max_length=35)
 
+    def __unicode__(self):
+        return "%s, %s" % (self.level, self.label)
 
 class Route(models.Model):
     ROUTE_TYPE = (("General","General"),("Recycling","Recycling"),
@@ -168,7 +171,7 @@ class Cart(models.Model):
 
     def get_info(self):
         info =  {"serial":self.serial_number, "id":self.id, "url": self.get_absolute_url(), "cart_type":self.cart_type,
-                 "size": self.size, "born_date": self.born_date, "current_status": self.current_status.label }
+                 "size": self.size, "born_date": self.born_date, "current_status": self.current_status.label, "current_status_level": self.current_status.level }
         return info
 
 class CartServiceTicket(models.Model):

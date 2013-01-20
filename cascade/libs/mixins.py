@@ -1,4 +1,3 @@
-from cascade.settings import LOGIN_URL
 from django.contrib.auth.models import User
 from django.contrib.sites.models import get_current_site
 from django.http import HttpResponseForbidden

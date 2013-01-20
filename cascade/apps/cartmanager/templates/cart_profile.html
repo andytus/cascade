@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block page_scripts %}
+    <!-- Data API variables: these are used to get JSON formatted data from the server -->
+    <script type="text/javascript">
+        var serial_number = '{{ serial_number }}';
+        var cart_api_url = "{% url cart_api_profile %}";
+        var cart_app_url = "{% url cart_app_profile %}";
+        var customer_app_url = "{% url customer_app_profile %}"
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
+{% endblock %}
+
+{% block title %}Cart Profile {% endblock %}
+
+{% block left %}
+{% endblock %}
+
+{% block main_content %}
+    <div id="cart_profile" class="container-fluid">
+
+        <div class="cart-info box-info">
+
+            <a class="cart-info-link pull-left" data-bind="attr: {href: cart_profile_url()}">
+                <span class="cart-info-serial" data-bind="text:serial_number"></span>
+                <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
+            </a>
+
+
+            <p class="cart-info-header"><span class="cart-info-size" data-bind="text:size"></span></p>
+            <span class="cart-info-type" data-bind="text:cart_type"></span>
+
+            <p class="cart-info-status label" data-bind="text:current_status,  css: current_status_level"></p>
+            Produced:<p class="cart-info-born_date" data-bind="text:born_date"></p>
+
+
+        </div>
+
+        <div id="cart-info-edit" class="box-info pull-right">
+            <p class="cart-info-edit-title">Cart Profile:</p>
+
+            <div id="cart-info-edit-text">
+                <button id="cart-info-edit-update" class="btn btn-info"><i class="icon-home">   Change</i></button>
+                <p><a id="cart-info-edit-customer_name" data-bind="attr: {href: customer_url}"><span class="icon-map-marker" data-bind="text:' '+customer_name()"></span></a> </p>
+
+                <p id="cart-info-edit-street_address" data-bind="text: location_address"></p>
+                 <label for="cart-info-edit-type">Cart Type:</label>
+                 <select id="cart-info-edit-type" name="cart_type" data-bind="value: cart_type()">
+                        <option data-bind="text: cart_type()"></option>
+                 </select>
+
+                <label for="cart-info-edit-status">Current Status</label>
+                <select id="cart-info-edit-status" data-bind="value: current_status()">
+                    <option data-bind="text: current_status()"></option>
+                </select>
+
+                <button id="cart-info-edit-submit" class="btn btn-info pull-right"><i class="icon-save">   Save</i></button><br><br>
+                <p id="cart-info-edit-last_update" data-bind="text: 'Last Updated: ' + last_updated()"></p>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    .................................................changing this............................................
+
+
+    {#        <form class="pull-right">#}
+    {#            Serial: <input name="serial" data-bind="value: serial_number"/><br>#}
+    {#            Size: <input name="size" data-bind="value:size"/><br>#}
+    {#            Current Status: <input name="current_status" data-bind="value: current_status"/><br>#}
+    {#            Cart Type: <input name="cart_type" data-bind="value: cart_type"/><br>#}
+    {##}
+    {#            Produced on: <span id="born_date" data-bind="text:born_date"></span><br>#}
+    {#            Last Updated: <span id="last_updated" data-bind="text:last_updated"></span><br>#}
+    {##}
+    {#            <input type="submit" name="updated"/>#}
+    {#        </form>#}
+
+
+
+    <div id="ticket_panel">
+        <hr>
+        Tickets going here
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block right %}
+{% endblock %}
+
+

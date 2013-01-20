@@ -1,24 +1,19 @@
 import csv
-from django.shortcuts import render_to_response, render, get_object_or_404
+from django.shortcuts import  render
 from django.contrib.sites.models import get_current_site
-from models import *
-from django.core.urlresolvers import resolve
+from cascade.apps.cartmanager.models import *
 from django.views.generic import FormView, TemplateView, ListView
 from django.http import Http404
-from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpResponse
-from rest_framework.views import APIView
-from rest_framework.generics import MultipleObjectAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView, \
-    SingleObjectAPIView
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.generics import  ListAPIView, RetrieveUpdateDestroyAPIView, SingleObjectAPIView
+from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
-from rest_framework.mixins import ListModelMixin
-from rest_framework.renderers import JSONRenderer, JSONPRenderer, XMLRenderer, YAMLRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
+from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
 
-from serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
-    CartLocationUpdateSerializer
+from cascade.apps.cartmanager.serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
+    CartLocationUpdateSerializer, CurrentStatusSerializer
 
-from cascade.mixins import LoginSiteRequiredMixin
+from cascade.libs.mixins import LoginSiteRequiredMixin
 
 
 class CartSearch(LoginSiteRequiredMixin,TemplateView):
@@ -124,6 +119,11 @@ class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPI
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+class CartStatusAPI(ListAPIView):
+    model=CartStatus
+    serializer_class = CurrentStatusSerializer
+
 
 ########################################################################################################################
 #End of API Views

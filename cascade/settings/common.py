@@ -1,45 +1,25 @@
+__author__ = 'jbennett'
+
+
 # Django settings for cascade project.
 import os
 
 
 ROOT_DIR = os.path.dirname(__file__)
 
-TEST = True
 
 DEBUG = True
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+# ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
 
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
-
-
-if TEST:
-#    DATABASES = {
-#        'default': {
-#            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#            'NAME': '/home/jbennett/python_projects/cascade/test.db', # Or path to database file if using sqlite3.
-#            'USER': '',                      # Not used with sqlite3.
-#            'PASSWORD': '',                  # Not used with sqlite3.
-#            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-#            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-#        }
-#    }
-
- DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'cartlogic',                      # Or path to database file if using sqlite3.
@@ -100,21 +80,19 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    '/home/jbennett/python_projects/cascade/cascade/configure/static/',
-    #'C:/,
-
+    '/home/jbennett/python_projects/cascade/cascade/configure/static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-)
+    )
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
- #   'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
+    #   'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    )
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'ea&amp;5^_ekl^028+x4!=5a!iu43e1!amwd6nfes&amp;ik-!9trs5^zs'
@@ -123,11 +101,11 @@ SECRET_KEY = 'ea&amp;5^_ekl^028+x4!=5a!iu43e1!amwd6nfes&amp;ik-!9trs5^zs'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+    #     'django.template.loaders.eggs.Loader',
+    )
 
 MIDDLEWARE_CLASSES = (
-    'cascade.middleware.MultiSiteMiddleware',
+    'cascade.libs.middleware.MultiSiteMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -135,14 +113,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+    )
 
 ROOT_URLCONF = 'cascade.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'cascade.wsgi.application'
 
-TEMPLATE_DIRS = ( 'cascade/configure/templates',  )
+TEMPLATE_DIRS = ( '../cascade/cascade/configure/templates',  )
 
 
 INSTALLED_APPS = (
@@ -156,10 +134,10 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-   'south',
-   'rest_framework',
-   'cartmanager',
-)
+    'south',
+    'rest_framework',
+    'cascade.apps.cartmanager',
+    )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -186,8 +164,9 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
-    }
+            },
+        }
 }
 
 LOGIN_URL = '/accounts/login/'
+

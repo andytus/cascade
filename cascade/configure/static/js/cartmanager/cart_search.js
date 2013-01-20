@@ -28,18 +28,9 @@ function Cart(data) {
     }
     self.latitude = ko.observable((data.location.geometry.coordinates[1]) || 0);
     self.longitude = ko.observable((data.location.geometry.coordinates[0]) || 0);
-
-    self.statusCheck = ko.computed(function(){
-        if (self.current_status() == 'error'){
-            //#TODO change to check for missing, damaged, etc...
-            return "alert-error";
-        }else{
-           return "alert-info";
-        }
-
-
-    })
+    self.current_status_level = ko.observable(data.cart.current_status_level);
 }
+
 function CartListViewModel() {
     /**  **/
     var self = this;

@@ -1,6 +1,5 @@
-from django.forms import widgets
-from rest_framework import serializers, pagination
-from models import Cart, CollectionAddress, CollectionCustomer
+from rest_framework import serializers
+from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus
 
 #Monkey patch on django rest framework for supporting nulls: https://github.com/tomchristie/django-rest-framework/issues/384
 class NullSerializerPatch(serializers.BaseSerializer):
@@ -66,8 +65,15 @@ class AddressProfileSerializer(serializers.ModelSerializer, NullSerializerPatch)
         depth = 1
         exclude = ('site',)
 
+
+class CurrentStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = CartStatus
+        depth = 1
+
 class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = AddressProfileSerializer()
+    current_status = CurrentStatusSerializer()
     class Meta:
         model = Cart
         depth = 1
