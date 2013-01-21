@@ -95,6 +95,7 @@ class CartProfileAPI(RetrieveUpdateDestroyAPIView):
             return Http404
 
     def get(self, request, serial_number, format=None):
+        #TODO need to redirect if cart does not exist (i.e. http404-location does not exist).. look for fix in serializer
         cart = self.get_object(serial_number)
         serializer = CartProfileSerializer(cart)
         return Response(serializer.data)
