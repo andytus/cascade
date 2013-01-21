@@ -294,7 +294,7 @@ class CartsUploadFile(UploadFile):
     def save_records(self, line, site):
         try:
             rfid, serial, size, cart_type, born_date = line.split(',')
-            cart = Cart(site=site, rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status='BORN', born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+            cart = Cart(site=site, rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status='Produced', born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
             cart.location = CollectionAddress.objects.get(pk=1)
             cart.full_clean()
             cart.save()
@@ -409,13 +409,13 @@ class CustomersUploadFile(UploadFile):
 
     #TODO def get_absolute_url
 
-    def save_records(self, line):
+    def save_records(self, line, site):
        try:
            #Customer setup & save:
            systemid, first_name, last_name, phone, email, house_number, street_name,unit,city,\
            state, zipcode, latitude, longitude, recycle, refuse, yard_organics, route, route_day = line.split(',')
 
-           customer = CollectionCustomer(first_name=first_name, last_name=last_name, email=email,
+           customer = CollectionCustomer(site=site,first_name=first_name, last_name=last_name, email=email,
                       other_system_id = systemid, phone_number = phone)
 
            #.full_clean checks for the correct data
@@ -425,7 +425,7 @@ class CustomersUploadFile(UploadFile):
            #######################################################################################################
 
            #Collection_Address setup & save:
-           collection_address = CollectionAddress(customer=customer, house_number=house_number,
+           collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number,
            street_name=street_name, unit=unit, city=city, zipcode=zipcode, state=state,
            latitude=latitude, longitude=longitude)
            collection_address.full_clean()
@@ -450,7 +450,7 @@ class CustomersUploadFile(UploadFile):
            #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket)
            self.status = "FAILED"
            self.num_error +=1
-           error = DataErrors(error_message=e, error_type = type(e), failed_data=line)
+           error = DataErrors(site=site, error_message=e, error_type = type(e), failed_data=line)
            print error
            error.save()
 

@@ -1,4 +1,2 @@
 systemid,first,last,phone,email,house number,street_name,unit,city,state,zipcode,latitude,longitude,recycle,refuse,yard_organics,route,route_day
-1003,Inventory,Inventory,123-456-7896,joe.bennett@cascadeng.com,4950,Thirty-Seventh,,Grand Rapids,MI,49512,-85.546407,42.896796,0,0,0,2,test
-1002,Mr. Foo,Bar,123-456-7896,Foo@umflint.com,222,Market,1,Flint,MI,48506,-85.001,43.25668,1,1,1,2,test1
-1006,Frank,Whats,456-987-0987,fwhats@me.com,456,Franklin,2,Meville,MA,78920,-85.001,43.25668,1,1,1,2,test2
+1020,Service Center,Inventory,123-456-7896,joe.bennett@cascadeng.com,4950,Thirty-Seventh,,Grand Rapids,MI,49512,-85.546407,42.896796,0,0,0,2,test
