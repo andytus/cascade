@@ -300,7 +300,7 @@ class CartsUploadFile(UploadFile):
 
     def save_records(self, line, site):
         try:
-            status = CartStatus.objects.get(id=1)
+            status = CartStatus.objects.get(pk=1)
             rfid, serial, size, cart_type, born_date = line.split(',')
             cart = Cart(site=site, rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status=status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
             cart.location = CollectionAddress.objects.get(pk=1)
