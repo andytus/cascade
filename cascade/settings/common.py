@@ -135,7 +135,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'south',
     'rest_framework',
-    #'cascade.apps.cartmanager',
+    'cascade.apps.cartmanager',
     )
 
 # A sample logging configuration. The only tangible logging

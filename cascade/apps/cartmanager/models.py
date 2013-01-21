@@ -65,7 +65,7 @@ class Address(models.Model):
     route = models.ForeignKey(Route, null=True, blank=True)
 
     #model managers:
-    site = models.ForeignKey(Site, default=Site.objects.get_current().id)
+    site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -107,7 +107,7 @@ class CollectionCustomer(models.Model):
     email = models.EmailField(max_length=75, null=True)
 
     #model managers:
-    site = models.ForeignKey(Site, default=Site.objects.get_current().id)
+    site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -157,7 +157,7 @@ class Cart(models.Model):
     born_date = models.DateTimeField()
 
     #model managers
-    site = models.ForeignKey(Site, default=Site.objects.get_current())
+    site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -202,7 +202,7 @@ class CartServiceTicket(models.Model):
     broken_comments = models.CharField(max_length=60, null=True, blank=True)
 
     #model managers
-    site = models.ForeignKey(Site, default=Site.objects.get_current().id)
+    site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -255,7 +255,7 @@ class UploadFile(models.Model):
     message = models.CharField(max_length=200, null=True, blank=True)
 
     #model managers
-    site = models.ForeignKey(Site, default=Site.objects.get_current().id)
+    site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
