@@ -466,7 +466,7 @@ class DataErrors(models.Model):
     #TODO def get_absolute_url
     #TODO Add datetime stamp and order by it in meta
     error_message = models.CharField(max_length=200)
-    error_type = models.CharField(max_length=50)
+    error_type = models.CharField(max_length=100)
     failed_data = models.CharField(max_length=500)
     error_date = models.DateTimeField(auto_now_add=True)
     fix_date = models.DateTimeField(null=True)
