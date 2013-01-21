@@ -1,2 +1,3 @@
 systemid,first,last,phone,email,house number,street_name,unit,city,state,zipcode,latitude,longitude,recycle,refuse,yard_organics,route,route_day
 1020,Service Center,Inventory,123-456-7896,joe.bennett@cascadeng.com,4950,Thirty-Seventh,,Grand Rapids,MI,49512,-85.546407,42.896796,0,0,0,2,test
+1021,Foo,Bar,123-200-7896,support@capturit.com,3750,Thirty-Seventh,,Grand Rapids,MI,49512,-85.546407,43.896796,0,0,0,2,test2

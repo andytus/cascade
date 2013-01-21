@@ -31,6 +31,13 @@ class CartStatus(models.Model):
     level = models.CharField(max_length=25, choices=LEVEL)
     label = models.CharField(max_length=35)
 
+    #model managers:
+    site = models.ForeignKey(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
+
+
     def __unicode__(self):
         return "%s, %s" % (self.level, self.label)
 
@@ -293,8 +300,9 @@ class CartsUploadFile(UploadFile):
 
     def save_records(self, line, site):
         try:
+            status = CartStatus.on_site.get(pk=1)
             rfid, serial, size, cart_type, born_date = line.split(',')
-            cart = Cart(site=site, rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status='Produced', born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+            cart = Cart(site=site, rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status=status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
             cart.location = CollectionAddress.objects.get(pk=1)
             cart.full_clean()
             cart.save()
