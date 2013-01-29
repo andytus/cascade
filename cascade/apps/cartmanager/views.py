@@ -1,17 +1,21 @@
 import csv
 from django.shortcuts import  render
+from django.utils import simplejson
 from django.contrib.sites.models import get_current_site
 from cascade.apps.cartmanager.models import *
+from django.template import loader, Context
 from django.views.generic import FormView, TemplateView, ListView
 from django.http import Http404
 from django.http import HttpResponse
-from rest_framework.generics import  ListAPIView, RetrieveUpdateDestroyAPIView, SingleObjectAPIView
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, SingleObjectAPIView
 from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
+from cascade.libs.renderers import CSVRenderer
 
 from cascade.apps.cartmanager.serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
-    CartLocationUpdateSerializer, CurrentStatusSerializer
+    CartLocationUpdateSerializer, CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
 
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
@@ -34,6 +38,7 @@ class CartSearch(LoginSiteRequiredMixin,TemplateView):
 class CartProfile(LoginSiteRequiredMixin, TemplateView):
     template_name = 'cart_profile.html'
 
+
     def get_context_data(self, **kwargs):
         context = super(CartProfile, self).get_context_data(**kwargs)
         if kwargs['serial_number']:
@@ -53,7 +58,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
     paginate_by = 15
-    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
 
     def get_queryset(self):
         """
@@ -61,15 +66,18 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         """
         query = Cart.on_site.filter()
         search_type = self.request.QUERY_PARAMS.get('type', None)
-        value = self.request.QUERY_PARAMS.get('value', None)
+        value = self.request.QUERY_PARAMS.get('value', None).strip()
 
         if search_type and value:
+            #TODO error try except
             if search_type == 'address':
-                query = query.filter(location__street_name=value.split(' ')[1], location__house_number = value.split(' ')[0])
+                street_name = value.split(' ')[1]
+                house_number =  value.split(' ')[0]
+                query = query.filter(location__street_name=street_name, location__house_number = house_number)
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
             elif search_type == 'type':
-                query = query.filter(cart_type=value)
+                query = query.filter(cart_type__name=value)
             elif  search_type == 'size':
                 query = query.filter(size=value)
             else:
@@ -82,15 +90,19 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
     model = CollectionAddress
     serializer = AddressProfileSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
-class CartProfileAPI(RetrieveUpdateDestroyAPIView):
+
+
+
+class CartProfileAPI(APIView):
     model=Cart
     serializer_class = CartProfileSerializer
-    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
     def get_object(self, serial_number):
         try:
-            return Cart.objects.get(serial_number=serial_number)
+            return Cart.on_site.get(serial_number=serial_number)
         except Cart.DoesNotExist:
             return Http404
 
@@ -98,10 +110,31 @@ class CartProfileAPI(RetrieveUpdateDestroyAPIView):
         #TODO need to redirect if cart does not exist (i.e. http404-location does not exist).. look for fix in serializer
         cart = self.get_object(serial_number)
         serializer = CartProfileSerializer(cart)
+
+        if request.accepted_renderer.format == 'csv':
+            response = HttpResponse(mimetype='text/csv')
+            response['Content-Disposition']= 'attachment; filename=import.csv'
+            t = loader.get_template('profile.csv')
+            c = Context({'data': cart},)
+            response.write(t.render(c))
+            return response
+
         return Response(serializer.data)
 
-    def put(self, request, *args, **kwargs):
-        pass
+    def post(self, request, serial_number, format=None):
+        try:
+            cart = self.get_object(serial_number)
+            json_data = simplejson.loads(request.raw_post_data)
+            cart_type = CartType.on_site.get(pk=json_data['cart_type'])
+            current_status = CartStatus.on_site.get(label=json_data['current_status'])
+            cart.cart_type = cart_type
+            cart.current_status = current_status
+            cart.last_updated = datetime.now()
+            cart.save()
+            return Response({"message": "Update Complete...all set!", "time": datetime.now()})
+        except:
+            #TODO Test this error
+            return HttpResponse({"message": "Error: Sorry, did not update, somethings wrong", "time": datetime.now()})
 
 class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
     model=CollectionCustomer
@@ -123,7 +156,54 @@ class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPI
 
 class CartStatusAPI(ListAPIView):
     model=CartStatus
-    serializer_class = CurrentStatusSerializer
+    serializer_class = CartStatusSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    queryset = CartStatus.on_site.filter()
+
+class CartTypeAPI(ListAPIView):
+    model=CartType
+    serializer = CartTypeSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    queryset = CartType.on_site.filter()
+
+
+class TicketDownloadAPI(APIView):
+    #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
+    model=CartServiceTicket
+    serializer_class = CartServiceTicketSerializer
+    renderer_classes = (TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
+    def get_object(self, service_status, cart_type, service_type):
+        try:
+            query = CartServiceTicket.on_site.filter()
+            if service_status != 'ALL':
+                query = query.filter(status=service_status)
+            if cart_type !='ALL':
+                query = query.filter(cart_type__name = cart_type)
+            if service_type != 'ALL':
+                query = query.filter(service_type__service = service_type)
+
+            return query
+
+        except:
+            pass
+
+
+
+    def get(self, request):
+        cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
+        service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
+        service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
+        print service_type, cart_type, service_status
+        print "***********************************"
+
+        data = self.get_object(service_status, cart_type, service_type)
+
+        print data
+
+
+
+
 
 
 ########################################################################################################################
@@ -226,44 +306,45 @@ class CSVResponseMixin(object):
             writer.writerow(row)
         return writer
 
-class TicketsDownloadView(CSVResponseMixin, ListView):
-    template_name = 'ticketdownload.html'
-    context_object_name = 'tickets'
-
-    def get_queryset(self):
-
-        query = CartServiceTicket.on_site.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
-
-        if self.kwargs['status'] != 'all':
-            query = query.filter(status=self.kwargs['status'])
-        if self.kwargs['cart_type'] != 'all':
-            query = query.filter(cart_type=self.kwargs['cart_type'])
-        if self.kwargs['service_type'] != 'all':
-            query = query.filter(service_type__contains=self.kwargs['service_type'])
-        return query
-
-    def get_context_data(self, **kwargs):
-        context = super(TicketsDownloadView, self).get_context_data(**kwargs)
-        return context
-
-    def render_to_response(self, context,**httpresponse_kwargs ):
-
-        if not context[self.context_object_name]:
-            context["message"] = "No Values"
-            return render(self.request, self.template_name, context)
-        else:
-            if self.request.GET.get('format', 'html') == 'csv':
-                context['csv_header'] = ['RFID', 'SystemID', 'HouseNumber', 'StreetName', 'UnitNumber', 'ServiceType']
-                return CSVResponseMixin.render_to_response(self, context)
-            elif self.request.GET.get('format', 'html') == 'json':
-                #TODO get json
-                context["message"] = "json"
-                #TODO
-                #return render(self.request, self.template_name, context)
-            else:
-                #TODO html page
-                context["message"] = "just html here"
-                return render(self.request, self.template_name, context)
+#class TicketsDownloadView(CSVResponseMixin, ListView):
+#    template_name = 'ticketdownload.html'
+#    context_object_name = 'tickets'
+#
+#    def get_queryset(self):
+#
+#        query = CartServiceTicket.on_site.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
+#
+#
+#        if self.kwargs['status'] != 'all':
+#            query = query.filter(status=self.kwargs['status'])
+#        if self.kwargs['cart_type'] != 'all':
+#            query = query.filter(cart_type=self.kwargs['cart_type'])
+#        if self.kwargs['service_type'] != 'all':
+#            query = query.filter(service_type__contains=self.kwargs['service_type'])
+#        return query
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(TicketsDownloadView, self).get_context_data(**kwargs)
+#        return context
+#
+#    def render_to_response(self, context,**httpresponse_kwargs ):
+#
+#        if not context[self.context_object_name]:
+#            context["message"] = "No Values"
+#            return render(self.request, self.template_name, context)
+#        else:
+#            if self.request.GET.get('format', 'html') == 'csv':
+#                context['csv_header'] = ['RFID', 'SystemID', 'HouseNumber', 'StreetName', 'UnitNumber', 'ServiceType']
+#                return CSVResponseMixin.render_to_response(self, context)
+#            elif self.request.GET.get('format', 'html') == 'json':
+#                #TODO get json
+#                context["message"] = "json"
+#                #TODO
+#                #return render(self.request, self.template_name, context)
+#            else:
+#                #TODO html page
+#                context["message"] = "just html here"
+#                return render(self.request, self.template_name, context)
 
 class TicketsCompletedUploadView(UploadFormView):
     form_class = TicketsCompletedUploadFileForm

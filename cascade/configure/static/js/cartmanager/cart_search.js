@@ -65,7 +65,7 @@ function CartListViewModel() {
         // The search_parameters data comes from the source request
         // (placed as a template variable at the top of the cart_search.html).
 
-
+        //#TODO use the url variable instead of hard coding:
         var url = "/cascadecart/api/cart/search/?format=jsonp&callback=?";
         self.search_for_type(params.type);
         self.search_for_value(params.value);
@@ -89,6 +89,7 @@ function CartListViewModel() {
             //function creates and array of carts based on return from the server
             function (data) {
                 if (data.count == 1) {
+                    //if you get an exact match just forward to the carts profile page
                     window.location.replace(cart_url + data.results[0].cart.serial)
                 }
                 var mappedCarts = $.map(data.results, function (item) {

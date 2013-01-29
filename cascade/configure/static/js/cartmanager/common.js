@@ -33,5 +33,6 @@ function CartSearchViewModel() {
 
 $(document).ready(function () {
     ko.applyBindings(new CartSearchViewModel(), document.getElementById("cart_search_form"));
+    $('#message').hide();
 
 });

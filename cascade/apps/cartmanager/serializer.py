@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus
+from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
+    CartServiceTicket
 
 #Monkey patch on django rest framework for supporting nulls: https://github.com/tomchristie/django-rest-framework/issues/384
 class NullSerializerPatch(serializers.BaseSerializer):
@@ -65,20 +66,27 @@ class AddressProfileSerializer(serializers.ModelSerializer, NullSerializerPatch)
         depth = 1
         exclude = ('site',)
 
-
-class CurrentStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
+class CartStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = CartStatus
         depth = 1
+        exclude = ('site',)
+
+class CartTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = CartType
+        depth = 1
+        exclude = ('site',)
+
 
 class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = AddressProfileSerializer()
-    current_status = CurrentStatusSerializer()
+    current_status = CartStatusSerializer()
+    cart_type = CartTypeSerializer()
     class Meta:
         model = Cart
         depth = 1
         exclude = ('site',)
-
 
 class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = GetInfoRelatedField(source='location')
@@ -93,3 +101,9 @@ class CartLocationUpdateSerializer(serializers.ModelSerializer, NullSerializerPa
     class Meta:
         model = Cart
         fields = ('location',)
+
+class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = CartServiceTicket
+
+
