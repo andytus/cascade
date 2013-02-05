@@ -41,10 +41,14 @@ class CartStatus(models.Model):
 
 class CartType(models.Model):
      name = models.CharField(max_length=20)
+     size = models.IntegerField()
      #model managers:
      site = models.ForeignKey(Site)
      objects = models.Manager()
      on_site = CurrentSiteManager()
+
+     def get_info(self):
+         return {'name':self.name, 'size': self.size}
 
      def __unicode__(self):
          return "%s" % (self.name)
@@ -62,7 +66,7 @@ class CartServiceStatus(models.Model):
     on_site = CurrentSiteManager()
 
     def __unicode__(self):
-        return "%s, %s" % (self.service_status, self.label)
+        return "%s, %s" % (self.service_status, self.level)
 
 
 class CartServiceType(models.Model):
@@ -76,6 +80,9 @@ class CartServiceType(models.Model):
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
+
+    def get_info(self):
+        return {'service': self.service, 'code': self.code, 'description': self.description}
 
     def __unicode__(self):
          return "%s" % (self.service)
@@ -209,14 +216,14 @@ class Cart(models.Model):
 
 
     def __unicode__(self):
-        return "RFID: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)
+        return "rfid: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)
 
 
     def get_absolute_url(self):
         return reverse('cart_api_profile', args=[str(self.id)])
 
     def get_info(self):
-        info =  {"serial":self.serial_number, "id":self.id, "url": self.get_absolute_url(), "cart_type":self.cart_type.name,
+        info =  {'rfid': self.rfid, "serial":self.serial_number, "id":self.id, "url": self.get_absolute_url(), "cart_type":self.cart_type.name,
                  "size": self.size, "born_date": self.born_date, "current_status": self.current_status.label, "current_status_level": self.current_status.level }
         return info
 
@@ -226,8 +233,8 @@ class CartServiceTicket(models.Model):
 
 
     delivered_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='delivered_cart')
-    removed_cart = models.ForeignKey(CartServiceType, null=True, blank=True, related_name='removed_cart')
-    audit_cart = models.ForeignKey(CartServiceType, null=True, blank=True, related_name='audit_cart')
+    removed_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='removed_cart')
+    audit_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='audit_cart')
 
     location = models.ForeignKey(CollectionAddress)
     service_type = models.ForeignKey(CartServiceType, null=True, blank=True)
@@ -467,7 +474,8 @@ class CustomersUploadFile(UploadFile):
        try:
            #Customer setup & save:
            systemid, first_name, last_name, phone, email, house_number, street_name,unit,city,\
-           state, zipcode, latitude, longitude, recycle, refuse, yard_organics, other, route, route_day = line.split(',')
+           state, zipcode, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics, \
+           yard_organics_size, other, route, route_day = line.split(',')
 
            customer = CollectionCustomer(site=site,first_name=first_name, last_name=last_name, email=email,
                       other_system_id = systemid, phone_number = phone)
@@ -513,19 +521,16 @@ class CustomersUploadFile(UploadFile):
 
 class DataErrors(models.Model):
     #TODO def get_absolute_url
-    #TODO Add datetime stamp and order by it in meta
     error_message = models.CharField(max_length=200)
     error_type = models.CharField(max_length=100)
     failed_data = models.CharField(max_length=500)
     error_date = models.DateTimeField(auto_now_add=True)
     fix_date = models.DateTimeField(null=True)
 
-
     #model managers
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
-
 
     class Meta:
         ordering = ["-error_date"]

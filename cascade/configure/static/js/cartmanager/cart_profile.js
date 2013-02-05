@@ -31,6 +31,7 @@ function StatusOption(data){
 function TypeOption(data){
     this.id = ko.observable(data.id);
     this.name = ko.observable(data.name);
+    this.size = ko.observable(data.size);
     this.site = ko.observable(data.site);
 }
 
@@ -43,6 +44,8 @@ function CartProfileViewModel() {
     self.last_latitude = ko.observable();
     self.rfid = ko.observable("");
     self.serial_number = ko.observable(serial_number);
+
+    self.id = ko.observable("");
     self.cart_profile_url = ko.computed(function(){return cart_app_url + serial_number});
     self.size = ko.observable("");
     self.cart_type = ko.observable("");
@@ -102,8 +105,10 @@ function CartProfileViewModel() {
 
     self.getCartData = function () {
         $.getJSON(cart_api_url + serial_number, function (data) {
+
+            self.id(data.id);
             self.rfid(data.rfid);
-            self.size(data.size);
+            self.size(data.cart_type.size);
             self.cart_type(data.cart_type.name);
             self.cart_type_id(data.cart_type.id);
             self.last_updated(new Date(data.last_updated).toDateString());
@@ -125,6 +130,15 @@ function CartProfileViewModel() {
             self.current_status_id(data.current_status.id);
             self.current_status_level(data.current_status.level);
             self.current_status(data.current_status.label);
+
+            //Calling to get cart type options for this cart
+            //filters based on size and needs to get the size from the current cart size
+            self.getTypeOptions();
+            //Calling to get the cart status options
+            self.getStatusOptions();
+            //Calling to get the tickets for this cart
+            self.getTickets();
+
              //Set Default option for status change
             $("select option[value='" + self.current_status_id() + "']").attr("selected","selected");
             $("select option[value='" + self.cart_type_id() + "']").attr("selected","selected");
@@ -142,11 +156,12 @@ function CartProfileViewModel() {
      };
 
     self.getTypeOptions = function(){
-        $.getJSON(cart_type_options_api_url, function(data){
+        url = cart_type_options_api_url + "?format=jsonp&callback=?";
+        data = {'size': self.size()};
+        $.getJSON(url, data, function(data){
             var cartTypeOptions = $.map(data, function(item){
                 return new TypeOption(item)
             });
-            console.log("test");
             self.cart_type_options(cartTypeOptions);
         });
     };
@@ -173,6 +188,60 @@ function CartProfileViewModel() {
 
     };
 
+
+    self.getTickets = function(){
+        //uses dataTables to populate the tickets table
+
+           $('#ticket_table').dataTable( {
+              // "bPaginate": false,
+               "bLengthChange": false,
+               "bFilter": true,
+              // "bSort": false,
+              // "bInfo": false,
+               "bAutoWidth": true,
+               // "bProcessing": true,
+               //"bServerSide": true,
+                "sAjaxSource": tickets_api_download,
+                "sAjaxDataProp": "tickets",
+
+               "sPaginationType": "bootstrap",
+               "oLanguage": {
+                   "sLengthMenu": "_MENU_ records per page"
+               },
+
+
+                "aoColumns": [
+                   { "mData": "status" },
+                   { "mData": "service_type" },
+                   { "mData": "success_attempts" },
+                   { "mData": "date_created", "sType": "date" },
+                   { "mData": "date_last_accessed"},
+                   { "mData": "house_number" },
+                   { "mData": "street_name"},
+                   { "mData": "unit"},
+                   { "mData": "removed_cart"},
+                   { "mData": "delivered_cart"},
+                   { "mData": "audit_cart"}
+
+               ],
+
+               "fnServerData": function( sUrl, aoData, fnCallback, oSettings ) {
+                   oSettings.jqXHR = $.ajax( {
+                       "url": sUrl,
+                       "data":{"cart_id":self.id()},
+                       "success": fnCallback,
+                       "dataType": "jsonp",
+                       "cache": false
+                   } );}
+
+            } );
+
+
+           };
+
+
+
+
     self.getLocation = function (){
 
     };
@@ -182,10 +251,7 @@ function CartProfileViewModel() {
     };
 
     //call the api to get the data on load
-    self.getTypeOptions();
-    self.getStatusOptions();
     self.getCartData();
-
 
 }
 

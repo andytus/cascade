@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketDownloadAPI, TicketsCompletedUploadView, \
+from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketAPI, TicketsCompletedUploadView, \
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationProfileAPI, UpdateCartLocationAPI, CartSearch, CartProfile, \
       CartStatusAPI, CartTypeAPI
 from rest_framework.urlpatterns import format_suffix_patterns
@@ -21,7 +21,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^upload/errors/', DataErrorsView.as_view(), name='upload_errors'),
     url(r'^upload/customers/', CustomerUploadView.as_view(), name='customer_uploads'),
     url(r'^upload/tickets/completed/', TicketsCompletedUploadView.as_view(), name='tickets_completed_upload' ),
-    url(r'^api/download/tickets/$', TicketDownloadAPI.as_view(), name='tickets_api_download'),
+    url(r'^api/download/tickets/$', TicketAPI.as_view(), name='tickets_api_download'),
  )
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -13,6 +13,7 @@ from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from cascade.libs.renderers import CSVRenderer
+from django.db.models import Q
 
 from cascade.apps.cartmanager.serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
     CartLocationUpdateSerializer, CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
@@ -93,8 +94,6 @@ class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
 
-
-
 class CartProfileAPI(APIView):
     model=Cart
     serializer_class = CartProfileSerializer
@@ -113,7 +112,7 @@ class CartProfileAPI(APIView):
 
         if request.accepted_renderer.format == 'csv':
             response = HttpResponse(mimetype='text/csv')
-            response['Content-Disposition']= 'attachment; filename=import.csv'
+            response['Content-Disposition']= 'attachment; filename=profile.csv'
             t = loader.get_template('profile.csv')
             c = Context({'data': cart},)
             response.write(t.render(c))
@@ -166,40 +165,64 @@ class CartTypeAPI(ListAPIView):
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
     queryset = CartType.on_site.filter()
 
+    def get_queryset(self):
+        size = self.request.QUERY_PARAMS.get('size', None)
+        if size:
+            queryset = CartType.on_site.filter(size=size)
+            return queryset
+        else:
+            queryset = CartType.on_site.all()
+            return queryset
 
-class TicketDownloadAPI(APIView):
+
+
+class TicketAPI(APIView):
     #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
     model=CartServiceTicket
     serializer_class = CartServiceTicketSerializer
-    renderer_classes = (TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
 
-    def get_object(self, service_status, cart_type, service_type):
+    def get_object(self, cart_id, service_status, cart_type, service_type):
         try:
             query = CartServiceTicket.on_site.filter()
-            if service_status != 'ALL':
-                query = query.filter(status=service_status)
-            if cart_type !='ALL':
-                query = query.filter(cart_type__name = cart_type)
-            if service_type != 'ALL':
-                query = query.filter(service_type__service = service_type)
+
+            if  cart_id:
+                query = query.filter( Q(removed_cart__id = cart_id) | Q(delivered_cart__id = cart_id) | Q(audit_cart__id = cart_id) )
+            else:
+                if service_status != 'ALL':
+                    query = query.filter(status=service_status)
+                if cart_type !='ALL':
+                    query = query.filter(cart_type__name = cart_type)
+                if service_type != 'ALL':
+                    query = query.filter(service_type__service = service_type)
 
             return query
 
         except:
             pass
 
-
-
     def get(self, request):
+        cart_id = self.request.QUERY_PARAMS.get('cart_id', None)
         cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
         service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
+        file_name = self.request.QUERY_PARAMS.get('file_name', 'import')
         print service_type, cart_type, service_status
         print "***********************************"
 
-        data = self.get_object(service_status, cart_type, service_type)
+        tickets = self.get_object(cart_id, service_status, cart_type, service_type)
 
-        print data
+        serializer = CartServiceTicketSerializer(tickets)
+
+        if request.accepted_renderer.format == 'csv':
+            response = HttpResponse(mimetype='text/csv')
+            response['Content-Disposition']= 'attachment; filename=%s.csv' % file_name
+            t = loader.get_template('ticket.csv')
+            c = Context({'data': tickets},)
+            response.write(t.render(c))
+            return response
+
+        return Response({'tickets':serializer.data})
 
 
 

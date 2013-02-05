@@ -1,17 +1,21 @@
 {% extends 'base.html' %}
 
 {% block page_scripts %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/datatables/css/DT_bootstrap.css">
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript">
         var serial_number = '{{ serial_number }}';
         var cart_api_url = "{% url cart_api_profile %}";
         var cart_app_url = "{% url cart_app_profile %}";
+        var tickets_api_download = "{% url tickets_api_download %}";
         var customer_app_url = "{% url customer_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
     </script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/datatables/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/datatables/js/DT_bootstrap.js"></script>
 {% endblock %}
 
 {% block title %}Cart Profile {% endblock %}
@@ -120,9 +124,29 @@
     </div>
 
 
-    <div id="ticket_panel">
-        <hr>
-        Tickets going here
+    <div id="ticket_panel"  class="dataTables_wrapper form-inline">
+     <br>
+        <table id="ticket_table"  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered box-info" >
+            <thead>
+            <tr role="row">
+                <th>Status</th>
+                <th>Service Type</th>
+                <th>Attempts</th>
+                <th>Created On</th>
+                <th>Last Updated</th>
+                <th>House Number</th>
+                <th>Street</th>
+                <th>Unit</th>
+                <th>Removed Cart RFID?</th>
+                <th>Delivered Cart RFID?</th>
+                <th>Audit Cart RFID?</th>
+            </tr>
+            </thead>
+            <tbody role="alert">
+
+            </tbody>
+        </table>
+
     </div>
 
 
