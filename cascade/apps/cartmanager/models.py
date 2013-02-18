@@ -9,10 +9,12 @@ from django.db.utils import DatabaseError, IntegrityError
 from django.utils.timezone import datetime
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django import forms
+
 import os
 
 #Note: os.path.dirname(__file__) used to upload files into the app directory
-UPLOADEDFILES = FileSystemStorage(location= os.path.join(os.path.dirname(__file__), 'uploads'))
+SITE = Site.objects.get_current()
+UPLOADEDFILES = FileSystemStorage(location= os.path.join(os.path.dirname(__file__), 'uploads_' + SITE.domain))
 
 def save_error(e, line):
     error_message = e.message
@@ -236,10 +238,10 @@ class CartServiceTicket(models.Model):
     removed_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='removed_cart')
     audit_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='audit_cart')
 
-    location = models.ForeignKey(CollectionAddress)
-    service_type = models.ForeignKey(CartServiceType, null=True, blank=True)
-    cart_type = models.ForeignKey(CartType, null=True, blank=True)
-    status = models.ForeignKey(CartServiceStatus, null=True, blank=True)
+    location = models.ForeignKey(CollectionAddress, related_name="address")
+    service_type = models.ForeignKey(CartServiceType, null=True, blank=True, related_name="service_type")
+    cart_type = models.ForeignKey(CartType, null=True, blank=True, related_name="cart_type")
+    status = models.ForeignKey(CartServiceStatus, null=True, blank=True, related_name="status")
 
 
     date_completed = models.DateTimeField(null=True)

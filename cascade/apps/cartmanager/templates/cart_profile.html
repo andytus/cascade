@@ -1,22 +1,6 @@
 {% extends 'base.html' %}
 
-{% block page_scripts %}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/datatables/css/DT_bootstrap.css">
-    <!-- Data API variables: these are used to get JSON formatted data from the server -->
-    <script type="text/javascript">
-        var serial_number = '{{ serial_number }}';
-        var cart_api_url = "{% url cart_api_profile %}";
-        var cart_app_url = "{% url cart_app_profile %}";
-        var tickets_api_download = "{% url tickets_api_download %}";
-        var customer_app_url = "{% url customer_app_profile %}";
-        var cart_status_options_api_url = "{% url cart_status_api %}";
-        var cart_type_options_api_url = "{% url cart_type_api %}";
-    </script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/datatables/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/datatables/js/DT_bootstrap.js"></script>
-{% endblock %}
+
 
 {% block title %}Cart Profile {% endblock %}
 
@@ -25,7 +9,7 @@
 
 {% block main_content %}
 
-    <div id="cart_profile" class="container-fluid">
+    <div id="cart_profile" class="row-fluid">
 
         <div class="cart-info box-info">
 
@@ -35,33 +19,35 @@
             </a>
 
 
-            <p class="cart-info-header"><span class="cart-info-size" data-bind="text:size"></span></p>
+            <div class="cart-info-header"><span class="cart-info-size" data-bind="text:size"></span></div>
 
-            <p class="cart-info-type" data-bind="text:cart_type"></p>
+            <div class="cart-info-type" data-bind="text:cart_type"></div>
 
-            <p class="cart-info-status label" data-bind="text:current_status,  css: current_status_level"></p>
-            Produced:<p class="cart-info-born_date" data-bind="text:born_date"></p>
+            <div class="cart-info-status label" data-bind="text:current_status,  css: current_status_level"></div>
+            <br>
+            Produced:
+            <div class="cart-info-born_date" data-bind="text:born_date">
 
-
+           </div>
         </div>
 
-        <div id="cart-info-edit" class="box-info pull-right">
+        <div id="cart-info-edit" class="box-info pull-right span7">
             <p class="cart-info-edit-title">Cart Profile:</p>
 
             <div id="cart-info-edit-text">
                 <div class="well">
-                    <a  href="#myModal" role="button" id="cart-info-edit-update" class="btn btn-info btn-large" data-toggle="modal"><i class="icon-home"> Change</i>
+                    <a href="#myModal" role="button" id="cart-info-edit-update" class="btn btn-info btn-large"
+                       data-toggle="modal"><i class="icon-home"> Change</i>
                     </a>
+
                     <p><a id="cart-info-edit-customer_name" data-bind="attr: {href: customer_url}"><span
                             class="icon-map-marker" data-bind="text:' '+customer_name()"></span></a></p>
 
                     <p id="cart-info-edit-street_address" data-bind="text: location_address"></p>
-                </div>
-
-
-
+         </div>
                 <!-- Modal -->
-                <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                     aria-hidden="true">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                         <h3 id="myModalLabel">Modal header</h3>
@@ -76,10 +62,6 @@
                 </div>
 
 
-
-
-
-
                 <form class="form-inline well" data-bind="submit: saveCartData">
 
                     <fieldset>
@@ -89,18 +71,18 @@
 
                             <div class="controls-row">
                                 <label for="cart-info-edit-type" class="control-label">Type:</label>
-                                <select id="cart-info-edit-type" class="input-medium" name="cart_type"
+                                <select id="cart-info-edit-type" class="input-large" name="cart_type"
                                         data-bind="foreach:{data:cart_type_options}, event:{onLoad:changeCartType()}">
-                                    <option data-bind="text: name(), value: id()"></option>
+                                    <option data-bind="text: name(), value: id()" selected="selected"></option>
                                 </select>
-                                <button id="cart-info-edit-submit" class="btn btn-info  btn-large pull-right" type="submit"><i
-                                        class="icon-save"> Update</i></button>
+                                <button id="cart-info-edit-submit" class="btn btn-info  btn-large pull-right"
+                                        type="submit"><i class="icon-save"> Update</i></button>
                             </div>
 
                             <div class="control-row">
                                 <label for="cart-info-edit-status" class="control-label">Status:</label>
 
-                                <select id="cart-info-edit-status" name="current_status" class="input-medium"
+                                <select id="cart-info-edit-status" name="current_status" class="input-large"
                                         data-bind="foreach:{data: cart_status_options}, event:{onLoad:changeCartStatus()}">
                                     <option data-bind="text: label(), value: id()"></option>
                                 </select>
@@ -114,42 +96,66 @@
 
                 </form>
 
-
                 <div id="cart-info-edit-rfid" data-bind="text: 'RFID Tag: ' + rfid()"></div>
 
             </div>
         </div>
 
+        <br>
+
+        <div id="cart-info-map" class="box-info">
+             <div id="map_canvas" style="width: 100%; height: 100%">
+            </div>
+        </div>
 
     </div>
 
 
-    <div id="ticket_panel"  class="dataTables_wrapper form-inline">
-     <br>
-        <table id="ticket_table"  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered box-info" >
+    <div id="ticket_panel">
+
+
+        <ul class="pager pull-left" data-bind="visible:count() > records_per_page()">
+            <li class="pager" data-bind="visible:page() > 1">
+                <a data-bind="click: function(){getTickets(serial_number, page()-1)}"> << Previous</a>
+            </li>
+            <li class="pager" data-bind="visible:page() < total_pages()">
+                <a href="#" data-bind="click: function(){getTickets(serial_number, page()+1)}">Next >></a>
+            </li>
+        </ul>
+
+
+        <table id="ticket_table" class="table table-sorter table-striped table-hover table-condensed  box-info">
             <thead>
-            <tr role="row">
-                <th>Status</th>
-                <th>Service Type</th>
-                <th>Attempts</th>
-                <th>Created On</th>
-                <th>Last Updated</th>
-                <th>House Number</th>
-                <th>Street</th>
-                <th>Unit</th>
-                <th>Removed Cart RFID?</th>
-                <th>Delivered Cart RFID?</th>
-                <th>Audit Cart RFID?</th>
+            <tr role="row" data-bind="foreach: ticket_table_headers">
+
+                <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
+                click:function(data, event){$parent.sortTickets(serial_number, 1, data, event)}"></th>
+
             </tr>
             </thead>
-            <tbody role="alert">
-
+            <tbody role="alert" data-bind="foreach: tickets">
+            <tr>
+                <td data-bind="text: status"></td>
+                <td data-bind="text: service_type"></td>
+                <td data-bind="text: success_attempts"></td>
+                <td data-bind="text: date_created"></td>
+                <td data-bind="text: date_last_accessed"></td>
+                <td data-bind="text: house_number"></td>
+                <td data-bind="text: street_name"></td>
+                <td data-bind="text: unit"></td>
+                <td data-bind="text: removed_cart"></td>
             </tbody>
+
+            <tfoot data-bind="visible: count() == 0">
+
+            <tr>
+                <td>NO TICKETS FOR THIS CART!</td>
+            </tr>
+            </tfoot>
+
+
         </table>
-
     </div>
-
-
 
 {% endblock %}
 
@@ -157,4 +163,24 @@
 {% block right %}
 {% endblock %}
 
+{% block page_scripts %}
 
+    <!-- Data API variables: these are used to get JSON formatted data from the server -->
+    <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+        var serial_number = '{{ serial_number }}';
+        var cart_api_url = "{% url cart_api_profile %}";
+        var cart_app_url = "{% url cart_app_profile %}";
+        var tickets_api_download = "{% url tickets_api_download %}";
+        var customer_app_url = "{% url customer_app_profile %}";
+        var cart_status_options_api_url = "{% url cart_status_api %}";
+        var cart_type_options_api_url = "{% url cart_type_api %}";
+    </script>
+
+
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/tablesorter/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/tablesorter/jquery.metadata.js"></script>
+{% endblock %}

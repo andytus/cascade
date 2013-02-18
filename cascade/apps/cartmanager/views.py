@@ -49,6 +49,29 @@ class CartProfile(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
+class CartReport(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'cart_report.html'
+
+
+class CustomerNew(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'customer_new.html'
+
+class CustomerReport(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'customer_report.html'
+
+
+class TicketReport(LoginSiteRequiredMixin, TemplateView):
+    template_name='ticket_report.html'
+
+class TicketNew(LoginSiteRequiredMixin, TemplateView):
+    template_name = "ticket_new.html"
+
+class TicketOpen(LoginSiteRequiredMixin, TemplateView):
+    template_name = "ticket_open.html"
+
+
+
+
 
 
 ######################################################################################################################
@@ -60,6 +83,8 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     serializer_class = CartSearchSerializer
     paginate_by = 15
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
+
+
 
     def get_queryset(self):
         """
@@ -86,6 +111,60 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         else:
             raise Http404
         return query
+
+
+class TicketAPI(ListAPIView):
+    #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
+    model=CartServiceTicket
+    serializer_class = CartServiceTicketSerializer
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
+    paginate_by = 50
+
+
+    def get_queryset(self):
+        cart_serial = self.request.QUERY_PARAMS.get('serial_number', None)
+        cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
+        service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
+        service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
+        #sort_by = simplejson.loads(self.request.QUERY_PARAMS.get('sort_by', None))
+        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+
+        try:
+
+            if sort_by:
+                query = CartServiceTicket.on_site.order_by(sort_by)
+            else:
+                query = CartServiceTicket.on_site.filter()
+
+            if  cart_serial:
+                query = query.filter( Q(removed_cart__serial_number = cart_serial) | Q(delivered_cart__serial_number = cart_serial) | Q(audit_cart__serial_number = cart_serial) )
+            else:
+                if service_status != 'ALL':
+                    query = query.filter(status=service_status)
+                if cart_type !='ALL':
+                    query = query.filter(cart_type__name = cart_type)
+                if service_type != 'ALL':
+                    print service_type
+                    query = query.filter(service_type__service = service_type)
+
+            return query
+        except:
+            #TODO Fix
+            pass
+
+    #over ride list method to provide csv download
+    def list(self, request, *args, **kwargs):
+
+        if self.request.accepted_renderer.format == "csv":
+            file_name = self.request.QUERY_PARAMS.get('file_name', 'import')
+            response = HttpResponse(mimetype='text/csv')
+            response['Content-Disposition']= 'attachment; filename=%s.csv' % file_name
+            t = loader.get_template('ticket.csv')
+            c = Context({'data': self.get_queryset()},)
+            response.write(t.render(c))
+            return response
+
+        return super(TicketAPI, self).list(request, *args, **kwargs)
 
 
 class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
@@ -117,7 +196,7 @@ class CartProfileAPI(APIView):
             c = Context({'data': cart},)
             response.write(t.render(c))
             return response
-
+        print cart, "get"
         return Response(serializer.data)
 
     def post(self, request, serial_number, format=None):
@@ -130,6 +209,7 @@ class CartProfileAPI(APIView):
             cart.current_status = current_status
             cart.last_updated = datetime.now()
             cart.save()
+            print cart.cart_type, 'post'
             return Response({"message": "Update Complete...all set!", "time": datetime.now()})
         except:
             #TODO Test this error
@@ -173,60 +253,6 @@ class CartTypeAPI(ListAPIView):
         else:
             queryset = CartType.on_site.all()
             return queryset
-
-
-
-class TicketAPI(APIView):
-    #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
-    model=CartServiceTicket
-    serializer_class = CartServiceTicketSerializer
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
-
-    def get_object(self, cart_id, service_status, cart_type, service_type):
-        try:
-            query = CartServiceTicket.on_site.filter()
-
-            if  cart_id:
-                query = query.filter( Q(removed_cart__id = cart_id) | Q(delivered_cart__id = cart_id) | Q(audit_cart__id = cart_id) )
-            else:
-                if service_status != 'ALL':
-                    query = query.filter(status=service_status)
-                if cart_type !='ALL':
-                    query = query.filter(cart_type__name = cart_type)
-                if service_type != 'ALL':
-                    query = query.filter(service_type__service = service_type)
-
-            return query
-
-        except:
-            pass
-
-    def get(self, request):
-        cart_id = self.request.QUERY_PARAMS.get('cart_id', None)
-        cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
-        service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
-        service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
-        file_name = self.request.QUERY_PARAMS.get('file_name', 'import')
-        print service_type, cart_type, service_status
-        print "***********************************"
-
-        tickets = self.get_object(cart_id, service_status, cart_type, service_type)
-
-        serializer = CartServiceTicketSerializer(tickets)
-
-        if request.accepted_renderer.format == 'csv':
-            response = HttpResponse(mimetype='text/csv')
-            response['Content-Disposition']= 'attachment; filename=%s.csv' % file_name
-            t = loader.get_template('ticket.csv')
-            c = Context({'data': tickets},)
-            response.write(t.render(c))
-            return response
-
-        return Response({'tickets':serializer.data})
-
-
-
-
 
 
 ########################################################################################################################

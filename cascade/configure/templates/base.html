@@ -3,23 +3,14 @@
       lang="en">
 <head>
 
-
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cartlogic.css">
 
-    <script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
-    <script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
-    <script src="{{ STATIC_URL }}js/knockout/knockout-2.2.0.js"></script>
-    <script src="{{ STATIC_URL }}js/knockout/knockout.mapping.js"></script>
-    <script src="{{ STATIC_URL }}js/cartmanager/common.js" xmlns="http://www.w3.org/1999/html"></script>
-
-
-    {% block page_scripts %}
+    {% block styles %}
 
     {% endblock %}
-
 
     <title>  {% block title %} {% endblock %} </title>
 </head>
@@ -71,10 +62,38 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="#create">New</a></li>
-                                <li><a href="#open">Open</a></li>
+                                <li><a href="{% url ticket_app_new %}" data-target="#modal_new_ticket" data-toggle="modal">New</a></li>
+                                <li><a href="{% url ticket_app_open %}" data-target="#modal_open_ticket" data-toggle="modal">Open</a></li>
+                                <li><a href="{% url tickets_completed_upload %}">Upload Completed</a></li>
+                                <li><a href="{% url ticket_app_report %}">Reports</a></li>
                             </ul>
                         </li>
+
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                Customer
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url customer_app_new %}" data-target="#modal_new_customer" data-toggle="modal">New</a></li>
+                                <li><a href="{% url customer_app_report %}">Reports</a></li>
+                            </ul>
+
+                        </li>
+
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                Carts
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url cart_app_report %}">Reports</a></li>
+                            </ul>
+
+                        </li>
+
+
+
                     </ul>
                     <div id="login_link" class="pull-right">
                         {% if user %}
@@ -89,22 +108,60 @@
         </div>
     </div>
     {% endblock %}
+
+
+
+    <!-- Modals -->
+    <div id="modal_new_customer" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-body">
+
+        </div>
+
+    </div>
+
+    <div id="modal_new_ticket" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-body">
+
+        </div>
+
+    </div>
+
+    <div id="modal_open_ticket" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-body">
+
+        </div>
+
+    </div>
+
+    <div id="modal_new_cart" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-body">
+
+        </div>
+
+    </div>
+
 </div>
 
-<div id="middle" class="row container-fluid">
+
+
+<div id="middle" class="container-fluid">
 
     <div id="message" class="alert message">
         <a class="close">×</a>
         <strong id="message-type"></strong><span id="message-text"></span>
     </div>
 
-
-    <div id="left" class="span3">
+   <div class="row-fluid">
+    <div id="left" class="span2">
         {% block left %}
         {% endblock %}
     </div>
 
-    <div id="main" class="span12">
+    <div id="main" class="span8">
         {% block main_content %}
         {% endblock %}
     </div>
@@ -113,8 +170,26 @@
         {% block right %}
         {% endblock %}
     </div>
-
+   </div>
 </div>
+
+
+
+<script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
+<script src="{{ STATIC_URL }}js/knockout/knockout-2.2.0.js"></script>
+<script src="{{ STATIC_URL }}js/knockout/knockout.mapping.js"></script>
+<script src="{{ STATIC_URL }}js/cartmanager/common.js" xmlns="http://www.w3.org/1999/html"></script>
+<script type="text/javascript">
+
+    var static_url = "{{ STATIC_URL }}";
+
+</script>
+
+{% block page_scripts %}
+
+{% endblock %}
+
 
 
 </body>

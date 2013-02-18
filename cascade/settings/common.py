@@ -135,7 +135,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'south',
     'rest_framework',
-    'cascade.libs.rest_framework_csv',
     'cascade.apps.cartmanager',
     )
 

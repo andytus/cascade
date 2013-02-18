@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test table</title>
+    <script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
+    <script src="{{ STATIC_URL }}js/knockout/knockout-2.2.0.js"></script>
+    <script src="{{ STATIC_URL }}js/knockout/knockout.mapping.js"></script>
+    <script src="{{ STATIC_URL }}js/kogrid/koGrid-2.1.1.debug.js" xmlns="http://www.w3.org/1999/html"></script>
+    <script src="{{ STATIC_URL }}js/test/table.js" xmlns="http://www.w3.org/1999/html"></script>
+
+    <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+        var serial_number = '9512016042';
+        var cart_api_url = "{% url cart_api_profile %}";
+        var cart_app_url = "{% url cart_app_profile %}";
+        var tickets_api_download = "{% url tickets_api_download %}";
+        var customer_app_url = "{% url customer_app_profile %}";
+        var cart_status_options_api_url = "{% url cart_status_api %}";
+        var cart_type_options_api_url = "{% url cart_type_api %}";
+    </script>
+
+
+</head>
+<body>
+
+test tables!
+<div id="test">
+    <div class="gridStyle" data-bind="koGrid: gridOptions"></div>
+</div>
+
+
+</body>
+</html>

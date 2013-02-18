@@ -1,26 +1,10 @@
 {% extends 'base.html' %}
 
-{% block page_scripts %}
-    <script src="{{ STATIC_URL }}js/cartmanager/cart_search.js" xmlns="http://www.w3.org/1999/html"></script>
-
-    <!-- Data API variables: these are used to get JSON formatted data from the server -->
-    <script type="text/javascript">
-        var search_parameters = {{ search_parameters|safe}};
-        var customer_url = "{% url customer_app_profile%}";
-        var cart_url = "{% url cart_app_profile %}";
-        var location_url = "{% url location_app_profile %}";
-    </script>
-
-{% endblock %}
-
 
 {% block title %} Cart Search {% endblock %}
 
 {% block left %}
-    <div>
-        <b> {{ search_parameters }}</b>
 
-    </div>
 {% endblock %}
 
 
@@ -67,25 +51,30 @@
 
         <div id="cart-list" data-bind="foreach: {data:carts, afterRender: Decorator}, visible: carts().length > 0">
 
-            <span class="cart-info box-info">
+            <div class="cart-info box-info">
                 <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
                     <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial()"></span>
                     <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
                 </a>
 
-                <span class="cart-info-text">
-                    <p class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_size()"></span></p>
-                        <p class="cart-info-type" data-bind="text: cart_type()"></p>
+                <div class="cart-info-text">
+                    <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_size()"></span>
 
-                    <p class="cart-info-status label" data-bind="text:current_status,  css: current_status_level"></p>
+                        <div class="cart-info-type" data-bind="text: cart_type()"></div>
 
-                    Produced on: <b><p class="cart-info-born_date" data-bind="text: born_date()"></p></b>
-                </span><br>
-                 <p class="cart-info-address"><a data-bind="attr: {href: customer_url()}, text:address()"></a></p>
-            </span>
+                    </div>
+
+
+                    <div class="cart-info-status label" data-bind="text:current_status,  css: current_status_level"></div>
+
+                    Produced on: <b><div class="cart-info-born_date" data-bind="text: born_date()"></div></b>
+                </div>
+
+                 <div class="cart-info-address"><a data-bind="attr: {href: customer_url()}, text:address()"></a></div>
+            </div>
         </div>
 
-        <!--display page list if count is above #TODO -->
+        <!--display page list if count is above  -->
         <div data-bind="visible:count() > records_per_page() " class="pagination pagination-large pagination-centered">
             <!-- looping through the page count -->
 
@@ -114,4 +103,18 @@
 {% endblock %}
 
 {% block right %}
+
+{% endblock %}
+
+{% block page_scripts %}
+    <script src="{{ STATIC_URL }}js/cartmanager/cart_search.js" xmlns="http://www.w3.org/1999/html"></script>
+
+    <!-- Data API variables: these are used to get JSON formatted data from the server -->
+    <script type="text/javascript">
+        var search_parameters = {{ search_parameters|safe}};
+        var customer_url = "{% url customer_app_profile%}";
+        var cart_url = "{% url cart_app_profile %}";
+        var location_url = "{% url location_app_profile %}";
+    </script>
+
 {% endblock %}

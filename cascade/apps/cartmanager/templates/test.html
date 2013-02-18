@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block page_scripts %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/kogrid/KoGrid.css">
+    <script src="{{ STATIC_URL }}js/test/table.js" xmlns="http://www.w3.org/1999/html"></script>
+    <script src="{{ STATIC_URL }}js/kogrid/koGrid-2.1.1.js" xmlns="http://www.w3.org/1999/html"></script>
+
+
+    <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+        var serial_number = '9512016042';
+        var cart_api_url = "{% url cart_api_profile %}";
+        var cart_app_url = "{% url cart_app_profile %}";
+        var tickets_api_download = "{% url tickets_api_download %}";
+        var customer_app_url = "{% url customer_app_profile %}";
+        var cart_status_options_api_url = "{% url cart_status_api %}";
+        var cart_type_options_api_url = "{% url cart_type_api %}";
+    </script>
+
+
+
+{% endblock %}
+
+
+{% block title %}Testing Tables{% endblock %}
+
+
+{% block main_content %}
+
+
+    test tables!
+    <div id="test">
+        <div class="gridStyle" data-bind="koGrid: gridOptions"></div>
+    </div>
+
+{% endblock %}

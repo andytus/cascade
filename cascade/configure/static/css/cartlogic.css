@@ -5,6 +5,9 @@ body{
 
 }
 
+html { height: 100% }
+body { height: 100%; margin: 0; padding: 0 }
+
 
 #middle {
   /*  border: red dotted; */
@@ -12,13 +15,16 @@ body{
 }
 
 #left {
-   /* border: green solid; */
+    /*border: green solid;*/
     word-wrap: break-word;
 }
 
 #main {
-  /*  border: blue solid;*/
+    /*border: blue solid;*/
+}
 
+#right{
+    /*border: gold solid;*/
 }
 
 .box-info{
@@ -89,10 +95,11 @@ background-color: white;
 
 
 .cart-info {
-    width: 285px;
     display: inline-block;
-    padding: 10px;
-    margin: 5px;
+    padding: 5px;
+    margin-bottom: 15px;
+    width: 30%;
+
 }
 
 .cart-info-text{
@@ -102,11 +109,12 @@ background-color: white;
 .cart-info-address{
    font-size: 1.5em;
    text-align: center;
+   margin-top: 40px;
    letter-spacing: 1px;
 }
 
 .cart-info-header{
-    margin-top: 25px;
+    margin-top: 30px;
 }
 
 .cart-info-size{
@@ -116,9 +124,10 @@ background-color: white;
 
 .cart-info-type{
     font-size: 2em;
-    margin-bottom: 20px;
-    margin-top: -10px;
-
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    font-family: "Bookman Old Style";
 }
 
 .cart-info-link{
@@ -127,8 +136,8 @@ background-color: white;
 }
 
 .cart-info-img{
-
     margin-top: -50px;
+
 }
 
 .cart-info-serial{
@@ -157,13 +166,27 @@ background-color: white;
 }
 
 .cart-info-status{
+     margin-top: 15px;
+     margin-bottom: 10px;
+     font-size: 1em;
      padding: 10px;
-     width: 75px;
+     width: 100px;
      text-align: center;
      text-transform: uppercase;
      font-weight: bold;
 
 }
+
+#cart-info-map{
+   float: left;
+   padding: 8px;
+   width: 400px;
+   height: 200px;
+
+}
+
+
+
 
 /****login page****/
 #login_form{
@@ -195,9 +218,8 @@ background-color: white;
 
 #cart-info-edit{
     margin-top: 5px;
-    margin-right: 35px;
     display: inline;
-    width: 550px;
+
 }
 
 
@@ -234,8 +256,8 @@ background-color: white;
 #cart-info-edit  label, select{
 
     color: #696969;
-    font-size: 1.5em;
-    height: 1.8em;
+    font-size: 1.7em;
+    height: 1.9em;
     padding-right: 10px;
 
 }
@@ -258,3 +280,48 @@ background-color: white;
     color: #696969;
     font-weight: bolder;
 }
+
+#ticket_table {
+    margin-top: 10px;
+
+}
+
+
+table.table-sorter thead tr .sort-header{
+    background: url(../img/bg.gif) no-repeat;
+    background-position: right;
+    padding-right: 25px;
+
+}
+
+table.table-sorter thead tr th:hover{
+    background-color: #A8E3F9;
+    cursor: pointer;
+}
+
+
+table.table-sorter thead tr .sort-down{
+    background: url(../img/desc.gif) no-repeat;
+    background-color: #A8E3F9;
+    background-position: right;
+    padding-right: 25px;
+}
+
+
+table.table-sorter thead tr .sort-up{
+    background: url(../img/asc.gif) no-repeat;
+    background-color: #A8E3F9;
+    background-position: right;
+    padding-right: 25px;
+}
+
+
+
+
+
+
+
+
+
+
+

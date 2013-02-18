@@ -1,0 +1,47 @@
+
+{% extends 'base.html' %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.countdown.css">
+ {% endblock %}
+
+{% block title %}test {% endblock %}
+
+{% block left %}
+{% endblock %}
+
+{% block main_content %}
+
+    <div id="construction" class="box-info">
+      <div  id="count_down"></div>
+    </div>
+    <p class="span12" style="letter-spacing: 15px; font-size: 5.16em; margin-top: 50px; margin-left: 0px;">UNDER CONSTRUCTION</p>
+
+{% endblock %}
+
+{% block right %}
+{% endblock %}
+
+{% block page_scripts %}
+
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery.countdown.min.js"></script>
+
+    <script type="text/javascript">
+
+
+
+        $('#count_down').countdown({until: new Date(2013, 6-1, 21), format: 'WHMS', compact: false,
+
+            description: '<br> <span style="letter-spacing: 10px">UNTIL THE LAUNCH OF CART LOGIC BETA</span>'
+
+        });
+
+
+
+    </script>
+
+{% endblock %}
+
+
+
+
