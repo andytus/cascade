@@ -107,14 +107,16 @@
 {% endblock %}
 
 {% block page_scripts %}
-    <script src="{{ STATIC_URL }}js/cartmanager/cart_search.js" xmlns="http://www.w3.org/1999/html"></script>
-
+    <script src="{{ STATIC_URL }}js/cartmanager/views/cartListViewModel.js" xmlns="http://www.w3.org/1999/html"></script>
+    <script src="{{ STATIC_URL }}js/cartmanager/models/cart.js" xmlns="http://www.w3.org/1999/html"></script>
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript">
         var search_parameters = {{ search_parameters|safe}};
         var customer_url = "{% url customer_app_profile%}";
         var cart_url = "{% url cart_app_profile %}";
         var location_url = "{% url location_app_profile %}";
+        var cart_search_api = "{% url cart_api_search %}";
+        app.cart_list(document.getElementById("results"));
     </script>
 
 {% endblock %}

@@ -29,6 +29,7 @@ function TypeOption(data) {
 
 function CartProfileViewModel() {
 
+/*
     var self = this;
 
     self.last_longitude = ko.observable();
@@ -70,10 +71,40 @@ function CartProfileViewModel() {
 
     //status information
     self.current_status_id = ko.observable();
-    self.current_status = ko.observable();
-    self.current_status_level = ko.observable();
+    self.current_status = ko.observable(); */
+
+    var self = this;
+
+    self.cart = ko.observable();
     self.cart_status_options = ko.observableArray([]);
+    self.cart_type_options = ko.observableArray([]);
+
     self.changeCartStatus = ko.computed(function () {
+        //#TODO Got to be a cleaner way
+        $('#cart-info-edit-status').change(function () {
+            var status = $("#cart-info-edit-status option:selected");
+            self.cart.current_status(status.text());
+            level = self.cart_status_options();
+            var match = ko.utils.arrayFirst(self.cart_status_options(), function (item) {
+                return status.val() == item.id();
+            });
+
+            self.cart.current_status_level(match.level())
+
+        });
+
+        //type information
+        self.changeCartType = ko.computed(function () {
+            $('#cart-info-edit-type').change(function () {
+                var type = $('#cart-info-edit-type option:selected').text();
+                self.cart.cart_type(type);
+            })
+        });
+
+    });
+
+
+/*    self.changeCartStatus = ko.computed(function () {
         //#TODO Got to be a cleaner way
         $('#cart-info-edit-status').change(function () {
             var status = $("#cart-info-edit-status option:selected");
@@ -88,7 +119,7 @@ function CartProfileViewModel() {
         });
 
         //type information
-        self.cart_type_options = ko.observableArray([]);
+
         self.changeCartType = ko.computed(function () {
             $('#cart-info-edit-type').change(function () {
                 var type = $('#cart-info-edit-type option:selected').text();
@@ -96,13 +127,12 @@ function CartProfileViewModel() {
             })
         });
 
-    });
-
+    });*/
 
     self.getCartData = function () {
         $.getJSON(cart_api_url + serial_number, function (data) {
-
-            cart_id = data.id;
+            self.cart(new CartProfile);
+           /* cart_id = data.id;
             self.id(data.id);
             self.rfid(data.rfid);
             self.size(data.cart_type.size);
@@ -126,7 +156,7 @@ function CartProfileViewModel() {
             //status information
             self.current_status_id(data.current_status.id);
             self.current_status_level(data.current_status.level);
-            self.current_status(data.current_status.label);
+            self.current_status(data.current_status.label);*/
 
             //Calling to get cart type options for this cart
             //filters based on size and needs to get the size from the current cart size
@@ -167,20 +197,26 @@ function CartProfileViewModel() {
             type:"post", contentType:"application/json",
             dataType:"jsonp",
             success:function (result) {
-                console.log(result.time);
                 self.last_updated(new Date(result.time).toDateString());
                 $("#message").addClass("alert-success").show();
                 $("#message-type").text("Success! ");
                 $("#message-text").text(result.message);
                 $('.close').click(function () {
                     $('#message').hide();
-                 //Call get cart to refresh the cart model
-                 self.getCartData()
-                })
-
+                });
+                //Call get cart to refresh the cart model
+                self.getCartData()
             },
             error:function (result) {
-                console.log(result)
+                //#TODO test this!
+                $("#message").addClass("alert-warning").show();
+                $("#message-type").text("Failed! ");
+                $("#message-text").text(result.message.Description);
+                $('.close').click(function () {
+                    $('#message').hide();
+                    //Call get cart to refresh the cart model
+
+                })
             }
         })
 
@@ -189,7 +225,7 @@ function CartProfileViewModel() {
 
     self.map = function(){
 
-       var cartLatlng = new google.maps.LatLng(self.location_longitude(), self.location_latitude());
+       var cartLatlng = new google.maps.LatLng(self.location_latitude(), self.location_longitude());
        var mapOptions = {
             center: cartLatlng,
             zoom: 12,
@@ -213,7 +249,12 @@ function CartProfileViewModel() {
         );
 
         var shape = {
-            coord: [35,4,36,5,37,6,37,7,36,8,35,9,35,10,35,11,35,12,35,13,35,14,35,15,35,16,35,17,34,18,34,19,34,20,34,21,34,22,34,23,34,24,34,25,34,26,34,27,33,28,33,29,33,30,33,31,33,32,33,33,33,34,33,35,33,36,33,37,33,38,33,39,33,40,33,41,33,42,33,43,29,44,28,45,27,46,27,47,19,47,16,46,13,45,8,44,7,43,6,42,5,41,5,40,5,39,5,38,5,37,6,36,8,35,10,34,10,33,10,32,9,31,9,30,9,29,9,28,9,27,9,26,9,25,9,24,9,23,9,22,8,21,8,20,7,19,5,18,5,17,5,16,5,15,5,14,4,13,4,12,4,11,4,10,3,9,3,8,3,7,2,6,6,5,15,4,35,4],
+            coord: [35,4,36,5,37,6,37,7,36,8,35,9,35,10,35,11,35,12,35,13,35,14,35,15,35,16,35,17,34,18,
+                   34,19,34,20,34,21,34,22,34,23,34,24,34,25,34,26,34,27,33,28,33,29,33,30,33,31,33,32,33,
+                   33,33,34,33,35,33,36,33,37,33,38,33,39,33,40,33,41,33,42,33,43,29,44,28,45,27,46,27,47,19,
+                   47,16,46,13,45,8,44,7,43,6,42,5,41,5,40,5,39,5,38,5,37,6,36,8,35,10,34,10,33,10,32,9,31,9,
+                   30,9,29,9,28,9,27,9,26,9,25,9,24,9,23,9,22,8,21,8,20,7,19,5,18,5,17,5,16,5,15,5,14,4,13,4,
+                   12,4,11,4,10,3,9,3,8,3,7,2,6,6,5,15,4,35,4],
             type: 'poly'
         };
 
@@ -229,13 +270,11 @@ function CartProfileViewModel() {
         });
 
         google.maps.event.addListener(marker, 'dragend', function() {
-            console.log(marker.getPosition());
+            console.log(marker.getPosition().lat());
         });
 
 
     };
-
-
 
     self.getLocation = function () {
 
@@ -250,21 +289,20 @@ function CartProfileViewModel() {
 
 }
 
-function Tickets(data) {
+/*function Tickets(data) {
     this.status = ko.observable(data.status);
     this.service_type = ko.observable(data.service_type);
     this.success_attempts = ko.observable(data.success_attempts);
     this.date_created = (new Date(data.date_created).toDateString());
-    this.date_last_accessed = ko.observable(new Date(data.date_last_accessed).toDateString());
+    this.date_last_attempted = ko.observable(new Date(data.date_last_attempted).toDateString());
     this.house_number = ko.observable(data.house_number);
     this.street_name = ko.observable(data.street_name);
     this.unit = ko.observable(data.unit);
-    this.removed_cart = ko.observable(data.removed_cart);
-    this.delivered_cart = ko.observable(data.delivered_cart);
-    this.audit_cart = ko.observable(data.audit_cart);
-}
+    this.serviced_cart = ko.observable(data.serviced_cart);
+    this.expected_cart = ko.observable(data.expected_cart) || "removals only";
+}*/
 
-function TicketsModelView(records_per_page) {
+function TicketsModelView() {
     var self = this;
     self.count = ko.observable(0);
     self.page = ko.observable(1);
@@ -275,10 +313,8 @@ function TicketsModelView(records_per_page) {
 
     });
     self.sort_default = ko.observable('status__service_status');
-
     //cart tickets
     self.tickets = ko.observableArray();
-
     self.ticket_table_headers = ko.observableArray(
         //#TODO ugly but works
         [
@@ -286,14 +322,14 @@ function TicketsModelView(records_per_page) {
             {field:'service_type__code', displayName:'Type', sort:ko.observable(0)},
             {field:'success_attempts', displayName:'Attempts', sort:ko.observable(0)},
             {field:'date_created', displayName:'Created', sort:ko.observable(0)},
-            {field:'date_last_accessed', displayName:'Updated', sort:ko.observable(0)},
+            {field:'date_last_attempted', displayName:'Last Attempt', sort:ko.observable(0)},
             {field:'location__house_number', displayName:'House', sort:ko.observable(0)},
             {field:'location__street_name', displayName:'Street', sort:ko.observable(0)},
             {field:'location__unit', displayName:'Unit', sort:ko.observable(0)},
-            {field:'cart_rfid', displayName:'Cart RFID', sort:ko.observable(0)}
+            {field:'serviced_cart__rfid', displayName:'Serviced RFID', sort:ko.observable(0)},
+            {field:'expected_cart__rfid', displayName:'Expected RFID', sort:ko.observable(0)}
         ]
     );
-
 
     self.getTickets = function (serial_number, page) {
         url = tickets_api_download;
@@ -309,12 +345,6 @@ function TicketsModelView(records_per_page) {
             self.tickets(cartTickets);
         });
     };
-
-
-    (function () {
-        self.getTickets(serial_number, 1, 'status__service_status');
-
-    })();
 
     self.sortTickets = function (serial_number, page, sort_by) {
 
@@ -344,13 +374,30 @@ function TicketsModelView(records_per_page) {
 
 
     }
+
+    self.createNewTicket = function(serial_number){
+        //Note: if serial_number = new, then this function will create a new ticket
+
+          console.log(cart_profile.size);
+
+
+
+
+        $.ajax(ticket_api + serial_number, {
+            data:ko.toJSON({'test':"foo me"}),
+            type:"post", contentType:"application/json",
+            dataType:"jsonp"
+            }
+
+        )
+
+    };
+    self.getTickets(serial_number, 1);
 }
 
 $(document).ready(function () {
-        ko.applyBindings(new CartProfileViewModel(), document.getElementById("cart_profile"));
-        ko.applyBindings(new TicketsModelView(1), document.getElementById("ticket_panel"));
-
-
+        var cart_profile = ko.applyBindings(new CartProfileViewModel(), document.getElementById("cart_profile"));
+        var tickets = ko.applyBindings(new TicketsModelView(), document.getElementById("ticket_panel"));
     }
 );
 

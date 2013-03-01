@@ -1,9 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ link }}</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+
+{% block title %} Upload File (NAME OF UPLOAD HERE) {% endblock %}
+
+{% block left %}
+
+{% endblock %}
+
+{% block main_content %}
 
 {% if completed  %}
     TOTAL RECORDS PROCESSED: {{ total_count }}
@@ -14,13 +18,22 @@
 
     <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form }}
-        <br>
+        {{ form.as_p }}
         <input type="submit" />
     </form>
 
 {% endif %}
 
+{% endblock %}
 
-</body>
-</html>
+{% block right %}
+
+{% endblock %}
+
+{% block page_scripts %}
+
+{% endblock %}
+
+
+
+

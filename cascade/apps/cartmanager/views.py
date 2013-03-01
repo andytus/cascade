@@ -2,6 +2,7 @@ import csv
 from django.shortcuts import  render
 from django.utils import simplejson
 from django.contrib.sites.models import get_current_site
+from django.core.exceptions import ObjectDoesNotExist
 from cascade.apps.cartmanager.models import *
 from django.template import loader, Context
 from django.views.generic import FormView, TemplateView, ListView
@@ -81,7 +82,7 @@ class TicketOpen(LoginSiteRequiredMixin, TemplateView):
 class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
-    paginate_by = 15
+    paginate_by = 50
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
 
 
@@ -106,6 +107,8 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = query.filter(cart_type__name=value)
             elif  search_type == 'size':
                 query = query.filter(size=value)
+            elif search_type == 'status':
+                query = query.filter(current_status__label=value)
             else:
                 raise Http404
         else:
@@ -113,43 +116,46 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         return query
 
 
-class TicketAPI(ListAPIView):
+class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
     model=CartServiceTicket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
-    paginate_by = 50
+    paginate_by = 10
 
 
     def get_queryset(self):
         cart_serial = self.request.QUERY_PARAMS.get('serial_number', None)
+        cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
         cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
         service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
-        #sort_by = simplejson.loads(self.request.QUERY_PARAMS.get('sort_by', None))
+        processed = self.request.QUERY_PARAMS.get('processed','True')
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
 
         try:
-
             if sort_by:
                 query = CartServiceTicket.on_site.order_by(sort_by)
             else:
                 query = CartServiceTicket.on_site.filter()
 
             if  cart_serial:
-                query = query.filter( Q(removed_cart__serial_number = cart_serial) | Q(delivered_cart__serial_number = cart_serial) | Q(audit_cart__serial_number = cart_serial) )
+                query = query.filter( Q(expected_cart__serial_number = cart_serial) | Q(serviced_cart__serial_number = cart_serial))
             else:
                 if service_status != 'ALL':
-                    query = query.filter(status=service_status)
+                    print service_status
+                    query = query.filter(status__service_status=service_status)
                 if cart_type !='ALL':
                     query = query.filter(cart_type__name = cart_type)
+                if cart_size !='ALL':
+                    query = query.filter(cart_type__size = cart_size)
                 if service_type != 'ALL':
-                    print service_type
                     query = query.filter(service_type__service = service_type)
-
+                if processed == 'False':
+                    query = query.filter(processed=False)
             return query
         except:
-            #TODO Fix
+            #TODO return error
             pass
 
     #over ride list method to provide csv download
@@ -164,7 +170,7 @@ class TicketAPI(ListAPIView):
             response.write(t.render(c))
             return response
 
-        return super(TicketAPI, self).list(request, *args, **kwargs)
+        return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
 
 class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
@@ -196,7 +202,6 @@ class CartProfileAPI(APIView):
             c = Context({'data': cart},)
             response.write(t.render(c))
             return response
-        print cart, "get"
         return Response(serializer.data)
 
     def post(self, request, serial_number, format=None):
@@ -209,11 +214,52 @@ class CartProfileAPI(APIView):
             cart.current_status = current_status
             cart.last_updated = datetime.now()
             cart.save()
-            print cart.cart_type, 'post'
             return Response({"message": "Update Complete...all set!", "time": datetime.now()})
         except:
             #TODO Test this error
-            return HttpResponse({"message": "Error: Sorry, did not update, somethings wrong", "time": datetime.now()})
+            return Response({"Error": "Error: Sorry, did not update, somethings wrong", "time": datetime.now()})
+
+class TicketAPI(APIView):
+    model=CartServiceTicket
+    serializer_class = CartServiceTicketSerializer
+    renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
+    def get_object(self, ticket_id):
+
+        try:
+           ticket =  CartServiceTicket.on_site.get(id=ticket_id)
+           return ticket
+
+        except ObjectDoesNotExist:
+            return None
+
+    def get(self, request, ticket_id, format=None):
+        try:
+            ticket = self.get_object(ticket_id)
+            if ticket:
+                serializer = CartServiceTicketSerializer(ticket)
+                return Response(serializer.data)
+            else:
+                return Response({"Message":{"Type":"Error", "Description": "Sorry! can not find ticket with id: '%s'" %(ticket_id)}, "time": datetime.now()})
+        except ValueError:
+            #except ValueError if ticket_id is not an number
+            return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" %(ticket_id)}, "time": datetime.now()})
+
+    def post(self, request, ticket_id, format=None):
+
+        json_data = simplejson.loads(request.raw_post_data)
+
+
+        if ticket_id == 'New':
+            ticket = CartServiceTicket.on_site.create()
+        else:
+            try:
+                ticket = self.get_object(ticket_id)
+
+            except ValueError:
+                return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" %(ticket_id)}, "time": datetime.now()})
+
+
 
 class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
     model=CollectionCustomer
@@ -277,18 +323,25 @@ class UploadFormView(FormView):
     KIND = None
     LINK = None
 
+
     def form_valid(self, form, **kwargs):
+        if self.request.POST.get('process'):
+            process = True
+        else:
+            process = False
         context = self.get_context_data(**kwargs)
         upload_file = self.MODEL
         file = self.request.FILES[self.FILE]
 
+
         if file.content_type == "application/vnd.ms-excel" or "text/csv":
             upload_file.file_path = file
             upload_file.size = file.size
+            upload_file.process_records = process
             upload_file.file_kind = self.KIND
             upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
             upload_file.save()
-            total_count, good_count, error_count = upload_file.process()
+            total_count, good_count, error_count = upload_file.process(process)
             context['total_count'] = total_count
             context['good_count'] = good_count
             context['error_count'] = error_count
@@ -305,55 +358,60 @@ class CartUploadView(UploadFormView):
     LINK = 'Cart File Upload'
 
 class CustomerUploadView(UploadFormView):
-
     form_class = CustomerUploadFileForm
     MODEL = CustomersUploadFile()
     FILE = 'customer_file' #is an attribute on CustomerUploadFileForm
     KIND = 'Customer'
     LINK = 'Customer File Upload'
 
-class CSVResponseMixin(object):
-    """
-    This mixin works renders a csv file using render_to_response method.
-    It currently only works with a ValuesQuerySet as part of the context.
-    You must also create a csv_header context for column headings in the
-    generic views get_context_object.
-
-    """
-    #inspired by http://palewi.re/posts/2009/03/03/django-recipe-dump-your-queryset-out-as-a-csv-file/
-
-    def render_to_response(self, context,**httpresponse_kwargs ):
-        """Constructs HttpResponse and send to the convert_to_csv for write to csv.
-           Return CSV containing 'context' as payload"""
-
-        header = []
-        if  context['csv_header']:
-            header = context['csv_header']
-        self.response =HttpResponse(mimetype="text/csv",  **httpresponse_kwargs)
-        self.response['Content-Disposition']= 'attachment; filename=import.csv'
-        self.response['content'] = self.convert_to_csv(context[self.context_object_name], header)
-
-        return self.response
 
 
-    def convert_to_csv(self, context, header):
-        writer = csv.writer(self.response)
-        #fields come from ValuesQuerySet keys (acts like a dictionary)
-        context_fields = context[0].keys()
-        context_fields.sort()
-        writer.writerow(header)
 
-        for obj in context:
-            row = []
-            for field in context_fields:
-                #iterate through values in each context object
-                #check for correct encoding (python csv doesn't like unicode)
-                val = obj[field]
-                if type == unicode:
-                    val = val.encode('utf-8')
-                row.append(val)
-            writer.writerow(row)
-        return writer
+
+
+
+#class CSVResponseMixin(object):
+#    """
+#    This mixin works renders a csv file using render_to_response method.
+#    It currently only works with a ValuesQuerySet as part of the context.
+#    You must also create a csv_header context for column headings in the
+#    generic views get_context_object.
+#
+#    """
+#    #inspired by http://palewi.re/posts/2009/03/03/django-recipe-dump-your-queryset-out-as-a-csv-file/
+#
+#    def render_to_response(self, context,**httpresponse_kwargs ):
+#        """Constructs HttpResponse and send to the convert_to_csv for write to csv.
+#           Return CSV containing 'context' as payload"""
+#
+#        header = []
+#        if  context['csv_header']:
+#            header = context['csv_header']
+#        self.response =HttpResponse(mimetype="text/csv",  **httpresponse_kwargs)
+#        self.response['Content-Disposition']= 'attachment; filename=import.csv'
+#        self.response['content'] = self.convert_to_csv(context[self.context_object_name], header)
+#
+#        return self.response
+#
+#
+#    def convert_to_csv(self, context, header):
+#        writer = csv.writer(self.response)
+#        #fields come from ValuesQuerySet keys (acts like a dictionary)
+#        context_fields = context[0].keys()
+#        context_fields.sort()
+#        writer.writerow(header)
+#
+#        for obj in context:
+#            row = []
+#            for field in context_fields:
+#                #iterate through values in each context object
+#                #check for correct encoding (python csv doesn't like unicode)
+#                val = obj[field]
+#                if type == unicode:
+#                    val = val.encode('utf-8')
+#                row.append(val)
+#            writer.writerow(row)
+#        return writer
 
 #class TicketsDownloadView(CSVResponseMixin, ListView):
 #    template_name = 'ticketdownload.html'

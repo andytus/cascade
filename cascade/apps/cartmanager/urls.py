@@ -1,9 +1,9 @@
 from django.conf.urls import patterns, url
-from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketAPI, TicketsCompletedUploadView, \
+from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketSearchAPI, TicketsCompletedUploadView, \
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationProfileAPI, UpdateCartLocationAPI, CartSearch, CartProfile, \
-      CartStatusAPI, CartTypeAPI, TicketAPI, TicketReport, TicketNew, TicketOpen, CustomerReport, CustomerNew, CartReport
+      CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketOpen, CustomerReport, CustomerNew, CartReport, TicketAPI
 from rest_framework.urlpatterns import format_suffix_patterns
-from django.views.generic.simple import direct_to_template
+
 
 
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
@@ -26,10 +26,11 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^upload/errors/', DataErrorsView.as_view(), name='upload_errors'),
     url(r'^upload/customers/', CustomerUploadView.as_view(), name='customer_uploads'),
     url(r'^upload/tickets/completed/', TicketsCompletedUploadView.as_view(), name='tickets_completed_upload' ),
-    url(r'^api/report/tickets/$', TicketAPI.as_view(), name='tickets_api_download'),
+    url(r'^api/report/tickets/$', TicketSearchAPI.as_view(), name='tickets_api_download'),
+    url(r'^api/ticket/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketAPI.as_view(), name='ticket_api'),
     url(r'^app/tickets/report/$', TicketReport.as_view(), name='ticket_app_report'),
     url(r'^app/tickets/new/$', TicketNew.as_view(), name='ticket_app_new'),
     url(r'^app/tickets/open/$', TicketOpen.as_view(), name='ticket_app_open'),
-    url(r'^test/', direct_to_template, {'template': 'test.html'})
+
  )
 urlpatterns = format_suffix_patterns(urlpatterns)

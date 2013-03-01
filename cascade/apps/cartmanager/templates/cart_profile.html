@@ -13,7 +13,7 @@
 
         <div class="cart-info box-info">
 
-            <a class="cart-info-link pull-left" data-bind="attr: {href: cart_profile_url()}">
+            <a class="cart-info-link pull-left" data-bind="attr: {href: cart.cart_profile_url()}">
                 <span class="cart-info-serial" data-bind="text:serial_number"></span>
                 <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
             </a>
@@ -139,11 +139,12 @@
                 <td data-bind="text: service_type"></td>
                 <td data-bind="text: success_attempts"></td>
                 <td data-bind="text: date_created"></td>
-                <td data-bind="text: date_last_accessed"></td>
+                <td data-bind="text: date_last_attempted"></td>
                 <td data-bind="text: house_number"></td>
                 <td data-bind="text: street_name"></td>
                 <td data-bind="text: unit"></td>
-                <td data-bind="text: removed_cart"></td>
+                <td data-bind="text: serviced_cart"></td>
+                <td data-bind="text: expected_cart"></td>
             </tbody>
 
             <tfoot data-bind="visible: count() == 0">
@@ -157,6 +158,16 @@
         </table>
     </div>
 
+
+    <div id="modal_location_cart_change" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-body">
+
+        </div>
+
+    </div>
+
+
 {% endblock %}
 
 
@@ -164,6 +175,15 @@
 {% endblock %}
 
 {% block page_scripts %}
+
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.metadata.js"></script>
+
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
@@ -174,13 +194,11 @@
         var customer_app_url = "{% url customer_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
+
+        var cart_profile = app.cart_profile(document.getElementById("cart_profile"));
+        var tickets = app.ticket_list(document.getElementById("ticket_panel"));
+        tickets.getTickets(serial_number, 1)
     </script>
 
 
-    <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
-    </script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_profile.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/tablesorter/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/tablesorter/jquery.metadata.js"></script>
 {% endblock %}

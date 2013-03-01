@@ -7,10 +7,8 @@
  *
  */
 
-function CartSearch(type, value){
-    this.type = type;
-    this.value = value;
-}
+
+(function(cartlogic){
 
 function CartSearchViewModel() {
     var self = this;
@@ -18,9 +16,13 @@ function CartSearchViewModel() {
     self.search_type = ko.observable("address");
     self.search_value = ko.observable();
     self.search_placeholder = ko.observable("Cart Search");
+    self.search_params = function (type, value){
+        this.type = type;
+        this.value = value;
+    }
     self.search_query = ko.computed(function(){
 
-     return ko.toJSON(new CartSearch(self.search_type, self.search_value));
+     return ko.toJSON({type:self.search_type, value: self.search_value});
     });
 
     self.getSearchInfo = function(data, event){
@@ -29,10 +31,22 @@ function CartSearchViewModel() {
         // Just clearing the value of the search input and changing the placeholder of the text to help the user.
         self.search_placeholder(event.target.title);
     };
+
+
 }
+    cartlogic.CartSearchViewModel = CartSearchViewModel;
+
+}(window.cartlogic));
+
+
+
+
+
+/*
 
 $(document).ready(function () {
     ko.applyBindings(new CartSearchViewModel(), document.getElementById("cart_search_form"));
-    $('#message').hide();
+
 
 });
+*/

@@ -46,7 +46,7 @@ class GetInfoRelatedField(serializers.RelatedField):
 
 class CartLocationCustomerField(serializers.Field):
     def to_native(self, value):
-        if value.customer == None:
+        if value == None or value.customer == None:
             return "Not Assigned"
         else:
             return value.customer.get_info()
@@ -94,6 +94,7 @@ class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = AddressProfileSerializer()
     current_status = CartStatusSerializer()
     cart_type = CartTypeSerializer()
+    cart_url = serializers.Field(source='get_absolute_url')
     class Meta:
         model = Cart
         depth = 1
@@ -103,7 +104,6 @@ class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = GetInfoRelatedField(source='location')
     customer = CartLocationCustomerField(source='location')
     cart = serializers.Field(source='get_info')
-
     class Meta:
         model = Cart
         fields = ('cart', 'customer', 'location')
@@ -131,14 +131,10 @@ class CleanRelatedField(serializers.Field):
 
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    #TODO do a get_info on CartServiceTicket (with info from removed cart ...size, etc)
 
-    removed_cart = CleanRelatedField(source='removed_cart.rfid')
-    removed_cart_size = CleanRelatedField(source='removed_cart.cart_type.size')
-    audit_cart = CleanRelatedField(source='audit_cart.rfid')
-
-    #Assigned after complete######################################
-    delivered_cart = CleanRelatedField(source='delivered_cart.rfid')
+    serviced_cart = CleanRelatedField(source='serviced_cart.rfid')
+    serviced_cart_size = CleanRelatedField(source='serviced_cart.cart_type.size')
+    expected_cart = CleanRelatedField(source='audit_cart.rfid')
 
     status = CleanRelatedField(source='status.service_status')
     service_type = CleanRelatedField(source='service_type.code')
@@ -156,8 +152,8 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
 
     class Meta:
         model = CartServiceTicket
-        fields = ( 'id','service_type', 'success_attempts', 'audit_cart', 'removed_cart', 'removed_cart_size',
-                  'delivered_cart', 'status', 'date_completed', 'date_created', 'date_last_accessed', 'latitude',
+        fields = ( 'id','service_type', 'success_attempts', 'serviced_cart', 'serviced_cart_size',
+                  'expected_cart', 'status', 'processed', 'date_completed', 'date_created', 'date_last_attempted', 'latitude',
                   'longitude', 'device_name', 'audit_status', 'broken_component', 'broken_comments', 'house_number',
                    'street_name', 'unit', 'cart_type','cart_type_size')
 

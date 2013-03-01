@@ -1,3 +1,2 @@
-systemid,first,last,phone,email,house number,street_name,unit,city,state,zipcode,latitude,longitude,recycle,refuse,yard_organics,other,route,route_day
-1090,Dr. Foo,Bars,123-456-7896,joe.bennett@cascadeng.com,1600,Pennsylvania Avenue,,Washington,MI,49512,-77.03655,38.897669,1,1,1,1,2,test
-1080,Foo,Bar,123-200-7896,support@capturit.com,100,Thirty-Seventh,,Grand Rapids,MI,49512,-85.546407,42.896796,0,1,0,1,2,test2
+systemid,first,last,phone,email,house number,street_name,unit,city,state,zipcode,latitude,longitude,recycle,size,refuse,size,yard_organics,size,other,size,route,route_day
+1080000,Inventory,Inventory,123-200-7896,support@capturit.com,100,Thirty-Seventh,,Grand Rapids,MI,49512,-85.546407,42.896796,,,,,,,,,,

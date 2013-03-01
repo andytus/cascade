@@ -46,6 +46,8 @@
                                             class="icon-trash"></i>Size</a></li>
                                     <li><a id="type" title="e.g. Recycle, Refuse" data-bind="click: getSearchInfo"><i
                                             class="icon-asterisk"></i>Type</a></li>
+                                    <li><a id="status" title="e.g. Delivered, Produced, Lost, ect.." data-bind="click: getSearchInfo"><i
+                                            class="icon-flag"></i>Status</a></li>
                                 </ul>
                                 <input tabindex="2" id="cart_search_input" class="span3" type="text" placeholder="Search Carts" data-bind="attr:{placeholder: search_placeholder}, value: search_value"/>
                                 <button tabindex="3" class="btn" type="submit"><span class="icon-search"></span></button>
@@ -91,6 +93,21 @@
                             </ul>
 
                         </li>
+
+
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                Admin
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url customer_uploads %}">upload customers</a></li>
+                            </ul>
+
+                        </li>
+
+
+
 
 
 
@@ -175,14 +192,20 @@
 
 
 
-<script src="{{ STATIC_URL }}js/jquery/jquery.min.js"></script>
-<script src="{{ STATIC_URL }}js/bootstrap/bootstrap.js"></script>
-<script src="{{ STATIC_URL }}js/knockout/knockout-2.2.0.js"></script>
-<script src="{{ STATIC_URL }}js/knockout/knockout.mapping.js"></script>
-<script src="{{ STATIC_URL }}js/cartmanager/common.js" xmlns="http://www.w3.org/1999/html"></script>
+<script src="{{ STATIC_URL }}js/vendor/jquery/jquery.min.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/knockout/knockout.mapping.js"></script>
+<script src="{{ STATIC_URL }}js/cartmanager/cart_manager_app.js" xmlns="http://www.w3.org/1999/html"></script>
+<script src="{{ STATIC_URL }}js/cartmanager/views/CartSearchViewModel.js" xmlns="http://www.w3.org/1999/html"></script>
 <script type="text/javascript">
 
-    var static_url = "{{ STATIC_URL }}";
+    var static_url = "{{ STATIC_URL }}"
+    var ticket_api = "{% url ticket_api %}"
+    var app = new cartlogic.App();
+    //call cart logic's cart search
+    app.cart_search(document.getElementById("cart_search_form"));
+    $('#message').hide();
 
 </script>
 

@@ -1,42 +1,21 @@
 /**
  *
- * User: joe.bennett
- * Date: 12/10/12
- * Time: 3:12 PM
- * Uses Knockout js to get carts from server
+ * User: jbennett
+ * Date: 2/27/13
+ * Time: 4:03 PM
  *
  */
 
 
-/*
+//View Model for Cart Searches
 
-function Cart(data) {
-    var self = this;
-    */
-/** Creates a Cart object returns to the view array **//*
+(function (cartlogic){
 
-    self.cart_serial = ko.observable((data.cart.serial) || "It's Missing");
-    self.born_date = ko.observable(new Date(data.cart.born_date).toDateString());
-    self.current_status = ko.observable(data.cart.current_status);
-    self.cart_id = ko.observable((data.cart.id));
-    self.cart_url = ko.observable((cart_url + data.cart.serial));
-    self.cart_type = ko.observable((data.cart.cart_type) || "?");
-    self.cart_size = ko.observable((data.cart.size) || "?");
-    self.customer_id = ko.observable((data.customer.id) || "");
-    self.customer_name = ko.observable((data.customer.name) || "Unknown or Not Assigned");
-    self.customer_url = ko.observable((customer_url || "") + this.customer_id());
-    self.address = ko.observable(data.location.properties.house_number + " " + data.location.properties.street_name);
-    if (data.location.properties.unit) {
-        this.address(this.address() + " " + "Unit: " + data.location.properties.unit);
-    }
-    self.latitude = ko.observable((data.location.geometry.coordinates[1]) || 0);
-    self.longitude = ko.observable((data.location.geometry.coordinates[0]) || 0);
-    self.current_status_level = ko.observable(data.cart.current_status_level);
-}
-*/
 
-/*function CartListViewModel() {
-    *//**  **//*
+
+    function CartsListViewModel(){
+
+    /**  **/
     var self = this;
     //Incoming from server (search_parameters, page, count, etc..)
     self.search_for_type = ko.observable("");
@@ -70,7 +49,7 @@ function Cart(data) {
         // (placed as a template variable at the top of the cart_search.html).
 
         //#TODO use the url variable instead of hard coding:
-        var url = "/cascadecart/api/cart/search/?format=jsonp&callback=?";
+        var url = cart_search_api + "?format=jsonp&callback=?";
         self.search_for_type(params.type);
         self.search_for_value(params.value);
 
@@ -90,7 +69,7 @@ function Cart(data) {
 
         $.getJSON(url,
             params,
-            //function creates and array of carts based on return from the server
+            //function creates an array of carts based on return from the server
             function (data) {
                 if (data.count == 1) {
                     //if you get an exact match just forward to the carts profile page
@@ -107,12 +86,8 @@ function Cart(data) {
     // sort of a default call of the fist page onload
     self.getData(search_parameters, 1);
 
-}*/
-/*
+}
+    //add cartListView to cartlogic namespace
+    cartlogic.CartsListViewModel = CartsListViewModel;
 
-$(document).ready(function () {
-
-    ko.applyBindings(new CartListViewModel(), document.getElementById("results"));
-
-});
-*/
+}(window.cartlogic));
