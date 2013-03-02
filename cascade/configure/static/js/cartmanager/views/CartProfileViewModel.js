@@ -42,16 +42,16 @@ function TypeOption(data) {
 function CartProfileViewModel() {
 
     var self = this;
-
     self.cart = ko.observable();
     self.cart_status_options = ko.observableArray([]);
     self.cart_type_options = ko.observableArray([]);
 
     self.changeCartStatus = ko.computed(function() {
         //#TODO Got to be a cleaner way
-        $('#cart-info-edit-status').change(function () {
+/*        $('#cart-info-edit-status').change(function () {
+            console.log("test");
             var status = $("#cart-info-edit-status option:selected");
-            self.cart.current_status(status.text());
+            self.cart().current_status(status.text());
             level = self.cart_status_options();
             var match = ko.utils.arrayFirst(self.cart_status_options(), function (item) {
                 return status.val() == item.id();
@@ -59,28 +59,28 @@ function CartProfileViewModel() {
 
             self.cart.current_status_level(match.level())
 
-        });});
+        });*/});
 
         //type information
     self.changeCartType = ko.computed(function() {
-            $('#cart-info-edit-type').change(function () {
+/*            $('#cart-info-edit-type').change(function () {
                 var type = $('#cart-info-edit-type option:selected').text();
                 self.cart.cart_type(type);
-            })
+            })*/
         });
 
 
     self.getCartData = function () {
         $.getJSON(cart_api_url + serial_number, function (data) {
-            var profile_cart = new cartlogic.CartProfile(data);
-            self.cart(profile_cart);
-            console.log(self.cart());
+            self.cart(new cartlogic.CartProfile(data));
+            console.log(self.cart().born_date());
             //Calling to get cart type options for this cart
             //filters based on size and needs to get the size from the current cart size
             self.getTypeOptions();
             //Calling to get the cart status options
             self.getStatusOptions();
-            self.map();
+            self.map(document.getElementById("map_canvas"));
+
         });
     };
 
@@ -91,31 +91,50 @@ function CartProfileViewModel() {
             });
             self.cart_status_options(cartStatusOptions);
             //set drop down to current status
-            $("#cart-info-edit-status option[value='" + self.current_status_id() + "']").attr("selected", "selected");
+            $("#cart-info-edit-status option[value='" + self.cart().current_status_id() + "']").attr("selected", "selected");
         })
     };
 
     self.getTypeOptions = function () {
         url = cart_type_options_api_url + "?format=jsonp&callback=?";
-        console.log(self.cart.size());
-        data = {'size':self.cart.size()};
+        data = {'size':self.cart().size()};
         $.getJSON(url, data, function (data) {
             var cartTypeOptions = $.map(data, function (item) {
                 return new TypeOption(item)
             });
             self.cart_type_options(cartTypeOptions);
             //Set drop down to current cart type
-            $("#cart-info-edit-type option[value='" + self.cart_type_id() + "']").attr("selected", "selected");
+            $("#cart-info-edit-type option[value='" + self.cart().cart_type_id() + "']").attr("selected", "selected");
         })
     };
 
+    self.updateCartInfo = function(){
+       // var status = document.getElementById('cart-info-edit-status');
+       // self.cart().current_status(status.options[status.selectedIndex].text);
+        //need to find current level for correct labeling
+        var type = $('#cart-info-edit-type option:selected').text();
+        self.cart().cart_type(type);
+
+        var status = $("#cart-info-edit-status option:selected");
+        self.cart().current_status(status.text());
+        level = self.cart_type_options();
+        var match = ko.utils.arrayFirst(self.cart_status_options(), function(item){
+           return status.val() == item.id();
+        });
+
+        self.cart().current_status_level(match.level())
+
+    };
+
     self.saveCartData = function () {
+        self.cart().cart_type(document.getElementById('cart-info-edit-status').text);
         $.ajax(cart_api_url + serial_number, {
-            data:ko.toJSON({current_status:self.cart.current_status, cart_type:document.getElementById('cart-info-edit-type').value}),
+            data:ko.toJSON({current_status:document.getElementById('cart-info-edit-status').value, cart_type:document.getElementById('cart-info-edit-type').value}),
             type:"post", contentType:"application/json",
             dataType:"jsonp",
             success:function (result) {
-                self.last_updated(new Date(result.time).toDateString());
+                self.cart().last_updated(new Date(result.time).toDateString());
+                self.updateCartInfo();
                 $("#message").addClass("alert-success").show();
                 $("#message-type").text("Success! ");
                 $("#message-text").text(result.message);
@@ -123,10 +142,11 @@ function CartProfileViewModel() {
                     $('#message').hide();
                 });
                 //Call get cart to refresh the cart model
-                self.getCartData()
+               // self.getCartData()
             },
             error:function (result) {
                 //#TODO test this!
+                console.log("fail");
                 $("#message").addClass("alert-warning").show();
                 $("#message-type").text("Failed! ");
                 $("#message-text").text(result.message.Description);
@@ -141,15 +161,15 @@ function CartProfileViewModel() {
 
     };
 
-    self.map = function(){
+    self.map = function(element){
 
-        var cartLatlng = new google.maps.LatLng(self.cart.location_latitude(), self.cart.location_longitude());
+        var cartLatlng = new google.maps.LatLng(self.cart().location_latitude(), self.cart().location_longitude());
         var mapOptions = {
             center: cartLatlng,
             zoom: 12,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        var map = new google.maps.Map(document.getElementById("map_canvas"),
+         var map = new google.maps.Map(element,
             mapOptions);
 
         var image = new google.maps.MarkerImage(
@@ -179,8 +199,9 @@ function CartProfileViewModel() {
             shape: shape,
             position: cartLatlng,
             map: map,
-            title: self.rfid()
+            title: self.cart().rfid()
         });
+
 
         google.maps.event.addListener(marker, 'dragend', function() {
             console.log(marker.getPosition().lat());
@@ -188,6 +209,12 @@ function CartProfileViewModel() {
 
 
     };
+
+    self.mapExpand = function(){
+        window.open(cart_app_profile_map + serial_number, width=900,height=600);
+
+    };
+
 
     self.getLocation = function () {
 
@@ -198,7 +225,10 @@ function CartProfileViewModel() {
     };
 
     //call the api to get the data on load
+
+
     self.getCartData();
+
 }
 
     cartlogic.CartProfileViewModel = CartProfileViewModel;

@@ -37,16 +37,3 @@ function CartSearchViewModel() {
     cartlogic.CartSearchViewModel = CartSearchViewModel;
 
 }(window.cartlogic));
-
-
-
-
-
-/*
-
-$(document).ready(function () {
-    ko.applyBindings(new CartSearchViewModel(), document.getElementById("cart_search_form"));
-
-
-});
-*/

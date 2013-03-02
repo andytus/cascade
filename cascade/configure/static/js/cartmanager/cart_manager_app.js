@@ -26,7 +26,7 @@ window.cartlogic = {};
       };
 
       this.cart_profile = function(element){
-      var car_profile = new cartlogic.CartProfileViewModel();
+      var cart_profile = new cartlogic.CartProfileViewModel();
       ko.applyBindings(cart_profile, element);
       };
 

@@ -9,21 +9,23 @@
 
 {% block main_content %}
 
-    <div id="cart_profile" class="row-fluid">
+    <div id="cart_profile" class="row-fluid" data-bind="with: cart">
+
+
 
         <div class="cart-info box-info">
 
-            <a class="cart-info-link pull-left" data-bind="attr: {href: cart.cart_profile_url()}">
-                <span class="cart-info-serial" data-bind="text:serial_number"></span>
+            <a class="cart-info-link pull-left" data-bind="attr: {href: cart_profile_url}">
+                <span class="cart-info-serial" data-bind="text: serial_number"></span>
                 <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
             </a>
 
 
-            <div class="cart-info-header"><span class="cart-info-size" data-bind="text:size"></span></div>
+            <div class="cart-info-header"><span class="cart-info-size" data-bind="text: size"></span></div>
 
             <div class="cart-info-type" data-bind="text:cart_type"></div>
 
-            <div class="cart-info-status label" data-bind="text:current_status,  css: current_status_level"></div>
+            <div class="cart-info-status label" data-bind="text: current_status(),  css: current_status_level"></div>
             <br>
             Produced:
             <div class="cart-info-born_date" data-bind="text:born_date">
@@ -41,9 +43,9 @@
                     </a>
 
                     <p><a id="cart-info-edit-customer_name" data-bind="attr: {href: customer_url}"><span
-                            class="icon-map-marker" data-bind="text:' '+customer_name()"></span></a></p>
+                            class="icon-map-marker" data-bind="text:customer_name"></span></a></p>
 
-                    <p id="cart-info-edit-street_address" data-bind="text: location_address"></p>
+                    <p id="cart-info-edit-street_address" data-bind="text:location_address"></p>
          </div>
                 <!-- Modal -->
                 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -62,7 +64,7 @@
                 </div>
 
 
-                <form class="form-inline well" data-bind="submit: saveCartData">
+                <form class="form-inline well" data-bind="submit: $root.saveCartData">
 
                     <fieldset>
 
@@ -72,7 +74,7 @@
                             <div class="controls-row">
                                 <label for="cart-info-edit-type" class="control-label">Type:</label>
                                 <select id="cart-info-edit-type" class="input-large" name="cart_type"
-                                        data-bind="foreach:{data:cart_type_options}, event:{onLoad:changeCartType()}">
+                                        data-bind="foreach:{data: $root.cart_type_options}, event:{onLoad:$root.changeCartType()}">
                                     <option data-bind="text: name(), value: id()" selected="selected"></option>
                                 </select>
                                 <button id="cart-info-edit-submit" class="btn btn-info  btn-large pull-right"
@@ -83,7 +85,7 @@
                                 <label for="cart-info-edit-status" class="control-label">Status:</label>
 
                                 <select id="cart-info-edit-status" name="current_status" class="input-large"
-                                        data-bind="foreach:{data: cart_status_options}, event:{onLoad:changeCartStatus()}">
+                                        data-bind="foreach:{data: $root.cart_status_options}, event:{onLoad:$root.changeCartStatus()}">
                                     <option data-bind="text: label(), value: id()"></option>
                                 </select>
                             </div>
@@ -104,8 +106,10 @@
         <br>
 
         <div id="cart-info-map" class="box-info">
-             <div id="map_canvas" style="width: 100%; height: 100%">
+              <div id="map_canvas" style="width: 100%; height: 96%">
             </div>
+             <button class="pull-left btn-small btn-info" data-bind="click: $root.mapExpand" ><i class="icon-fullscreen icon"></i> Expand</button>
+
         </div>
 
     </div>
@@ -121,6 +125,12 @@
             <li class="pager" data-bind="visible:page() < total_pages()">
                 <a href="#" data-bind="click: function(){getTickets(serial_number, page()+1)}">Next >></a>
             </li>
+        </ul>
+
+        <ul class="pager pull-right">
+            <button class="btn   btn-large"><i class="icon-tag"> </i>Create Removal Ticket</button>
+            <button class="btn   btn-large"><i class="icon-tag"> </i>Create Exchange Ticket</button>
+
         </ul>
 
 
@@ -168,6 +178,7 @@
     </div>
 
 
+
 {% endblock %}
 
 
@@ -179,6 +190,8 @@
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
     </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.tablesorter.js"></script>
@@ -194,10 +207,11 @@
         var customer_app_url = "{% url customer_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
+        var cart_app_profile_map = "{% url cart_app_profile_map %}";
 
-        var cart_profile = app.cart_profile(document.getElementById("cart_profile"));
-        var tickets = app.ticket_list(document.getElementById("ticket_panel"));
-        tickets.getTickets(serial_number, 1)
+        app.cart_profile(document.getElementById("cart_profile"));
+        app.ticket_list(document.getElementById("ticket_panel"));
+
     </script>
 
 

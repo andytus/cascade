@@ -179,13 +179,19 @@ background-color: white;
 
 #cart-info-map{
    float: left;
-   padding: 8px;
+   padding: 15px;
+   padding-bottom: 25px;
    width: 400px;
-   height: 200px;
-
+   height: 275px;
 }
 
 
+#map_canvas{
+    border: solid;
+    border-color: #a9a9a9;
+    border-width: 3px;
+
+}
 
 
 /****login page****/

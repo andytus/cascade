@@ -134,7 +134,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
 
     serviced_cart = CleanRelatedField(source='serviced_cart.rfid')
     serviced_cart_size = CleanRelatedField(source='serviced_cart.cart_type.size')
-    expected_cart = CleanRelatedField(source='audit_cart.rfid')
+    expected_cart = CleanRelatedField(source='expected_cart.rfid')
 
     status = CleanRelatedField(source='status.service_status')
     service_type = CleanRelatedField(source='service_type.code')

@@ -42,12 +42,18 @@ class CartProfile(LoginSiteRequiredMixin, TemplateView):
 
 
     def get_context_data(self, **kwargs):
+
         context = super(CartProfile, self).get_context_data(**kwargs)
         if kwargs['serial_number']:
+
             context['serial_number'] = kwargs['serial_number']
         else:
             raise Http404
         return context
+
+class CartProfileMap(CartProfile):
+    template_name = 'cart_profile_map.html'
+
 
 
 class CartReport(LoginSiteRequiredMixin, TemplateView):
@@ -179,6 +185,7 @@ class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
 
+
 class CartProfileAPI(APIView):
     model=Cart
     serializer_class = CartProfileSerializer
@@ -208,16 +215,20 @@ class CartProfileAPI(APIView):
         try:
             cart = self.get_object(serial_number)
             json_data = simplejson.loads(request.raw_post_data)
+            print json_data
             cart_type = CartType.on_site.get(pk=json_data['cart_type'])
-            current_status = CartStatus.on_site.get(label=json_data['current_status'])
+            current_status = CartStatus.on_site.get(pk=json_data['current_status'])
             cart.cart_type = cart_type
             cart.current_status = current_status
             cart.last_updated = datetime.now()
             cart.save()
+
+
             return Response({"message": "Update Complete...all set!", "time": datetime.now()})
-        except:
+        except Exception as e:
+            print e
             #TODO Test this error
-            return Response({"Error": "Error: Sorry, did not update, somethings wrong", "time": datetime.now()})
+            return Response({"Error": "Error: Sorry, did not update, somethings wrong:%s" %(e), "time": datetime.now()})
 
 class TicketAPI(APIView):
     model=CartServiceTicket

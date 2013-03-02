@@ -101,6 +101,9 @@ function TicketsViewModel() {
 
     //#TODO call this on each page... refactor to accept more than just serial:
     self.getTickets(serial_number, 1);
+
+    console.log(app.cart_profile)
+
 }
 
 cartlogic.TicketsViewModel = TicketsViewModel;

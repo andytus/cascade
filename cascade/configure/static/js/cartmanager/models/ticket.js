@@ -19,6 +19,7 @@ function Ticket(data) {
     this.street_name = ko.observable(data.street_name);
     this.unit = ko.observable(data.unit);
     this.serviced_cart = ko.observable(data.serviced_cart);
+    console.log(data.expected_cart);
     this.expected_cart = ko.observable(data.expected_cart) || "removals only";
 }
     cartlogic.Ticket = Ticket;
