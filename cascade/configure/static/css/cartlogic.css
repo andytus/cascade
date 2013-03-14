@@ -180,7 +180,7 @@ background-color: white;
 #cart-info-map{
    float: left;
    padding: 15px;
-   padding-bottom: 25px;
+   padding-bottom: 35px;
    width: 400px;
    height: 275px;
 }
@@ -190,6 +190,7 @@ background-color: white;
     border: solid;
     border-color: #a9a9a9;
     border-width: 3px;
+    margin-bottom: 10px
 
 }
 

@@ -1,0 +1,57 @@
+
+{% extends 'base.html' %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.countdown.css">
+{% endblock %}
+
+{% block title %}test {% endblock %}
+
+{% block left %}
+{% endblock %}
+
+{% block main_content %}
+ Auto Search Address:
+    <div id='location_search' data-bind="with: address_search">
+
+    <p data-bind="text: selected_address"></p>
+
+        <input type="text" data-bind="value: address, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
+
+        <div data-bind="foreach: addresses">
+            <label data-bind="for: id, text: house_number() +' '+ street_name()" ></label>
+            <input type="radio" name="address" data-bind="id: id, value: id, checked: selected_address"><br>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block right %}
+{% endblock %}
+
+{% block page_scripts %}
+
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/LocationSearchViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/vendor/bootstrap/boostrap-typeahead.js"></script>
+    <script type="text/javascript">
+
+    address_id = "{{ address_id }}";
+    location_api_search ="{% url location_api_search  %}";
+
+    var searchLocation = {
+        address_search: new cartlogic.LocationSearchViewModel
+    }
+
+    ko.applyBindings(searchLocation, document.getElementById('location_search'))
+
+
+    </script>
+
+{% endblock %}
+
+
+
+

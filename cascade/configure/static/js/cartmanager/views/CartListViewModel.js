@@ -48,7 +48,6 @@
         // The search_parameters data comes from the source request
         // (placed as a template variable at the top of the cart_search.html).
 
-        //#TODO use the url variable instead of hard coding:
         var url = cart_search_api + "?format=jsonp&callback=?";
         self.search_for_type(params.type);
         self.search_for_value(params.value);
@@ -67,6 +66,17 @@
             url = url + "&page=" + page;
         }
 
+       //Doing this for first page load
+        if (self.count() == 0) {
+        $("#result-header").hide();
+        $("#message").addClass("alert-info").show();
+        i = 0;
+        setInterval(function() {
+            i = ++i % 4;
+            $("#message-text").text("Loading"+Array(i+1).join("."));
+        }, 300);
+        }
+
         $.getJSON(url,
             params,
             //function creates an array of carts based on return from the server
@@ -80,6 +90,8 @@
                 });
                 self.carts(mappedCarts);
                 self.count(data.count);
+                $("#message").addClass("alert-info").hide();
+               $("#result-header").show();
             });
 
     };

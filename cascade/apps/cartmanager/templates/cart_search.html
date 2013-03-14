@@ -114,9 +114,9 @@
         var search_parameters = {{ search_parameters|safe}};
         var customer_url = "{% url customer_app_profile%}";
         var cart_url = "{% url cart_app_profile %}";
-        var location_url = "{% url location_app_profile %}";
         var cart_search_api = "{% url cart_api_search %}";
-        app.cart_list(document.getElementById("results"));
+        ko.applyBindings(new cartlogic.CartsListViewModel(), document.getElementById('results'));
+
     </script>
 
 {% endblock %}

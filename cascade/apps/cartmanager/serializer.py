@@ -64,18 +64,22 @@ class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch
         depth = 1
         exclude = ('site',)
 
-class AddressInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    info = serializers.Field('get_info')
-    class Meta:
-        model = CollectionAddress
-        fields = ('info',)
+#class AddressInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
+#    info = serializers.Field('get_info')
+#    class Meta:
+#        model = CollectionAddress
+#        fields = ('info',)
 
 class AddressProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     customer = CustomerInfoSerializer()
+    location = serializers.SlugRelatedField(slug_field='serial_number')
+
     class Meta:
         model = CollectionAddress
         depth = 1
-        exclude = ('site',)
+        exclude = ('type', 'customer')
+
+
 
 class CartStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
@@ -108,11 +112,11 @@ class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
         model = Cart
         fields = ('cart', 'customer', 'location')
 
-class CartLocationUpdateSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    class Meta:
-        model = Cart
-        fields = ('location',)
-
+#class CartLocationUpdateSerializer(serializers.ModelSerializer, NullSerializerPatch):
+#    class Meta:
+#        model = Cart
+#        fields = ('location',)
+#
 
 class CleanRelatedField(serializers.Field):
     def field_to_native(self, obj, field_name):

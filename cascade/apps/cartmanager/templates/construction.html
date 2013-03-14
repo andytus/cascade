@@ -19,18 +19,18 @@
 
 {% endblock %}
 
-{% block right %}
+{% block right %}x
 {% endblock %}
 
 {% block page_scripts %}
 
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery.countdown.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.countdown.min.js"></script>
 
     <script type="text/javascript">
 
 
 
-        $('#count_down').countdown({until: new Date(2013, 5-1, 21), format: 'WHMS', compact: false,
+        $('#count_down').countdown({until: new Date("May 17, 2013 00:00:00"), format: 'WHMS', compact: false,
 
             description: '<br> <span style="letter-spacing: 10px">UNTIL THE LAUNCH OF CART LOGIC BETA</span>'
 

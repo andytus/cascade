@@ -17,7 +17,7 @@ from cascade.libs.renderers import CSVRenderer
 from django.db.models import Q
 
 from cascade.apps.cartmanager.serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
-    CartLocationUpdateSerializer, CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
+     CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
 
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
@@ -60,6 +60,16 @@ class CartReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'cart_report.html'
 
 
+class LocationSearch(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'location_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LocationSearch, self).get_context_data(**kwargs)
+        context['address_id'] = self.request.GET.get('address_id', None)
+        return context
+
+
+
 class CustomerNew(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_new.html'
 
@@ -72,6 +82,39 @@ class TicketReport(LoginSiteRequiredMixin, TemplateView):
 
 class TicketNew(LoginSiteRequiredMixin, TemplateView):
     template_name = "ticket_new.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(TicketNew, self).get_context_data(**kwargs)
+
+        if kwargs['ticket_id']:
+            context['ticket_id'] = kwargs['ticket_id']
+
+            if kwargs['ticket_id'] == 'New':
+                # get parameters for call to back to AJAX or None
+                # None will mean we need to get them from the user before pushing
+                # data to the new ticket api
+                location_id = self.request.GET.get('location_id', None)
+                if location_id:
+                    #TODO Change to address!
+                    #Just sending back the location id, the client can look up the address info using the API
+                    #only needed for deliveries can get location id from cart for other request
+                    print location_id
+                    context['location_id'] = location_id
+
+                cart_id = self.request.GET.get('cart_id', None)
+                print cart_id, "test"
+                if cart_id:
+                    #send over the cart id to use in the Ticket API and the cart serial for user verification.
+                    #Note: should use cart serial but currently can not be trusted as unique for each account
+                    cart = Cart.on_site.get(pk=cart_id)
+                    context['cart_id'] = cart_id
+                    context['cart_address'] = cart.location
+                    context['serial_number'] = cart.serial_number
+        else:
+            raise Http404
+        return context
+
+
 
 class TicketOpen(LoginSiteRequiredMixin, TemplateView):
     template_name = "ticket_open.html"
@@ -91,8 +134,6 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     paginate_by = 50
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
 
-
-
     def get_queryset(self):
         """
         Performs search query for Carts
@@ -104,8 +145,9 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         if search_type and value:
             #TODO error try except
             if search_type == 'address':
-                street_name = value.split(' ')[1]
-                house_number =  value.split(' ')[0]
+                print value.upper
+                house_number =  value.split(' ')[0].strip().upper()
+                street_name = value.split(house_number)[1].strip().upper()
                 query = query.filter(location__street_name=street_name, location__house_number = house_number)
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
@@ -161,8 +203,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                     query = query.filter(processed=False)
             return query
         except:
-            #TODO return error
-            pass
+            return Http404
 
     #over ride list method to provide csv download
     def list(self, request, *args, **kwargs):
@@ -178,11 +219,36 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
+class LocationProfileAPI(LoginSiteRequiredMixin, APIView):
+    model = CollectionAddress
+    serializer = AddressProfileSerializer
 
-class LocationProfileAPI(RetrieveUpdateDestroyAPIView):
+
+class LocationSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = CollectionAddress
     serializer = AddressProfileSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    paginate_by = 30
+
+    def get_queryset(self):
+        try:
+            address =  self.request.QUERY_PARAMS.get('address', None)
+            address_id = self.request.QUERY_PARAMS.get('address_id', None)
+
+
+            if address:
+                house_number = address.split(' ')[0].strip().upper()
+                street_name = address.split(house_number)[1].strip().upper()
+                query = CollectionAddress.on_site.filter(house_number=house_number, street_name__contains=street_name)
+                return query
+            elif address_id:
+                query = CollectionAddress.on_site.get(pk=address_id)
+                return query
+            else:
+                raise Http404
+        except:
+            raise Http404
+
 
 
 
@@ -254,19 +320,71 @@ class TicketAPI(APIView):
                 return Response({"Message":{"Type":"Error", "Description": "Sorry! can not find ticket with id: '%s'" %(ticket_id)}, "time": datetime.now()})
         except ValueError:
             #except ValueError if ticket_id is not an number
-            return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" %(ticket_id)}, "time": datetime.now()})
+            return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers, not ...'%s!'" %(ticket_id)}, "time": datetime.now()})
 
     def post(self, request, ticket_id, format=None):
 
         json_data = simplejson.loads(request.raw_post_data)
 
-
         if ticket_id == 'New':
-            ticket = CartServiceTicket.on_site.create()
+            try:
+                #TODO don't create early may need two: ticket = CartServiceTicket.on_site.create()
+                location=CollectionAddress(pk=json_data['location_id'])
+                #Get the service type
+                requested_service_type =json_data['service_type']
+                status = CartServiceStatus.on_site.get(service_status='Requested')
+
+                #check the codes and create ticket with appropriate information
+                if requested_service_type == 'Delivery':
+                    new_service_type = CartServiceType.on_site.get(service=json_data['service_type'])
+                    cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
+                    del_ticket = CartServiceTicket(location=location, service_type=new_service_type, cart_type=cart_type,
+                                                   status=status)
+                    del_ticket.save()
+
+                else:
+                    # if its not a Delivery it will be an Exchange or Removal and we need to get the cart before creating
+                    # either one ticket for a Removals (REM) or two for Exchanges (EX-DEL, EX-REM)
+                    if json_data['serial_number']:
+                        expected_cart = Cart.on_site.get(serial_number = json_data['serial_number'])
+                    elif json_data['rfid']:
+                        expected_cart = Cart.on_site.get(serial_number = json_data['rfid'])
+                    else:
+                        #have to use the cart id as the serial number is unreliable (i.e. could get duplicate data from production)
+                        expected_cart = Cart.on_site.get(pk=json_data['cart_id'])
+
+
+                    if requested_service_type == 'Exchange':
+                         #Assigning the expected cart, using expected cart type for ticket cart type (important for ticket export fields: rifd, size),
+                         #using EX-REM (exchange removal) for service type. Also use the expected cart location for the location.
+                         rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location, service_type=CartServiceTicket(code='EX-REM'),
+                                                        cart_type=expected_cart.cart_type, status=status)
+                         rem_ticket.save()
+                         #get cart type for the new exchange delivery ticket (repeated code above, refactor in future)
+                         cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
+                         #Using EX-DEL (exchange delivery for the service type
+                         del_ticket = CartServiceTicket(location=expected_cart.location, service_type=CartServiceTicket(code='EX-DEL'), cart_type=cart_type,
+                                                        status=status)
+                         del_ticket.save()
+
+                    if requested_service_type == "Removal":
+                        #Assing the expected cart, using expected cart type for ticket cart type (import for ticket export fields: rfid, size),
+                        #using REM (removal) for service type. Also use the expected cart location for the location.
+                        rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location, service_type=CartServiceTicket(code='REM'),
+                                                       cart_type=expected_cart.cart_type, status=status)
+                        rem_ticket.save()
+            except:
+                return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket could not be created"}, "time": datetime.now() })
+
         else:
+            #Expecting this to be a status change if it is not New
+            #Change status of the ticket id
             try:
                 ticket = self.get_object(ticket_id)
-
+                update_status = json_data['status']
+                status = CartServiceStatus.on_site.get(service_status=update_status)
+                ticket.status = update_status
+                ticket.save()
             except ValueError:
                 return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" %(ticket_id)}, "time": datetime.now()})
 
@@ -276,19 +394,19 @@ class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
     model=CollectionCustomer
     serializer_class = CustomerProfileSerializer
 
-#TODO thinking about a change location update only
-class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPIView ):
-    model = Cart
-    serializer_class = CartLocationUpdateSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+##TODO thinking about a change location update only
+#class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPIView ):
+#    model = Cart
+#    serializer_class = CartLocationUpdateSerializer
+#
+#    def get(self, request, *args, **kwargs):
+#        return self.retrieve(request, *args, **kwargs)
+#
+#    def put(self, request, *args, **kwargs):
+#        return self.update(request, *args, **kwargs)
+#
+#    def delete(self, request, *args, **kwargs):
+#        return self.destroy(request, *args, **kwargs)
 
 class CartStatusAPI(ListAPIView):
     model=CartStatus

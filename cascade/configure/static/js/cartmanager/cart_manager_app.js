@@ -20,19 +20,20 @@ window.cartlogic = {};
        ko.applyBindings(cart_list, element);
        };
 
-      this.cart_search = function(element){
-      var cart_search = new cartlogic.CartSearchViewModel();
-      ko.applyBindings(cart_search, element);
+      this.cart_search = function(){
+        var cart_search = new cartlogic.CartSearchViewModel();
+        ko.applyBindings(cart_search);
+
       };
 
-      this.cart_profile = function(element){
+      this.cart_profile = function(){
       var cart_profile = new cartlogic.CartProfileViewModel();
-      ko.applyBindings(cart_profile, element);
+      ko.applyBindings(cart_profile);
       };
 
-      this.ticket_list = function(element){
+      this.ticket_list = function(){
       var ticket_list = new cartlogic.TicketsViewModel();
-      ko.applyBindings(ticket_list, element);
+      ko.applyBindings(ticket_list);
       };
 
   }

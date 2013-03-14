@@ -138,7 +138,6 @@ class Address(models.Model):
                 {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]} }
 
         return info
-
     def __unicode__(self):
         return "%s %s" %(self.house_number, self.street_name)
 
@@ -232,11 +231,8 @@ class CartServiceTicket(models.Model):
 
     AUDIT_STATUS = (('No Change','No Change'), ('Changed','Changed'))
 
-
     serviced_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='serviced_cart')
     expected_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='expected_cart')
-
-
 
     location = models.ForeignKey(CollectionAddress, related_name="address")
     service_type = models.ForeignKey(CartServiceType, null=True, blank=True, related_name="service_type")
@@ -542,7 +538,7 @@ class CustomersUploadFile(UploadFile):
            state, zipcode, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics, \
            yard_organics_size, other, other_size, route, route_day = line.split(',')
 
-           customer = CollectionCustomer(site=site,first_name=first_name, last_name=last_name, email=email,
+           customer = CollectionCustomer(site=site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
                       other_system_id = systemid, phone_number = phone)
 
            #.full_clean checks for the correct data
@@ -553,7 +549,7 @@ class CustomersUploadFile(UploadFile):
 
            #Collection_Address setup & save:
            collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number,
-                                                  street_name=street_name, unit=unit, city=city, zipcode=zipcode,
+                                                  street_name=street_name.upper(), unit=unit, city=city, zipcode=zipcode,
                                                   state=state,latitude=latitude, longitude=longitude)
            collection_address.full_clean()
            collection_address.save()

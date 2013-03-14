@@ -1,6 +1,142 @@
-<div>TEST...........</div>
+<div id="create_ticket">
 
-<div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary">Save changes</button>
+    <div id="new_ticket" data-bind="template: {name: 'CurrentTemplate', data: create.currentStep }">
+    </div>
+    <div class="modal-footer">
+        <button class="btn pull-left" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn" data-bind="click: create.goPrevious, visible: create.canGoPrevious"><i
+                class="icon-caret-left"> </i>Previous
+        </button>
+        <button class="btn" data-bind="click: create.goNext, visible: create.canGoNext ">Next <i
+                class="icon-caret-right"></i>
+        </button>
+        <button class="btn btn-primary" data-bind="visible: create.isConfirmStep">Save changes</button>
+    </div>
 </div>
+
+<!--Main Template: all others wizard windows use this insert data to the modal body -->
+<script id="CurrentTemplate" type="text/html">
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 data-bind="text: name"></h4>
+    </div>
+
+    <div class="modal-body" data-bind="template: {name: getTemplate, data: model }">
+    </div>
+
+</script>
+
+
+<script id="SelectServiceType" type="text/html">
+    <p data-bind="text: message"></p>
+
+    <p data-bind="text: $root.create.service_type"></p>
+
+    <div data-bind="foreach: $root.create.service_type_options">
+        <label data-bind="for: $data, text: $data"></label>
+        <input type="radio" name="service_type" data-bind="id: $data, value: $data, checked: $root.create.service_type"
+
+
+    </div>
+
+</script>
+
+
+<script id="SearchAddress" type="text/html">
+
+    <p data-bind="html: message"></p>
+
+    <div id='location_search' data-bind="with: $root.create">
+
+        <p data-bind="text: cart_address"></p>
+
+        <input type="text" data-bind="value: cart_address, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
+
+
+        <div data-bind="foreach: addresses">
+
+            <label data-bind="for: id, text: house_number() +' '+ street_name()"></label>
+
+            <input type="radio" name="address"
+                   data-bind="id: id, value: house_number() +' '+ street_name(), checked: $root.create.cart_address"><br>
+
+        </div>
+
+    </div>
+</script>
+
+<script id="SearchSerial" type="text/html">
+    <p data-bind="html: message"></p>
+
+    test ......
+</script>
+
+
+<script id="ConfirmAddress" type="text/html">
+    <p data-bind="html: message"></p>
+
+    <p data-bind="text: $root.create.cart_address"></p>
+</script>
+
+
+<script id="SelectCartSize" type="text/html">
+    <p data-bind="text: message"></p>
+
+    <p data-bind="text: $root.create.cart_size"></p>
+
+    <div data-bind="foreach: $root.create.cart_type_unique_sizes">
+        <label data-bind="for: $data, text: $data"></label>
+        <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
+    </div>
+
+
+</script>
+
+<script id="SelectCartType" type="text/html">
+    <p data-bind="html: message"></p>
+    <p data-bind="text: $root.create.cart_type"></p>
+    <p data-bind="foreach: $root.create.cart_type_unique_type">
+        <label data-bind="for: $data, text: $data"></label>
+        <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
+    </p>
+</script>
+
+
+<script id="ConfirmTicket" type="text/html">
+    <p data-bind="text: message"></p>
+    <ul>
+        <li data-bind="text: 'SERVICE TYPE: ' + $root.create.service_type()"></li>
+        <!-- here will be if function to display -->
+        <li data-bind="html: 'DELIVERY CART SIZE: ' + $root.create.cart_size()"></li>
+        <li data-bind="html: 'DELIVERY CART TYPE: ' + $root.create.cart_type()"></li>
+        <li data-bind="html: 'DELIVERY ADDRESS: ' +  $root.create.cart_address()"></li>
+
+    </ul>
+
+</script>
+
+<script id="Complete" type="text/html">
+    <p data-bind="text: message"></p>
+</script>
+
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketCreateViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
+<script type="text/javascript">
+    //Globals coming from incoming request
+    var serial_number = '{{ serial_number }}' || null;
+    var cart_id = '{{ cart_id }}' || null;
+    var cart_address = '{{ cart_address }}' || null;
+    var ticket_id = '{{ticket_id }}' || null;
+    var location_api_search = "{% url location_api_search  %}";
+    var cart_type_api = "{% url cart_type_api %}";
+    var ticketCreate = {
+        create:new cartlogic.TicketCreateViewModel
+    };
+
+    ko.applyBindings(ticketCreate, document.getElementById('create_ticket'));
+
+
+</script>

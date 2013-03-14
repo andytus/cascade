@@ -9,7 +9,7 @@
 
 {% block main_content %}
 
-    <div id="cart_profile" class="row-fluid" data-bind="with: cart">
+    <div id="cart_profile" class="row-fluid" data-bind="with: profile.cart">
 
 
 
@@ -25,10 +25,10 @@
 
             <div class="cart-info-type" data-bind="text:cart_type"></div>
 
-            <div class="cart-info-status label" data-bind="text: current_status(),  css: current_status_level"></div>
+            <div class="cart-info-status label" data-bind="text: current_status,  css: current_status_level"></div>
             <br>
             Produced:
-            <div class="cart-info-born_date" data-bind="text:born_date">
+            <div class="cart-info-born_date" data-bind="text: born_date">
 
            </div>
         </div>
@@ -42,7 +42,7 @@
                        data-toggle="modal"><i class="icon-home"> Change</i>
                     </a>
 
-                    <p><a id="cart-info-edit-customer_name" data-bind="attr: {href: customer_url}"><span
+                    <p><a id="cart-info-edit-customer_name" data-bind="attr: {href:customer_url}"><span
                             class="icon-map-marker" data-bind="text:customer_name"></span></a></p>
 
                     <p id="cart-info-edit-street_address" data-bind="text:location_address"></p>
@@ -64,7 +64,7 @@
                 </div>
 
 
-                <form class="form-inline well" data-bind="submit: $root.saveCartData">
+                <form class="form-inline well" data-bind="submit: $root.profile.saveCartData">
 
                     <fieldset>
 
@@ -74,8 +74,8 @@
                             <div class="controls-row">
                                 <label for="cart-info-edit-type" class="control-label">Type:</label>
                                 <select id="cart-info-edit-type" class="input-large" name="cart_type"
-                                        data-bind="foreach:{data: $root.cart_type_options}, event:{onLoad:$root.changeCartType()}">
-                                    <option data-bind="text: name(), value: id()" selected="selected"></option>
+                                        data-bind="foreach:{data: $root.profile.cart_type_options}">
+                                    <option data-bind="text: name, value: id" selected="selected"></option>
                                 </select>
                                 <button id="cart-info-edit-submit" class="btn btn-info  btn-large pull-right"
                                         type="submit"><i class="icon-save"> Update</i></button>
@@ -85,7 +85,7 @@
                                 <label for="cart-info-edit-status" class="control-label">Status:</label>
 
                                 <select id="cart-info-edit-status" name="current_status" class="input-large"
-                                        data-bind="foreach:{data: $root.cart_status_options}, event:{onLoad:$root.changeCartStatus()}">
+                                        data-bind="foreach:{data: $root.profile.cart_status_options}">
                                     <option data-bind="text: label(), value: id()"></option>
                                 </select>
                             </div>
@@ -108,14 +108,14 @@
         <div id="cart-info-map" class="box-info">
               <div id="map_canvas" style="width: 100%; height: 96%">
             </div>
-             <button class="pull-left btn-small btn-info" data-bind="click: $root.mapExpand" ><i class="icon-fullscreen icon"></i> Expand</button>
+             <button class="pull-left btn-small btn-info" data-bind="click: $root.profile.mapExpand()" ><i class="icon-fullscreen icon"></i> Expand</button>
 
         </div>
 
     </div>
 
 
-    <div id="ticket_panel">
+    <div id="ticket_panel" data-bind="with: tickets">
 
 
         <ul class="pager pull-left" data-bind="visible:count() > records_per_page()">
@@ -128,11 +128,9 @@
         </ul>
 
         <ul class="pager pull-right">
-            <button class="btn   btn-large"><i class="icon-tag"> </i>Create Removal Ticket</button>
-            <button class="btn   btn-large"><i class="icon-tag"> </i>Create Exchange Ticket</button>
-
+            <li><a class="btn btn-large btn-link"  data-bind="attr: {href:'{% url ticket_app_new %}New?cart_id=' + $root.profile.cart_id()} "
+                   data-target="#modal_new_ticket" data-toggle="modal" role="dialog"><i class="icon-tag">New Ticket</i></a></li>
         </ul>
-
 
         <table id="ticket_table" class="table table-sorter table-striped table-hover table-condensed  box-info">
             <thead>
@@ -143,7 +141,7 @@
 
             </tr>
             </thead>
-            <tbody role="alert" data-bind="foreach: tickets">
+            <tbody role="alert" data-bind="foreach: tickets()">
             <tr>
                 <td data-bind="text: status"></td>
                 <td data-bind="text: service_type"></td>
@@ -160,7 +158,7 @@
             <tfoot data-bind="visible: count() == 0">
 
             <tr>
-                <td>NO TICKETS FOR THIS CART!</td>
+                <td class="text-warning">NO TICKETS FOUND THIS CART!</td>
             </tr>
             </tfoot>
 
@@ -187,19 +185,24 @@
 
 {% block page_scripts %}
 
+
+
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
     </script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/map.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_status.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.tablesorter.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.metadata.js"></script>
 
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+
         var serial_number = '{{ serial_number }}';
         var cart_api_url = "{% url cart_api_profile %}";
         var cart_app_url = "{% url cart_app_profile %}";
@@ -209,8 +212,13 @@
         var cart_type_options_api_url = "{% url cart_type_api %}";
         var cart_app_profile_map = "{% url cart_app_profile_map %}";
 
-        app.cart_profile(document.getElementById("cart_profile"));
-        app.ticket_list(document.getElementById("ticket_panel"));
+
+        var cartProfile = {
+            tickets: new cartlogic.TicketsViewModel,
+            profile: new cartlogic.CartProfileViewModel
+        };
+
+       ko.applyBindings(cartProfile, document.getElementById('main'))
 
     </script>
 

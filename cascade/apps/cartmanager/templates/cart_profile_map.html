@@ -4,7 +4,43 @@
     <title>Cart Logic Cart Map</title>
 </head>
 <body>
+<div id="map_profile">
 <div id="map_canvas" style="height: 100%; width:100%"></div>
 
+</div>
+
+
+
+<script src="{{ STATIC_URL }}js/vendor/jquery/jquery.min.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.debug.js"></script>
+<script src="{{ STATIC_URL }}js/vendor/knockout/knockout.mapping.js"></script>
+<script src="{{ STATIC_URL }}js/cartmanager/cart_manager_app.js" xmlns="http://www.w3.org/1999/html"></script>
+
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
+</script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.metadata.js"></script>
+
+
+<script type="text/javascript">
+    var static_url = "{{ STATIC_URL }}"
+    var cart_api_url = "{% url cart_api_profile %}";
+    var cart_app_url = "{% url cart_app_profile %}";
+    var tickets_api_download = "{% url tickets_api_download %}";
+    var customer_app_url = "{% url customer_app_profile %}";
+    var cart_status_options_api_url = "{% url cart_status_api %}";
+    var cart_type_options_api_url = "{% url cart_type_api %}";
+    var cart_app_profile_map = "{% url cart_app_profile_map %}";
+    var serial_number = "{{ serial_number }}";
+    var app = new cartlogic.App();
+    app.cart_profile(document.getElementById("map_profile"));
+
+</script>
 </body>
 </html>
