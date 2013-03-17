@@ -165,7 +165,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         if search_type and value:
             return super(CartSearchAPI, self).list(request, *args, **kwargs)
         else:
-            return Response({"detail":"No Search values received...try again. "}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail":"No Search values received or incorrect values received...try again. "}, status=status.HTTP_404_NOT_FOUND)
 
 
 

@@ -84,7 +84,7 @@
 
             url: url,
             data: params,
-            dataType: 'jsonp', contentType:"application/json",
+            dataType: 'json', contentType:"application/json",
             success: function (data) {
                 if (data.count == 1) {
                     //if you get an exact match just forward to the carts profile page
@@ -106,34 +106,10 @@
             },
 
             error: function(data){
-                alert("Error:" + data.detail)
+                $("#message").removeClass("alert-info").addClass("alert-error").html("Error:" + data.statusText)
             }
 
         });
-
-
-/*        $.getJSON(url,
-            params,
-            //function creates an array of carts based on return from the server
-            function (data) {
-                if (data.count == 1) {
-                    //if you get an exact match just forward to the carts profile page
-                    window.location.replace(cart_url + data.results[0].cart.serial)
-                }
-                var mappedCarts = $.map(data.results, function (item) {
-                    return new cartlogic.Cart(item);
-                });
-
-                self.carts(mappedCarts);
-                self.count(data.count);
-                //just fill in the search type and search value for header
-                self.search_for_type(params.type);
-                self.search_for_value(params.value);
-
-               //hide message and show results header
-                $("#message").addClass("alert-info").hide();
-               $("#result-header").show();
-            });*/
 
     };
     // sort of a default call of the fist page onload
