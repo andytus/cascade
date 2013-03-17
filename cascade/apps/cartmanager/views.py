@@ -8,21 +8,21 @@ from django.template import loader, Context
 from django.views.generic import FormView, TemplateView, ListView
 from django.http import Http404
 from django.http import HttpResponse
+from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, SingleObjectAPIView
-from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, MultipleObjectAPIView
+from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin, ListModelMixin
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from cascade.libs.renderers import CSVRenderer
 from django.db.models import Q
 
-from cascade.apps.cartmanager.serializer import CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressProfileSerializer, \
-     CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
-
+from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressCartProfileSerializer,\
+    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
 
-class CartSearch(LoginSiteRequiredMixin,TemplateView):
+class CartSearch(LoginSiteRequiredMixin, TemplateView):
     template_name = 'cart_search.html'
     search_query = None
 
@@ -32,8 +32,6 @@ class CartSearch(LoginSiteRequiredMixin,TemplateView):
         search_parameters = self.request.GET.get('search_query', None)
         if search_parameters:
             context['search_parameters'] = self.request.GET['search_query']
-        else:
-           raise Http404
         return context
 
 
@@ -42,18 +40,16 @@ class CartProfile(LoginSiteRequiredMixin, TemplateView):
 
 
     def get_context_data(self, **kwargs):
-
         context = super(CartProfile, self).get_context_data(**kwargs)
         if kwargs['serial_number']:
-
             context['serial_number'] = kwargs['serial_number']
         else:
             raise Http404
         return context
 
+
 class CartProfileMap(CartProfile):
     template_name = 'cart_profile_map.html'
-
 
 
 class CartReport(LoginSiteRequiredMixin, TemplateView):
@@ -69,16 +65,17 @@ class LocationSearch(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
-
 class CustomerNew(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_new.html'
+
 
 class CustomerReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_report.html'
 
 
 class TicketReport(LoginSiteRequiredMixin, TemplateView):
-    template_name='ticket_report.html'
+    template_name = 'ticket_report.html'
+
 
 class TicketNew(LoginSiteRequiredMixin, TemplateView):
     template_name = "ticket_new.html"
@@ -102,26 +99,23 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                     context['location_id'] = location_id
 
                 cart_id = self.request.GET.get('cart_id', None)
-                print cart_id, "test"
+                #TODO change to serial number
                 if cart_id:
                     #send over the cart id to use in the Ticket API and the cart serial for user verification.
                     #Note: should use cart serial but currently can not be trusted as unique for each account
                     cart = Cart.on_site.get(pk=cart_id)
                     context['cart_id'] = cart_id
-                    context['cart_address'] = cart.location
+                    context['cart_address_house_number'] = cart.location.house_number
+                    context['cart_address_street_name'] = cart.location.street_name
+                    context['cart_address_unit'] = cart.location.unit
                     context['serial_number'] = cart.serial_number
         else:
             raise Http404
         return context
 
 
-
 class TicketOpen(LoginSiteRequiredMixin, TemplateView):
     template_name = "ticket_open.html"
-
-
-
-
 
 
 ######################################################################################################################
@@ -134,21 +128,21 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     paginate_by = 50
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
 
-    def get_queryset(self):
+    def get_queryset(self, *args, **kwargs):
         """
         Performs search query for Carts
         """
-        query = Cart.on_site.filter()
+
         search_type = self.request.QUERY_PARAMS.get('type', None)
-        value = self.request.QUERY_PARAMS.get('value', None).strip()
+        value = self.request.QUERY_PARAMS.get('value', None)
 
         if search_type and value:
-            #TODO error try except
+            query = Cart.on_site.filter()
+            value = value.strip()
             if search_type == 'address':
-                print value.upper
-                house_number =  value.split(' ')[0].strip().upper()
+                house_number = value.split(' ')[0].strip().upper()
                 street_name = value.split(house_number)[1].strip().upper()
-                query = query.filter(location__street_name=street_name, location__house_number = house_number)
+                query = query.filter(location__street_name=street_name, location__house_number=house_number)
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
             elif search_type == 'type':
@@ -159,14 +153,33 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = query.filter(current_status__label=value)
             else:
                 raise Http404
+            return query
+
+
+
+    def list(self, request, *args, **kwargs):
+
+        search_type = self.request.QUERY_PARAMS.get('type', None)
+        value = self.request.QUERY_PARAMS.get('value', None)
+
+        if search_type and value:
+            return super(CartSearchAPI, self).list(request, *args, **kwargs)
         else:
-            raise Http404
-        return query
+            return Response({"detail":"No Search values received...try again. "}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+
+
+
+
 
 
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
-    model=CartServiceTicket
+    model = CartServiceTicket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
     paginate_by = 10
@@ -178,7 +191,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
         service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
-        processed = self.request.QUERY_PARAMS.get('processed','True')
+        processed = self.request.QUERY_PARAMS.get('processed', 'True')
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
 
         try:
@@ -188,17 +201,17 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = CartServiceTicket.on_site.filter()
 
             if  cart_serial:
-                query = query.filter( Q(expected_cart__serial_number = cart_serial) | Q(serviced_cart__serial_number = cart_serial))
+                query = query.filter(
+                    Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
             else:
                 if service_status != 'ALL':
-                    print service_status
                     query = query.filter(status__service_status=service_status)
-                if cart_type !='ALL':
-                    query = query.filter(cart_type__name = cart_type)
-                if cart_size !='ALL':
-                    query = query.filter(cart_type__size = cart_size)
+                if cart_type != 'ALL':
+                    query = query.filter(cart_type__name=cart_type)
+                if cart_size != 'ALL':
+                    query = query.filter(cart_type__size=cart_size)
                 if service_type != 'ALL':
-                    query = query.filter(service_type__service = service_type)
+                    query = query.filter(service_type__service=service_type)
                 if processed == 'False':
                     query = query.filter(processed=False)
             return query
@@ -207,35 +220,26 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
     #over ride list method to provide csv download
     def list(self, request, *args, **kwargs):
-
         if self.request.accepted_renderer.format == "csv":
             file_name = self.request.QUERY_PARAMS.get('file_name', 'import')
             response = HttpResponse(mimetype='text/csv')
-            response['Content-Disposition']= 'attachment; filename=%s.csv' % file_name
+            response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             t = loader.get_template('ticket.csv')
-            c = Context({'data': self.get_queryset()},)
+            c = Context({'data': self.get_queryset()}, )
             response.write(t.render(c))
             return response
 
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
+
 class LocationProfileAPI(LoginSiteRequiredMixin, APIView):
     model = CollectionAddress
-    serializer = AddressProfileSerializer
+    serializer = AddressCartProfileSerializer
 
 
-class LocationSearchAPI(LoginSiteRequiredMixin, ListAPIView):
-    model = CollectionAddress
-    serializer = AddressProfileSerializer
-    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
-    paginate_by = 30
-
-    def get_queryset(self):
+class LocationSearchAPI(LoginSiteRequiredMixin, APIView):
+    def get_queryset(self, address, address_id):
         try:
-            address =  self.request.QUERY_PARAMS.get('address', None)
-            address_id = self.request.QUERY_PARAMS.get('address_id', None)
-
-
             if address:
                 house_number = address.split(' ')[0].strip().upper()
                 street_name = address.split(house_number)[1].strip().upper()
@@ -250,10 +254,16 @@ class LocationSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             raise Http404
 
 
+    def get(self, request, format=None):
+        address = self.request.QUERY_PARAMS.get('address', None)
+        address_id = self.request.QUERY_PARAMS.get('address_id', None)
+        addresses = self.get_queryset(address, address_id)
+        serializer = LocationInfoSerializer(addresses)
+        return Response(serializer.data)
 
 
-class CartProfileAPI(APIView):
-    model=Cart
+class CartProfileAPI(LoginSiteRequiredMixin, APIView):
+    model = Cart
     serializer_class = CartProfileSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
@@ -270,9 +280,9 @@ class CartProfileAPI(APIView):
 
         if request.accepted_renderer.format == 'csv':
             response = HttpResponse(mimetype='text/csv')
-            response['Content-Disposition']= 'attachment; filename=profile.csv'
+            response['Content-Disposition'] = 'attachment; filename=profile.csv'
             t = loader.get_template('profile.csv')
-            c = Context({'data': cart},)
+            c = Context({'data': cart}, )
             response.write(t.render(c))
             return response
         return Response(serializer.data)
@@ -281,7 +291,6 @@ class CartProfileAPI(APIView):
         try:
             cart = self.get_object(serial_number)
             json_data = simplejson.loads(request.raw_post_data)
-            print json_data
             cart_type = CartType.on_site.get(pk=json_data['cart_type'])
             current_status = CartStatus.on_site.get(pk=json_data['current_status'])
             cart.cart_type = cart_type
@@ -289,23 +298,22 @@ class CartProfileAPI(APIView):
             cart.last_updated = datetime.now()
             cart.save()
 
-
             return Response({"message": "Update Complete...all set!", "time": datetime.now()})
         except Exception as e:
-            print e
             #TODO Test this error
-            return Response({"Error": "Error: Sorry, did not update, somethings wrong:%s" %(e), "time": datetime.now()})
+            return Response(
+                {"Error": "Error: Sorry, did not update, somethings wrong:%s" % (e), "time": datetime.now()})
+
 
 class TicketAPI(APIView):
-    model=CartServiceTicket
+    model = CartServiceTicket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
     def get_object(self, ticket_id):
-
         try:
-           ticket =  CartServiceTicket.on_site.get(id=ticket_id)
-           return ticket
+            ticket = CartServiceTicket.on_site.get(id=ticket_id)
+            return ticket
 
         except ObjectDoesNotExist:
             return None
@@ -317,64 +325,81 @@ class TicketAPI(APIView):
                 serializer = CartServiceTicketSerializer(ticket)
                 return Response(serializer.data)
             else:
-                return Response({"Message":{"Type":"Error", "Description": "Sorry! can not find ticket with id: '%s'" %(ticket_id)}, "time": datetime.now()})
+                return Response({
+                "Message": {"Type": "Error", "Description": "Sorry! can not find ticket with id: '%s'" % (ticket_id)},
+                "time": datetime.now()})
         except ValueError:
             #except ValueError if ticket_id is not an number
-            return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers, not ...'%s!'" %(ticket_id)}, "time": datetime.now()})
+            return Response({
+            "Message": {"Type": "Error", "Description": "Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id)},
+            "time": datetime.now()})
 
     def post(self, request, ticket_id, format=None):
-
         json_data = simplejson.loads(request.raw_post_data)
-
+        print json_data
         if ticket_id == 'New':
             try:
                 #TODO don't create early may need two: ticket = CartServiceTicket.on_site.create()
-                location=CollectionAddress(pk=json_data['location_id'])
+                #excepts both location id and address for the Collection Address
+                if json_data['location_id']:
+                    location = CollectionAddress.on_site.get(pk=json_data['location_id'])
+                elif json_data['address']:
+                    house_number = json_data['address'].split(' ')[0].strip().upper()
+                    street_name = json_data['address'].split(house_number)[1].strip().upper()
+                    location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
+
+
+                location = CollectionAddress()
                 #Get the service type
-                requested_service_type =json_data['service_type']
+                requested_service_type = json_data['service_type']
+
                 status = CartServiceStatus.on_site.get(service_status='Requested')
 
                 #check the codes and create ticket with appropriate information
-                if requested_service_type == 'Delivery':
+                if requested_service_type == 'Delivery' or requested_service_type == 'Exchange':
                     new_service_type = CartServiceType.on_site.get(service=json_data['service_type'])
                     cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
-                    del_ticket = CartServiceTicket(location=location, service_type=new_service_type, cart_type=cart_type,
-                                                   status=status)
+                    del_ticket = CartServiceTicket(location=location, service_type=new_service_type,
+                        cart_type=cart_type,
+                        status=status)
                     del_ticket.save()
 
                 else:
                     # if its not a Delivery it will be an Exchange or Removal and we need to get the cart before creating
                     # either one ticket for a Removals (REM) or two for Exchanges (EX-DEL, EX-REM)
                     if json_data['serial_number']:
-                        expected_cart = Cart.on_site.get(serial_number = json_data['serial_number'])
+                        expected_cart = Cart.on_site.get(serial_number=json_data['serial_number'])
                     elif json_data['rfid']:
-                        expected_cart = Cart.on_site.get(serial_number = json_data['rfid'])
+                        expected_cart = Cart.on_site.get(serial_number=json_data['rfid'])
                     else:
                         #have to use the cart id as the serial number is unreliable (i.e. could get duplicate data from production)
                         expected_cart = Cart.on_site.get(pk=json_data['cart_id'])
 
-
                     if requested_service_type == 'Exchange':
-                         #Assigning the expected cart, using expected cart type for ticket cart type (important for ticket export fields: rifd, size),
-                         #using EX-REM (exchange removal) for service type. Also use the expected cart location for the location.
-                         rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location, service_type=CartServiceTicket(code='EX-REM'),
-                                                        cart_type=expected_cart.cart_type, status=status)
-                         rem_ticket.save()
-                         #get cart type for the new exchange delivery ticket (repeated code above, refactor in future)
-                         cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
-                         #Using EX-DEL (exchange delivery for the service type
-                         del_ticket = CartServiceTicket(location=expected_cart.location, service_type=CartServiceTicket(code='EX-DEL'), cart_type=cart_type,
-                                                        status=status)
-                         del_ticket.save()
+                        #Assigning the expected cart, using expected cart type for ticket cart type (important for ticket export fields: rifd, size),
+                        #using EX-REM (exchange removal) for service type. Also use the expected cart location for the location.
+                        rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location,
+                            service_type=CartServiceTicket(code='EX-REM'),
+                            cart_type=expected_cart.cart_type, status=status)
+                        rem_ticket.save()
+                        #get cart type for the new exchange delivery ticket (repeated code above, refactor in future)
+                        cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
+                        #Using EX-DEL (exchange delivery for the service type
+                        del_ticket = CartServiceTicket(location=expected_cart.location,
+                            service_type=CartServiceTicket(code='EX-DEL'), cart_type=cart_type,
+                            status=status)
+                        del_ticket.save()
 
                     if requested_service_type == "Removal":
                         #Assing the expected cart, using expected cart type for ticket cart type (import for ticket export fields: rfid, size),
                         #using REM (removal) for service type. Also use the expected cart location for the location.
-                        rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location, service_type=CartServiceTicket(code='REM'),
-                                                       cart_type=expected_cart.cart_type, status=status)
+                        rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location,
+                            service_type=CartServiceTicket(code='REM'),
+                            cart_type=expected_cart.cart_type, status=status)
                         rem_ticket.save()
-            except:
-                return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket could not be created"}, "time": datetime.now() })
+            except Exception as e:
+                return Response({"Message": {"Type": "Error", "Description": "Sorry! ticket could not be created"},
+                                "time": datetime.now()})
 
         else:
             #Expecting this to be a status change if it is not New
@@ -385,13 +410,14 @@ class TicketAPI(APIView):
                 status = CartServiceStatus.on_site.get(service_status=update_status)
                 ticket.status = update_status
                 ticket.save()
-            except ValueError:
-                return Response({"Message":{"Type":"Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" %(ticket_id)}, "time": datetime.now()})
-
+            except ValueError as e:
+                 return Response({
+                "Message": {"Type": "Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" % (ticket_id)},
+                "time": datetime.now()})
 
 
 class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
-    model=CollectionCustomer
+    model = CollectionCustomer
     serializer_class = CustomerProfileSerializer
 
 ##TODO thinking about a change location update only
@@ -409,16 +435,17 @@ class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
 #        return self.destroy(request, *args, **kwargs)
 
 class CartStatusAPI(ListAPIView):
-    model=CartStatus
+    model = CartStatus
     serializer_class = CartStatusSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
     queryset = CartStatus.on_site.filter()
 
-class CartTypeAPI(ListAPIView):
-    model=CartType
+
+class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
+    model = CartType
     serializer = CartTypeSerializer
-    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
-    queryset = CartType.on_site.filter()
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
 
     def get_queryset(self):
         size = self.request.QUERY_PARAMS.get('size', None)
@@ -444,6 +471,7 @@ class DataErrorsView(ListView):
         context = super(DataErrorsView, self).get_context_data(**kwargs)
         return context
 
+
 class UploadFormView(FormView):
     template_name = 'upload_form.html'
     form_class = None
@@ -462,7 +490,6 @@ class UploadFormView(FormView):
         upload_file = self.MODEL
         file = self.request.FILES[self.FILE]
 
-
         if file.content_type == "application/vnd.ms-excel" or "text/csv":
             upload_file.file_path = file
             upload_file.size = file.size
@@ -479,6 +506,7 @@ class UploadFormView(FormView):
             context['completed'] = True
             return self.render_to_response(context)
 
+
 class CartUploadView(UploadFormView):
     form_class = CartsUploadFileForm
     MODEL = CartsUploadFile()
@@ -486,17 +514,13 @@ class CartUploadView(UploadFormView):
     KIND = 'Cart'
     LINK = 'Cart File Upload'
 
+
 class CustomerUploadView(UploadFormView):
     form_class = CustomerUploadFileForm
     MODEL = CustomersUploadFile()
     FILE = 'customer_file' #is an attribute on CustomerUploadFileForm
     KIND = 'Customer'
     LINK = 'Customer File Upload'
-
-
-
-
-
 
 
 #class CSVResponseMixin(object):
@@ -585,9 +609,9 @@ class CustomerUploadView(UploadFormView):
 class TicketsCompletedUploadView(UploadFormView):
     form_class = TicketsCompletedUploadFileForm
     MODEL = TicketsCompleteUploadFile()
-    FILE  = 'ticket_file'
-    KIND =  'Ticket'
-    LINK =  'Ticket Upload'
+    FILE = 'ticket_file'
+    KIND = 'Ticket'
+    LINK = 'Ticket Upload'
 
 
 

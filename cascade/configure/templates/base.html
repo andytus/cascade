@@ -173,7 +173,7 @@
 
 <div id="middle" class="container-fluid">
 
-    <div id="message" class="alert message">
+    <div id="message" class="alert message" >
         <a class="close">×</a>
         <strong id="message-type"></strong><span id="message-text"></span>
     </div>
@@ -198,29 +198,38 @@
 
 
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/utilities/ajax.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.debug.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout.mapping.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_manager_app.js"
-        xmlns="http://www.w3.org/1999/html"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartSearchViewModel.js"
-        xmlns="http://www.w3.org/1999/html"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_manager_app.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartSearchViewModel.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_type.js"></script>
+
+
 <script type="text/javascript">
+//Globals for each page go here:
 
     var static_url = "{{ STATIC_URL }}";
     var ticket_api = "{% url ticket_api %}";
     var new_customer_url = "{% url customer_app_new %}";
 
+    //simply hide the message bar:
+   $('#message').hide();
+
+    //utility function sets ups security token for ajax calls
+    utilities.setupAjax();
+
     // var cart_search =  new app.cart_search();
     ko.applyBindings(new cartlogic.CartSearchViewModel(), document.getElementById('cart_search_form'));
-    $('#message').hide();
 
-    //add to destroy modal content on close in order to properly refresh content
+
+
+    //add to destroy modal content on close in order to properly refresh (i.e. new ticket, should not display previous
+   //info)
     $('.modal').on('hidden', function () {
         $('.modal').data('modal', null);
     });
-
 
 </script>
 

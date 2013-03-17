@@ -44,6 +44,22 @@ class GetInfoRelatedField(serializers.RelatedField):
         else:
             return None
 
+class CleanRelatedField(serializers.Field):
+    def field_to_native(self, obj, field_name):
+        if obj is None:
+            return '---'
+        val = getattr(obj, self.source or field_name, None)
+
+        if self.source:
+            val = obj
+            for component in self.source.split('.'):
+                val = getattr(val, component, None)
+        if val is None:
+            return '---'
+
+        return super(CleanRelatedField,self).field_to_native(obj, field_name)
+
+
 class CartLocationCustomerField(serializers.Field):
     def to_native(self, value):
         if value == None or value.customer == None:
@@ -64,38 +80,39 @@ class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch
         depth = 1
         exclude = ('site',)
 
-#class AddressInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
-#    info = serializers.Field('get_info')
-#    class Meta:
-#        model = CollectionAddress
-#        fields = ('info',)
 
-class AddressProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    customer = CustomerInfoSerializer()
-    location = serializers.SlugRelatedField(slug_field='serial_number')
+
+class LocationInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    info = serializers.Field('get_info')
 
     class Meta:
         model = CollectionAddress
-        depth = 1
-        exclude = ('type', 'customer')
-
-
+        exclude = ('site',)
+        fields = ('info',)
+        ############################################
 
 class CartStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = CartStatus
-        depth = 1
         exclude = ('site',)
 
 class CartTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
+
     class Meta:
         model = CartType
         depth = 1
         exclude = ('site',)
 
+class AddressCartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    customer = CustomerInfoSerializer()
+    class Meta:
+        model = CollectionAddress
+        depth = 1
+        exclude = ('site',)
+
 
 class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    location = AddressProfileSerializer()
+    location = AddressCartProfileSerializer()
     current_status = CartStatusSerializer()
     cart_type = CartTypeSerializer()
     cart_url = serializers.Field(source='get_absolute_url')
@@ -117,21 +134,6 @@ class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
 #        model = Cart
 #        fields = ('location',)
 #
-
-class CleanRelatedField(serializers.Field):
-    def field_to_native(self, obj, field_name):
-        if obj is None:
-            return '---'
-        val = getattr(obj, self.source or field_name, None)
-
-        if self.source:
-            val = obj
-            for component in self.source.split('.'):
-                val = getattr(val, component, None)
-        if val is None:
-            return '---'
-
-        return super(CleanRelatedField,self).field_to_native(obj, field_name)
 
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):

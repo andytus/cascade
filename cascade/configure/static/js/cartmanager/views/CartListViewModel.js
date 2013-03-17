@@ -48,9 +48,9 @@
         // The search_parameters data comes from the source request
         // (placed as a template variable at the top of the cart_search.html).
 
-        var url = cart_search_api + "?format=jsonp&callback=?";
-        self.search_for_type(params.type);
-        self.search_for_value(params.value);
+       // var url = cart_search_api + "?format=jsonp&callback=?";
+        var url = cart_search_api;
+
 
         // Remove active class from all pages and add to current page id (i.e. number)
         $(".page").removeClass("active");
@@ -58,12 +58,15 @@
         $(document).scrollTop($("#top").offset().top);
 
 
+
         if (typeof page !== "undefined") {
             //get the page number if not undefined and add to the url (i.e. going to next page)
             //add through click event to  a knockoutjs template the page links.
 
-            self.page(page);
-            url = url + "&page=" + page;
+           self.page(page);
+          //  url = url + "&page=" + page;
+           params.page = page;
+
         }
 
        //Doing this for first page load
@@ -77,7 +80,39 @@
         }, 300);
         }
 
-        $.getJSON(url,
+        $.ajax({
+
+            url: url,
+            data: params,
+            dataType: 'jsonp', contentType:"application/json",
+            success: function (data) {
+                if (data.count == 1) {
+                    //if you get an exact match just forward to the carts profile page
+                    window.location.replace(cart_url + data.results[0].cart.serial)
+                }
+                var mappedCarts = $.map(data.results, function (item) {
+                    return new cartlogic.Cart(item);
+                });
+
+                self.carts(mappedCarts);
+                self.count(data.count);
+                //just fill in the search type and search value for header
+                self.search_for_type(params.type);
+                self.search_for_value(params.value);
+
+                //hide message and show results header
+                $("#message").addClass("alert-info").hide();
+                $("#result-header").show();
+            },
+
+            error: function(data){
+                alert("Error:" + data.detail)
+            }
+
+        });
+
+
+/*        $.getJSON(url,
             params,
             //function creates an array of carts based on return from the server
             function (data) {
@@ -88,11 +123,17 @@
                 var mappedCarts = $.map(data.results, function (item) {
                     return new cartlogic.Cart(item);
                 });
+
                 self.carts(mappedCarts);
                 self.count(data.count);
+                //just fill in the search type and search value for header
+                self.search_for_type(params.type);
+                self.search_for_value(params.value);
+
+               //hide message and show results header
                 $("#message").addClass("alert-info").hide();
                $("#result-header").show();
-            });
+            });*/
 
     };
     // sort of a default call of the fist page onload

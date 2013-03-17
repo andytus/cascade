@@ -48,6 +48,10 @@ class CartType(models.Model):
      objects = models.Manager()
      on_site = CurrentSiteManager()
 
+
+     class Meta:
+         ordering = ["-name", "-size"]
+
      def get_info(self):
          return {'name':self.name, 'size': self.size}
 
@@ -132,12 +136,6 @@ class Address(models.Model):
     def get_absolute_url(self):
         return reverse('location_api_profile', args=[str(self.id)])
 
-    def get_info(self):
-        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                "city":self.city, "state":self.state, "zipcode":self.zipcode},"type":"Feature", "geometry":
-                {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]} }
-
-        return info
     def __unicode__(self):
         return "%s %s" %(self.house_number, self.street_name)
 
@@ -145,6 +143,8 @@ class Address(models.Model):
 
     class Meta:
         abstract = True
+        #Do not want to add a new address that already exist
+        unique_together = (('house_number', 'street_name', 'unit'))
 
 class ServiceCenter(models.Model):
     #service center can also be an A&D service center
@@ -187,6 +187,13 @@ class CollectionAddress(Address):
     ADDRESS_TYPE = (('Inventory', 'Inventory'), ('Billing', 'Billing'))
     type = models.CharField(max_length=9, choices=ADDRESS_TYPE, default='Billing')
     customer = models.ForeignKey(CollectionCustomer, null=True, blank=True)
+
+    def get_info(self):
+        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
+                              "city":self.city, "state":self.state, "zipcode":self.zipcode, "carts":self.location.values('serial_number')},"type":"Feature", "geometry":
+                    {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
+
+        return info
 
 
 
