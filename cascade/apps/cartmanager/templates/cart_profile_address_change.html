@@ -1,0 +1,91 @@
+<div id="update_cart_address">
+
+    <div id="updated_address" data-bind="template: {name: 'CurrentTemplate', data: $root.change_address.currentStep}">
+    </div>
+
+    <div class="modal-footer" data-bind="with:  $root.change_address">
+        <button class="btn pull-left" data-dismiss="modal" aria-hidden="true"
+                data-bind="visible: !(isCompleteStep())">Cancel
+        </button>
+        <button class="btn"
+                data-bind="click: goPrevious, visible: canGoPrevious"><i class="icon-caret-left"> </i>Previous
+        </button>
+        <button class="btn" data-bind="click: goNext, visible: canGoNext "> Next <i class="icon-caret-right"></i>
+        </button>
+
+        <button class="btn" data-bind="visible: isCompleteStep" data-dismiss="modal"
+                aria-hidden="true">Close
+        </button>
+        <button class="btn btn-primary" data-bind="visible: isConfirmStep, click: saveCartAddress">Save changes</button>
+    </div>
+
+</div>
+
+
+<script id="CurrentTemplate" type="text/html">
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 data-bind="html: name"></h4>
+    </div>
+
+    <div class="modal-body" data-bind="template: {name: getTemplate, data: model }">
+    </div>
+
+</script>
+
+
+<script id="ConfirmSerial" type="text/html">
+    <p data-bind="html: message"></p>
+</script>
+
+<script id="SearchAddress" type="text/html">
+
+    <p data-bind="html: message"></p>
+
+    <div id='location_search' data-bind="with: $root.search_address">
+
+        <input type="text" data-bind="value: input_address, valueUpdate: 'afterkeyup', event:{keyup: search}">
+
+        <p data-bind="html: server_message"></p>
+
+        <div data-bind="foreach: addresses">
+            <label data-bind="for: id, text: house_number() +' '+ street_name()+' '+ unit()"> </label>
+
+            <input type="radio" name="address"
+                   data-bind="id: id, value: full_address, checked: $root.search_address.input_address, click: $root.change_address.setAddressId"><br>
+        </div>
+    </div>
+</script>
+
+
+<script id="ConfirmAddressChange" type="text/html">
+    <p data-bind="html: message"></p>
+    <p data-bind="text: $root.search_address.input_address"></p>
+</script>
+
+<script id="Complete" type="text/html">
+    <p data-bind="html: message"></p>
+    <p data-bind="css:{'text-success': $root.change_address.server_message_type() == 'Success', 'text-error':
+      $root.change_address.server_message_type() == 'Failed'}, html:$root.change_address.server_message"></p>
+</script>
+
+
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/LocationSearchViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileChangeAddressViewModel.js"></script>
+
+
+<script type="text/javascript">
+    var serial_number = '{{ serial_number }}';
+    var cart_api_profile = '{% url cart_api_profile %}';
+    var location_api_search = "{% url location_api_search  %}";
+    var updateLocation = {
+        change_address:new cartlogic.CartProfileChangeAddressViewModel(),
+        search_address:new cartlogic.LocationSearchViewModel()
+    };
+
+    ko.applyBindings(updateLocation, document.getElementById('update_cart_address'))
+</script>

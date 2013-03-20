@@ -137,7 +137,8 @@ class Address(models.Model):
         return reverse('location_api_profile', args=[str(self.id)])
 
     def __unicode__(self):
-        return "%s %s" %(self.house_number, self.street_name)
+
+        return "%s %s %s"  %(self.house_number, self.street_name, self.unit)
 
     #TODO def get_absolute_url
 
@@ -234,6 +235,11 @@ class Cart(models.Model):
                  "size": self.size, "born_date": self.born_date, "current_status": self.current_status.label, "current_status_level": self.current_status.level }
         return info
 
+    def save(self, *args, **kwargs):
+        current_site = Site.objects.get_current()
+        self.site = current_site
+        super(Cart,self).save(*args, **kwargs)
+
 class CartServiceTicket(models.Model):
 
     AUDIT_STATUS = (('No Change','No Change'), ('Changed','Changed'))
@@ -279,6 +285,13 @@ class CartServiceTicket(models.Model):
 
     def __unicode__(self):
         return "Service Type: %s, Status: %s, Location: %s" % (self.service_type, self.status, self.location)
+
+    def save(self, *args, **kwargs):
+        current_site = Site.objects.get_current()
+        self.site = current_site
+        super(CartServiceTicket,self).save(*args, **kwargs)
+
+
 
 class UserAccountProfile(models.Model):
     user = models.OneToOneField(User)

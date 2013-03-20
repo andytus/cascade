@@ -10,6 +10,7 @@
 
 
 function Ticket(data) {
+    this.id = ko.observable(data.id);
     this.status = ko.observable(data.status);
     this.service_type = ko.observable(data.service_type);
     this.success_attempts = ko.observable(data.success_attempts);

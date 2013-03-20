@@ -14,9 +14,6 @@
  * s.
  */
 
-
-
-
 (function (cartlogic){
 
 
@@ -28,17 +25,31 @@ function CartProfileViewModel() {
     self.cart_id = ko.observable();
     self.cart_status_options = ko.observableArray([]);
     self.cart_type_options = ko.observableArray([]);
+
+
     self.getCartData = function () {
-        $.getJSON(cart_api_url + serial_number, function (data) {
-            self.cart(new cartlogic.CartProfile(data));
-            self.cart_id(self.cart().id());
-             //Calling to get cart type options for this cart
-            //filters based on size and needs to get the size from the current cart size
-            self.getTypeOptions();
-            //Calling to get the cart status options
-            self.getStatusOptions();
-            cartlogic.Map(document.getElementById("map_canvas"), self.cart().rfid(), self.cart().location_latitude(), self.cart().location_longitude());
+
+        $.ajax({
+            url: cart_api_profile + serial_number,
+            type:"GET",
+            dataType: "json",
+            success: function(data) {
+                self.cart(new cartlogic.CartProfile(data));
+                self.cart_id(self.cart().id());
+                //Calling to get cart type options for this cart
+                //filters based on size and needs to get the size from the current cart size
+                self.getTypeOptions();
+                //Calling to get the cart status options
+                self.getStatusOptions();
+
+                cartlogic.Map(document.getElementById("map_canvas"), self.cart().rfid(), self.cart().location_latitude(), self.cart().location_longitude());
+             },
+            error: function(data){
+               $("#message").removeClass("alert-info").addClass("alert-error").html("Error:" + data.statusText).show();
+           }
+
         });
+
     };
 
     self.getStatusOptions = function () {
@@ -89,29 +100,30 @@ function CartProfileViewModel() {
             data:ko.toJSON({current_status:document.getElementById('cart-info-edit-status').value, cart_type:document.getElementById('cart-info-edit-type').value}),
             type:"post", contentType:"application/json",
             dataType:"jsonp",
-            success:function (result) {
-                self.cart().last_updated(new Date(result.time).toDateString());
+            success:function (data) {
+                self.cart().last_updated(new Date(data.details.time).toDateString());
+                //refresh cart info on page
                 self.updateCartInfo();
-                $("#message").addClass("alert-success").show();
-                $("#message-type").text("Success! ");
-                $("#message-text").text(result.message);
+                $("#message-type").text(data.details.message_type +"! ");
+                $("#message-text").text(data.details.message);
                 $('.close').click(function () {
                     $('#message').hide();
                 });
+                if (data.details.message_type == 'Success'){
+                    $("#message").addClass("alert-success").show();
+                } else{
+                    $("#message").addClass("alert-error").show();
+                }
                 //Call get cart to refresh the cart model
                // self.getCartData()
             },
-            error:function (result) {
-                //#TODO test this!
-                console.log("fail");
-                $("#message").addClass("alert-warning").show();
-                $("#message-type").text("Failed! ");
-                $("#message-text").text(result.message.Description);
+            error:function (data) {
+                $("#message").addClass("alert-error").show();
+                $("#message-type").text("Error! ");
+                $("#message-text").text(data.statusText);
                 $('.close').click(function () {
                     $('#message').hide();
-                    //Call get cart to refresh the cart model
-
-                })
+               })
             }
         })
 

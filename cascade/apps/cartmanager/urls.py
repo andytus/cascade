@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketSearchAPI, TicketsCompletedUploadView, \
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationSearchAPI, CartSearch, CartProfile, \
       CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketOpen, CustomerReport, CustomerNew, CartReport, TicketAPI,\
-      CartProfileMap, LocationSearch, LocationProfileAPI
+      CartProfileMap, LocationSearch, CartAddressChange, LocationProfileAPI
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -14,6 +14,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^app/cart/search/$', CartSearch.as_view(), name='cart_search'),
     url(r'^api/cart/search/$', CartSearchAPI.as_view(), name='cart_api_search'),
     url(r'^api/cart/report/$', CartReport.as_view(), name='cart_app_report'),
+    url(r'^app/cart/profile/update/location/(?P<serial_number>[a-zA-Z0-9]+)?$', CartAddressChange.as_view(), name='cart_app_address_change'),
     url(r'^app/cart/profile/(?P<serial_number>[a-zA-Z0-9]+)?$', CartProfile.as_view(), name='cart_app_profile'),
     url(r'^app/cart/profile/map/(?P<serial_number>[a-zA-Z0-9]+)?$', CartProfileMap.as_view(), name='cart_app_profile_map'),
     url(r'^api/cart/profile/(?P<serial_number>[a-zA-Z0-9]+)?$', CartProfileAPI.as_view(), name='cart_api_profile'),

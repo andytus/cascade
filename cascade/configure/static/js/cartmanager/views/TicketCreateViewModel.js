@@ -11,7 +11,7 @@
 
     function TicketCreateViewModel() {
 
-        self = this;
+        var self = this;
         self.service_type_options = ko.observableArray(['Delivery', 'Exchange', 'Remove']);
         self.service_type = ko.observable("None");
         self.cart_serial_number = ko.observable(cart_serial_number);
@@ -58,14 +58,15 @@
         );
 
         //use the selected size (i.e. self.cart_size() to filter out the appropriate cart type names
+        //For example only show
         self.cart_type_unique_type = ko.computed(
             function () {
                 var types = ko.utils.arrayFilter(self.cart_type_options(), function (item) {
                     if (self.cart_size() == item.size) {
                         return item
                     }
-                    // return ko.utils.stringStartsWith(item.size, self.cart_size())
                 });
+
                 var names = ko.utils.arrayMap(types, function (item) {
                     return item.name
                 });
@@ -75,6 +76,7 @@
         );
 
         self.server_message = ko.observable("None");
+        self.server_message_type = ko.observable("None");
 
         self.stepModels = ko.observableArray([
             new cartlogic.FormStep(2, "Confirm Address", "ConfirmAddress", {message:ko.computed(function () {
@@ -90,7 +92,8 @@
             new cartlogic.FormStep(7, "Confirm Ticket", "ConfirmTicket", {service_type:self.service_type(),
                 serial_number:self.cart_serial_number(), address:self.cart_address_search(),
                 cart_size:self.cart_size(), cart_type:self.cart_type(), message:'Confirm Ticket'}),
-            new cartlogic.FormStep(8, "Complete", "Complete", {message:"DONE..Put All values here"})
+            new cartlogic.FormStep(8, "Complete", "Complete", {message:"Ticket Request Completed"})
+
         ]);
 
 
@@ -156,7 +159,8 @@
                     self.stepModels.splice(3, 0, serial_cart_select);
 
                 } else {
-                    //Just need to confirm the cart serial number that was already sent to the page (i.e. global)
+                    // For tickets started from the Cart Profile Page
+                    // Just need to confirm the cart serial number that was already sent to the page (i.e. global)
                     //so, we add a confirm step.
                     var confirm_cart_serial = new cartlogic.FormStep(4, "Confirm Cart Serial Number to " +
                         "<b> Remove or Exchange </b>", "ConfirmSerial", {message:ko.observable("Select Next to Confirm")});
@@ -182,25 +186,31 @@
 
 
         //Gets the typed address from the server
-        //Not very DRY, repeated slightly different in several view models for expediency
+        //#TODO Not very DRY, I have abstracted to LocationSearchViewModel, which should be mixed into the view (html)
+        //#TODO in the near future.
         self.searchAddress = function () {
             if (self.cart_address_search() && self.cart_address_search().length == 5) {
 
-
                 data = {"address":self.cart_address_search()};
 
+
+
+                //getting the message object (ko observable)
                 message_index = ko.utils.arrayFirst(self.stepModels(), function (item) {
                     return item.id === 1
                 });
 
-                message_index.model().message('<span class="text-success">' + 'Loading...' + '</span>');
 
+                message_index.model().message('<span class="text-success">' + 'Loading...' + '</span>');
+                //call server to get a list of addresses to select
                 $.getJSON(location_api_search, data, function (data) {
                     var addressList = $.map(data, function (item) {
                         return new cartlogic.Location(item);
                     });
 
                     self.addressList(addressList);
+
+
                     //checking address lengths and adding the appropriate message
                     if (addressList.length == 0) {
                         message_index.model().message('<span class="text-error"> No Address Found! </span><br>' +
@@ -232,6 +242,11 @@
 
         });
 
+
+        self.isCompleteStep = ko.computed(function(){
+           return self.currentIndex() == self.stepModels().length -1;
+        });
+
         self.canGoNext = ko.computed(function () {
             return self.currentIndex() < self.stepModels().length - 2;
         });
@@ -244,7 +259,8 @@
         };
 
         self.canGoPrevious = ko.computed(function () {
-            return self.currentIndex() > 0;
+            //can go to previous if the index is greater than zero and less than the last step (i.e. success)
+            return self.currentIndex() > 0 && self.currentIndex() < self.stepModels().length -1;
         });
 
         self.goPrevious = function () {
@@ -255,10 +271,9 @@
 
 
         self.createNewTicket = function () {
-            //Note: if serial_number = new, then this function will create a new ticket
-            //#TODO working on creating a ticket
+            //If serial_number = new, then this function will create a new ticket
             //#TODO Should do validation before sending to server, if any of the above observables where not completed ,... return fix first
-            var data = {'service_type':self.service_type(), 'street_name':self.cart_street_name()};
+            var data = {'service_type':self.service_type(), 'house_number': self.cart_house_number(), 'street_name':self.cart_street_name()};
 
             if (self.cart_unit()) {
                 //add the unit so we get a unique address
@@ -273,17 +288,28 @@
                 data.cart_type = self.cart_type();
             }
 
-            if (self.service_type() == 'Removal' || self.service_type() == 'Exchange') {
+            if (self.service_type() == 'Remove' || self.service_type() == 'Exchange') {
                 data.cart_serial_number = self.cart_serial_number();
 
             }
-            console.log(data);
-
 
             $.ajax(ticket_api + 'New', {
                     data:ko.toJSON(data),
                     type:"post", contentType:"application/json",
-                    dataType:"jsonp"
+                    dataType:"jsonp",
+                    success: function(data){
+                        self.server_message_type(data.details.message_type);
+                        self.server_message(data.details.message);
+                        //send message to last step
+                        self.currentStep(self.stepModels()[self.stepModels().length-1])
+                    },
+
+                    error: function(jqXHR, status, error){
+                        //send error message to last step
+                        self.currentStep(self.stepModels()[self.stepModels().length-1]);
+                        self.server_message_type("ERROR!");
+                        self.server_message(jqXHR.statusText)
+                    }
                 }
 
             )

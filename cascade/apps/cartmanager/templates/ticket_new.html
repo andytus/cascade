@@ -3,13 +3,17 @@
     <div id="new_ticket" data-bind="template: {name: 'CurrentTemplate', data: create.currentStep }">
     </div>
     <div class="modal-footer">
-        <button class="btn pull-left" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn pull-left" data-dismiss="modal" aria-hidden="true" data-bind="visible: !(create.isCompleteStep())">Cancel</button>
         <button class="btn" data-bind="click: create.goPrevious, visible: create.canGoPrevious"><i
                 class="icon-caret-left"> </i>Previous
         </button>
         <button class="btn" data-bind="click: create.goNext, visible: create.canGoNext ">Next <i
                 class="icon-caret-right"></i>
         </button>
+
+        <button class="btn" data-bind="visible: create.isCompleteStep" data-dismiss="modal" aria-hidden="true">Close
+        </button>
+
         <button class="btn btn-primary" data-bind="visible: create.isConfirmStep, click: create.createNewTicket">Save changes</button>
     </div>
 </div>
@@ -35,7 +39,7 @@
 
     <div data-bind="foreach: $root.create.service_type_options">
         <label data-bind="for: $data, text: $data"></label>
-        <input type="radio" name="service_type" data-bind="id: $data, value: $data, checked: $root.create.service_type"
+        <input type="radio" name="service_type" data-bind="id: $data, value: $data, checked: $root.create.service_type">
 
 
     </div>
@@ -145,12 +149,12 @@
         <p data-bind="html:'CART SERIAL:  '+ $root.create.cart_serial_number()"></p>
         <!-- /ko -->
 
-
-
 </script>
 
 <script id="Complete" type="text/html">
-    <p data-bind="text: message"></p>
+     <p data-bind="css:{'text-success': $root.create.server_message_type() == 'Success', 'text-error':
+      $root.create.server_message_type() == 'Failed'}, text: $root.create.server_message_type"></p>
+     <p data-bind="text: $root.create.server_message"></p>
 </script>
 
 

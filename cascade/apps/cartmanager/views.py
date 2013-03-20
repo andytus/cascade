@@ -8,16 +8,17 @@ from django.template import loader, Context
 from django.views.generic import FormView, TemplateView, ListView
 from django.http import Http404
 from django.http import HttpResponse
-from rest_framework import status
+from rest_framework import status as django_rest_status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, MultipleObjectAPIView
 from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin, ListModelMixin
-from rest_framework.response import Response
+from rest_framework.response import Response as RestResponse
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from cascade.libs.renderers import CSVRenderer
 from django.db.models import Q
 
-from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer, CustomerProfileSerializer, AddressCartProfileSerializer,\
+from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
+    CustomerProfileSerializer, AddressCartProfileSerializer,\
     CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
@@ -35,9 +36,20 @@ class CartSearch(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
+class CartAddressChange(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'cart_profile_address_change.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CartAddressChange, self).get_context_data(**kwargs)
+        #putting in for duplicate cart serials, not used right now
+        if kwargs['serial_number']:
+            context['serial_number'] = kwargs['serial_number']
+        else:
+            raise Http404
+        return context
+
 class CartProfile(LoginSiteRequiredMixin, TemplateView):
     template_name = 'cart_profile.html'
-
 
     def get_context_data(self, **kwargs):
         context = super(CartProfile, self).get_context_data(**kwargs)
@@ -165,15 +177,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         if search_type and value:
             return super(CartSearchAPI, self).list(request, *args, **kwargs)
         else:
-            return Response({"detail":"No Search values received or incorrect values received...try again. "}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-
-
-
-
-
+            return RestResponse({"detail":"No Search values received or incorrect values received...try again. "}, status=django_rest_status.HTTP_404_NOT_FOUND)
 
 
 
@@ -182,7 +186,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = CartServiceTicket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
-    paginate_by = 10
+    paginate_by = 100
 
 
     def get_queryset(self):
@@ -259,7 +263,7 @@ class LocationSearchAPI(LoginSiteRequiredMixin, APIView):
         address_id = self.request.QUERY_PARAMS.get('address_id', None)
         addresses = self.get_queryset(address, address_id)
         serializer = LocationInfoSerializer(addresses)
-        return Response(serializer.data)
+        return RestResponse(serializer.data)
 
 
 class CartProfileAPI(LoginSiteRequiredMixin, APIView):
@@ -271,7 +275,7 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
         try:
             return Cart.on_site.get(serial_number=serial_number)
         except Cart.DoesNotExist:
-            return Http404
+            raise Http404
 
     def get(self, request, serial_number, format=None):
         #TODO need to redirect if cart does not exist (i.e. http404-location does not exist).. look for fix in serializer
@@ -285,24 +289,39 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
             c = Context({'data': cart}, )
             response.write(t.render(c))
             return response
-        return Response(serializer.data)
+        return RestResponse(serializer.data)
 
     def post(self, request, serial_number, format=None):
         try:
             cart = self.get_object(serial_number)
             json_data = simplejson.loads(request.raw_post_data)
-            cart_type = CartType.on_site.get(pk=json_data['cart_type'])
-            current_status = CartStatus.on_site.get(pk=json_data['current_status'])
-            cart.cart_type = cart_type
-            cart.current_status = current_status
-            cart.last_updated = datetime.now()
-            cart.save()
+            print json_data
 
-            return Response({"message": "Update Complete...all set!", "time": datetime.now()})
+            #grabbing values to be updated or None
+            cart_type_id = json_data.get('cart_type', None)
+            current_status_id = json_data.get('current_status', None)
+            location_id = json_data.get('location', None)
+
+            #check for cart type and save to cart, if None then no value given skip it
+            if cart_type_id:
+                cart.cart_type = CartType.on_site.get(pk=cart_type_id)
+
+            #check for current status
+            if current_status_id:
+                cart.current_status = CartStatus.on_site.get(pk=current_status_id)
+
+            #check for location and update lat + long
+            if location_id:
+                cart.location = CollectionAddress.on_site.get(pk=location_id)
+                cart.last_latitude = cart.location.latitude
+                cart.last_longitude = cart.location.longitude
+
+            cart.save()
+            #RestResponse({'details':{'message':'Success! New %s Ticket(s) created for %s' % (requested_service_type, location), 'message_type': 'Success'}}, status=django_rest_status.HTTP_201_CREATED)
+            return RestResponse({"details": {'message': "Update complete for %s " % serial_number, 'message_type': 'Success',  "time": datetime.now()}}, status=django_rest_status.HTTP_200_OK)
         except Exception as e:
-            #TODO Test this error
-            return Response(
-                {"Error": "Error: Sorry, did not update, somethings wrong:%s" % (e), "time": datetime.now()})
+            return RestResponse(
+                {"details": { 'message': "Darn, cart did not update, somethings wrong with the value for: %s" % (e), 'message_type':'Failed', "time": datetime.now()}}, status=django_rest_status.HTTP_200_OK)
 
 
 class TicketAPI(APIView):
@@ -323,83 +342,104 @@ class TicketAPI(APIView):
             ticket = self.get_object(ticket_id)
             if ticket:
                 serializer = CartServiceTicketSerializer(ticket)
-                return Response(serializer.data)
+                return RestResponse(serializer.data)
             else:
-                return Response({
-                "Message": {"Type": "Error", "Description": "Sorry! can not find ticket with id: '%s'" % (ticket_id)},
+                return RestResponse({
+                "detail": {"Sorry! can not find ticket with id: '%s'" % (ticket_id)},
                 "time": datetime.now()})
         except ValueError:
             #except ValueError if ticket_id is not an number
-            return Response({
-            "Message": {"Type": "Error", "Description": "Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id)},
+            return RestResponse({
+            "detail": {"Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id)},
             "time": datetime.now()})
 
     def post(self, request, ticket_id, format=None):
         json_data = simplejson.loads(request.raw_post_data)
-        print json_data
+        print type(json_data)
+
         if ticket_id == 'New':
+
             try:
-                #TODO don't create early may need two: ticket = CartServiceTicket.on_site.create()
+                location_id = json_data.get('location_id', None)
+                house_number = json_data.get('house_number', None)
+                street_name = json_data.get('street_name', None)
+                unit = json_data.get('address_unit', None)
+                print house_number, street_name
+
                 #excepts both location id and address for the Collection Address
-                if json_data['location_id']:
-                    location = CollectionAddress.on_site.get(pk=json_data['location_id'])
-                elif json_data['address']:
-                    house_number = json_data['address'].split(' ')[0].strip().upper()
-                    street_name = json_data['address'].split(house_number)[1].strip().upper()
-                    location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
-
-
-                location = CollectionAddress()
-                #Get the service type
-                requested_service_type = json_data['service_type']
-
-                status = CartServiceStatus.on_site.get(service_status='Requested')
-
-                #check the codes and create ticket with appropriate information
-                if requested_service_type == 'Delivery' or requested_service_type == 'Exchange':
-                    new_service_type = CartServiceType.on_site.get(service=json_data['service_type'])
-                    cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
-                    del_ticket = CartServiceTicket(location=location, service_type=new_service_type,
-                        cart_type=cart_type,
-                        status=status)
-                    del_ticket.save()
-
-                else:
-                    # if its not a Delivery it will be an Exchange or Removal and we need to get the cart before creating
-                    # either one ticket for a Removals (REM) or two for Exchanges (EX-DEL, EX-REM)
-                    if json_data['serial_number']:
-                        expected_cart = Cart.on_site.get(serial_number=json_data['serial_number'])
-                    elif json_data['rfid']:
-                        expected_cart = Cart.on_site.get(serial_number=json_data['rfid'])
+                #client built for address information, we want this flexibility as I may not know the address_id
+                if location_id:
+                    location = CollectionAddress.on_site.get(pk=location_id)
+                #else try to get the house number and street name
+                elif house_number and street_name:
+                    #check for a unit (i.e. apartment or condo)
+                    if unit:
+                        location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name, unit=unit)
                     else:
-                        #have to use the cart id as the serial number is unreliable (i.e. could get duplicate data from production)
-                        expected_cart = Cart.on_site.get(pk=json_data['cart_id'])
+                        #ok no unit so just get the address using the house number and street name
+                        location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
+                else:
+                    return "failed 404"
+                    #TODO return No Address Information given
 
-                    if requested_service_type == 'Exchange':
-                        #Assigning the expected cart, using expected cart type for ticket cart type (important for ticket export fields: rifd, size),
-                        #using EX-REM (exchange removal) for service type. Also use the expected cart location for the location.
-                        rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location,
-                            service_type=CartServiceTicket(code='EX-REM'),
-                            cart_type=expected_cart.cart_type, status=status)
-                        rem_ticket.save()
-                        #get cart type for the new exchange delivery ticket (repeated code above, refactor in future)
-                        cart_type = CartType.on_site.get(name=json_data['cart_type'], size=json_data['size'])
-                        #Using EX-DEL (exchange delivery for the service type
-                        del_ticket = CartServiceTicket(location=expected_cart.location,
-                            service_type=CartServiceTicket(code='EX-DEL'), cart_type=cart_type,
-                            status=status)
-                        del_ticket.save()
 
-                    if requested_service_type == "Removal":
-                        #Assing the expected cart, using expected cart type for ticket cart type (import for ticket export fields: rfid, size),
-                        #using REM (removal) for service type. Also use the expected cart location for the location.
-                        rem_ticket = CartServiceTicket(expected_cart=expected_cart, location=expected_cart.location,
-                            service_type=CartServiceTicket(code='REM'),
-                            cart_type=expected_cart.cart_type, status=status)
-                        rem_ticket.save()
+                #Get the current service type and a cart service status object of requested
+                requested_service_type = json_data.get('service_type', None)
+                requested_ticket_status = CartServiceStatus.on_site.get(service_status='Requested')
+                expected_cart_serial_number = json_data.get('cart_serial_number', None)
+                size = json_data.get('cart_size', None)
+                cart_type_name = json_data.get('cart_type', None)
+
+
+                #if we have and expected service type it is likely a remove or exchange
+                #TODO put repair or audits in here
+                if expected_cart_serial_number:
+                    expected_cart = Cart.on_site.get(serial_number=expected_cart_serial_number)
+                    if requested_service_type == 'Exchange' or 'Remove':
+                        if requested_service_type == 'Exchange':
+                            service_type_remove = CartServiceType.on_site.get(code='EX-REM')
+                        else:
+                            service_type_remove = CartServiceType.on_site.get(code='REM')
+
+                        remove_ticket = CartServiceTicket(location=location,
+                                                          status=requested_ticket_status,
+                                                          expected_cart=expected_cart,
+                                                          service_type=service_type_remove,
+                                                          )
+                        remove_ticket.save()
+
+                #Create service ticket or tickets below, some code repeated but feels more readable
+
+                if requested_service_type == 'Delivery':
+                    #Delivery? You should get and add the cart type from name and size
+                    #Create a new delivery ticket service type of code
+                    # DEL.
+                    service_type = CartServiceType.on_site.get(code='DEL')
+                    cart_type = CartType.on_site.get(name=cart_type_name, size=size)
+                    delivery_ticket = CartServiceTicket(location=location,service_type=service_type,
+                                                        status= requested_ticket_status,
+                                                        cart_type=cart_type,
+                                                        )
+                    delivery_ticket.save()
+
+
+
+                elif requested_service_type == 'Exchange':
+                    #Exchange? You should get and add the cart type from name and size
+                    #Create a new delivery ticket with service type EX-DEL and remove ticket with service type EX-REM,
+                    service_type = CartServiceType.on_site.get(code='EX-DEL')
+                    cart_type = CartType.on_site.get(name=cart_type_name, size=size)
+                    exchange_del_ticket = CartServiceTicket(location=location, service_type=service_type,
+                                                            status= requested_ticket_status,
+                                                            cart_type=cart_type
+                                                            )
+                    exchange_del_ticket.save()
+
+                return RestResponse({'details':{'message':'Success! New %s Ticket(s) created for %s' % (requested_service_type, location), 'message_type': 'Success'}}, status=django_rest_status.HTTP_201_CREATED)
+
             except Exception as e:
-                return Response({"Message": {"Type": "Error", "Description": "Sorry! ticket could not be created"},
-                                "time": datetime.now()})
+                return RestResponse({'details':{'message': "Sorry! ticket could not be created, code: %s" % e, 'message_type': 'Failed'}},
+                                      status=django_rest_status.HTTP_200_OK)
 
         else:
             #Expecting this to be a status change if it is not New
@@ -411,14 +451,23 @@ class TicketAPI(APIView):
                 ticket.status = update_status
                 ticket.save()
             except ValueError as e:
-                 return Response({
-                "Message": {"Type": "Error", "Description": "Sorry! ticket ids are numbers not ...'%s'" % (ticket_id)},
-                "time": datetime.now()})
+                return RestResponse({'details':{'message': "Sorry! ticket could not be created, code: %s" % e, 'message_type': 'Failed'}},
+                    status=django_rest_status.HTTP_200_OK)
+
 
 
 class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
     model = CollectionCustomer
     serializer_class = CustomerProfileSerializer
+
+
+
+
+
+
+
+
+
 
 ##TODO thinking about a change location update only
 #class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPIView ):

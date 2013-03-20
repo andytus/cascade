@@ -15,7 +15,7 @@
         self.count = ko.observable(0);
         self.page = ko.observable(1);
         //#TODO Implement records per page (hard coded in html for now)
-        self.records_per_page = ko.observable(40);
+        self.records_per_page = ko.observable(100);
         self.total_pages = ko.computed(function () {
             return (Math.round(self.count() / self.records_per_page()));
 
@@ -35,8 +35,8 @@
                 {field:'location__street_name', displayName:'Street', sort:ko.observable(0)},
                 {field:'location__unit', displayName:'Unit', sort:ko.observable(0)},
                 {field:'serviced_cart__rfid', displayName:'Serviced RFID', sort:ko.observable(0)},
-                {field:'expected_cart__rfid', displayName:'Expected RFID', sort:ko.observable(0)}
-            ]
+                {field:'expected_cart__rfid', displayName:'Expected RFID', sort:ko.observable(0)},
+             ]
         );
 
         self.getTickets = function (serial_number, page) {
@@ -89,7 +89,7 @@
         self.getTickets(serial_number, 1);
 
         //Setting the tickets to refresh on modal close, #TODO put in custom binding
-        $('#modal_new_ticket').on('hidden', function () {
+        $('#modal_window').on('hidden', function () {
             //checking for not null serial number because we don't want a refresh of the ticket
             // if serial number is null, hence no tickets for null
             if (serial_number != null){
