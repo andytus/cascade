@@ -1,4 +1,5 @@
 body{
+    width: 100%;
     background: url(../img/bg-body.gif);
     background-size: 100%;
     background-repeat: repeat-y;
@@ -35,6 +36,7 @@ border-radius: 10px;
 -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .95);
 box-shadow: 0 1px 3px rgba(0, 0, 0, 1);
 background-color: white;
+
 }
 
 .message{
@@ -178,22 +180,19 @@ background-color: white;
 }
 
 #cart-info-map{
-   float: left;
    padding: 15px;
-   padding-bottom: 35px;
-   width: 400px;
-   height: 275px;
+   height: 500px;
 }
 
 
 #map_canvas{
+    display:none;
     border: solid;
     border-color: #a9a9a9;
     border-width: 3px;
     margin-bottom: 10px
 
 }
-
 
 /****login page****/
 #login_form{
@@ -217,81 +216,109 @@ background-color: white;
 
 /****Cart Profile Page****/
 
-#cart_profile{
+#cart-profile-tab{
+    margin-bottom: 0;
+ }
 
-
+#cart-profile-tab li {
+   padding-left: 1%;
 }
 
 
-#cart-info-edit{
-    margin-top: 5px;
+#cart-profile{
     display: inline;
 
 }
 
+#cart-info{
+    width: 100%;
+  }
+
+#cart-info-display{
+    width: 30%;
+    float: left;
+    margin-left: 8%;
+}
+
 
 .cart-info-edit-title{
-    margin-top: 20px;
+    padding: 1.5%;
+    margin-bottom: 1.5% ;
     text-align: center;
     font-size: 3em;
 }
 
-#cart-info-edit-text{
-    margin-left: 15px;
-    padding: 15px;
+
+#cart-info-edit{
+    width:50%;
+    margin-left: 45%;
+
 }
 
-#cart-info-edit-update{
+
+
+.cart-info-btn{
     float: right;
+    margin-right: 5%;
 
 }
+
 
 #cart-info-edit-customer_name{
-    font-size: 2.1em;
+    font-size: 2.4em;
 
 }
 
 #cart-info-edit-street_address{
-    margin-left: 5px;
-    margin-top: 5px;
-    font-size: 1.8em;
+
+    margin-bottom: 3%;
+    padding: 1.5%;
+    font-size: 2.2em;
     color: #696969;
 }
 
 
 
 #cart-info-edit  label, select{
-
     color: #696969;
-    font-size: 1.7em;
-    height: 1.9em;
+    font-size: 1.9em;
+    height: 2.2em;
     padding-right: 10px;
+
 
 }
 
 #cart-info-edit-type {
-    margin-left: 10px;
+    margin-left: 2.2%;
 }
 
 
 #cart-info-edit-last_update{
-    font-size: 1em;
+    font-size: 1.2em;
     float: right;
 
 }
 
 
 #cart-info-edit-rfid{
-    font-size: 1.8em;
+    font-size: 1.9em;
     text-align: center;
     color: #696969;
     font-weight: bolder;
+    padding-bottom: 2%;
 }
+
+#ticket_panel {
+    width: 100%;
+}
+
 
 #ticket_table {
-    margin-top: 10px;
+    width: 100%;
+    margin-top: 3%;
 
 }
+
 
 
 table.table-sorter thead tr .sort-header{

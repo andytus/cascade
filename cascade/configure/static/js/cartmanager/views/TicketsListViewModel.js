@@ -12,6 +12,7 @@
 
     function TicketsViewModel() {
         var self = this;
+        //setup some global variables for getting tickets:
         self.count = ko.observable(0);
         self.page = ko.observable(1);
         //#TODO Implement records per page (hard coded in html for now)
@@ -39,15 +40,24 @@
              ]
         );
 
-        self.getTickets = function (serial_number, page) {
+        self.getTickets = function (page) {
             url = tickets_api_download;
             self.page(page); //update page
 
             //TODO Refactor to accept more data for searching tickets (i.e. Open, Type, ect...)
-            data = {"serial_number":serial_number, "page":page, "sort_by":self.sort_default()};
+            data = {"page":self.page(), "sort_by":self.sort_default()};
 
+            //check if serial and/or customer id is not undefined and add to the data load
+            if (typeof cart_serial_number != 'undefined'&& cart_serial_number != null){
+                data.serial_number = cart_serial_number;
+            }
+
+            if (typeof customer_id != 'undefined' && customer_id != null){
+                data.customer_id = customer_id;
+            }
 
             $.getJSON(url, data, function (data) {
+               // console.log(customer_id);
                 self.count(data.count);
                 var cartTickets = $.map(data.results, function (item) {
                     return new cartlogic.Ticket(item);
@@ -57,7 +67,7 @@
 
         };
 
-        self.sortTickets = function (serial_number, page, sort_by) {
+        self.sortTickets = function (page, sort_by) {
 
             for (var i = 0; i < self.ticket_table_headers().length; i++) {
                 if (self.ticket_table_headers()[i].field != sort_by.field)
@@ -67,16 +77,15 @@
             if (sort_by.sort() == 0) {
                 sort_by.sort(1);
                 self.sort_default(sort_by.field);
-                self.getTickets(serial_number, 1);
-
-            }
+                self.getTickets(1);
+             }
 
             else if (sort_by.sort() == 1) {
                 sort_by.sort(2);
                 //rest the current default to 0 sort
                 console.log(sort_by.sort());
                 self.sort_default("-" + sort_by.field);
-                self.getTickets(serial_number, 1);
+                self.getTickets(1);
             }
             else {
                 //rest the current default to 0 sort
@@ -86,15 +95,13 @@
         };
 
         //#TODO call this on each page... refactor to accept more than just serial: SEE, http://stackoverflow.com/questions/6486307/default-argument-values-in-javascript-functions
-        self.getTickets(serial_number, 1);
+        self.getTickets(1);
 
         //Setting the tickets to refresh on modal close, #TODO put in custom binding
         $('#modal_window').on('hidden', function () {
             //checking for not null serial number because we don't want a refresh of the ticket
-            // if serial number is null, hence no tickets for null
-            if (serial_number != null){
-            self.getTickets(serial_number, 1);
-            }
+           self.getTickets(1);
+
 
         });
 

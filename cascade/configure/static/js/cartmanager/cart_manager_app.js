@@ -10,9 +10,9 @@
 /* Defined Name Space */
 
 
-window.cartlogic = {};
+//window.cartlogic = {};
 
-(function(cartlogic){
+/*(function(cartlogic){
 
   function App(){
        this.cart_list = function(element){
@@ -39,4 +39,4 @@ window.cartlogic = {};
   }
     cartlogic.App = App;
 
-}(window.cartlogic));
+}(window.cartlogic));*/

@@ -25,6 +25,8 @@ function CartProfile(data){
     self.last_updated = ko.observable(new Date(data.last_updated).toDateString());
     self.born_date = ko.observable(new Date(data.born_date).toDateString());
     //location information
+    if(data.location != null){
+
     self.location_house_number = ko.observable(data.location.house_number);
     self.location_street_name = ko.observable(data.location.street_name);
     self.location_unit = ko.observable(data.location.unit);
@@ -35,15 +37,28 @@ function CartProfile(data){
         }
         return address
     });
-
     self.location_latitude = ko.observable(data.location.latitude);
     self.location_longitude = ko.observable(data.location.longitude);
     self.location_type = ko.observable(data.location.type);
 
+    } else{
+    self.location_house_number = ko.observable(null);
+    self.location_street_name = ko.observable(null);
+    self.location_unit = ko.observable(null);
+    self.location_address = ko.observable(null);
+    }
+
+
+    if(data.location.customer != null){
     //customer information
     self.customer_id = ko.observable(data.location.customer.info.id);
     self.customer_name = ko.observable(data.location.customer.info.name);
     self.customer_url = ko.observable(data.location.customer.info.url);
+    } else{
+    self.customer_id = ko.observable(null);
+    self.customer_name = ko.observable(" Add or Change Customer");
+    self.customer_url = ko.observable(null);
+    }
 
 
     //status information

@@ -30,7 +30,7 @@ function CartProfileViewModel() {
     self.getCartData = function () {
 
         $.ajax({
-            url: cart_api_profile + serial_number,
+            url: cart_api_profile + cart_serial_number,
             type:"GET",
             dataType: "json",
             success: function(data) {
@@ -41,9 +41,7 @@ function CartProfileViewModel() {
                 self.getTypeOptions();
                 //Calling to get the cart status options
                 self.getStatusOptions();
-
-                cartlogic.Map(document.getElementById("map_canvas"), self.cart().rfid(), self.cart().location_latitude(), self.cart().location_longitude());
-             },
+          },
             error: function(data){
                $("#message").removeClass("alert-info").addClass("alert-error").html("Error:" + data.statusText).show();
            }
@@ -77,8 +75,6 @@ function CartProfileViewModel() {
     };
 
     self.updateCartInfo = function(){
-       // var status = document.getElementById('cart-info-edit-status');
-       // self.cart().current_status(status.options[status.selectedIndex].text);
         //need to find current level for correct labeling
         var type = $('#cart-info-edit-type option:selected').text();
         self.cart().cart_type(type);
@@ -96,7 +92,7 @@ function CartProfileViewModel() {
 
     self.saveCartData = function () {
         self.cart().cart_type(document.getElementById('cart-info-edit-status').text);
-        $.ajax(cart_api_url + serial_number, {
+        $.ajax(cart_api_profile + cart_serial_number, {
             data:ko.toJSON({current_status:document.getElementById('cart-info-edit-status').value, cart_type:document.getElementById('cart-info-edit-type').value}),
             type:"post", contentType:"application/json",
             dataType:"jsonp",
@@ -110,9 +106,9 @@ function CartProfileViewModel() {
                     $('#message').hide();
                 });
                 if (data.details.message_type == 'Success'){
-                    $("#message").addClass("alert-success").show();
+                    $("#message").removeClass("alert-error").addClass('alert-success').show();
                 } else{
-                    $("#message").addClass("alert-error").show();
+                    $("#message").removeClass("alert-success").addClass('alert-error').show();
                 }
                 //Call get cart to refresh the cart model
                // self.getCartData()
@@ -130,12 +126,10 @@ function CartProfileViewModel() {
 
     };
 
-   self.mapExpand = function(){
-       //#TODO
-
-       // window.open(cart_app_profile_map + serial_number);
-
-    };
+   self.createMap = function(){
+       cartlogic.Map(document.getElementById("map_canvas"), self.cart().rfid(), self.cart().location_latitude(), self.cart().location_longitude());
+       $("#map_canvas").show();
+   };
 
 
     self.getLocation = function () {

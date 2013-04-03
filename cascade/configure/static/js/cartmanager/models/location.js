@@ -23,6 +23,8 @@
             return full_address;
         });
         self.carts = ko.observableArray(data.info.properties.carts);
+        self.latitude = ko.observable(null);
+        self.longitude = ko.observable(null);
     }
 
     cartlogic.Location = Location;

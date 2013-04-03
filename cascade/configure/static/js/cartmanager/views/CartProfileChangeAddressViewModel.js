@@ -107,14 +107,7 @@
     }
 
 
-    //Setting the tickets to refresh on modal close, #TODO put in custom binding
-    $('#modal_window').on('hidden', function () {
-      //just reloading the current page
-      window.location.reload();
-    });
-
-
-    cartlogic.CartProfileChangeAddressViewModel = CartProfileChangeAddressViewModel;
+   cartlogic.CartProfileChangeAddressViewModel = CartProfileChangeAddressViewModel;
 
 
 })(window.cartlogic);

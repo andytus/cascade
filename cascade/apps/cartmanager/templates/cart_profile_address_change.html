@@ -88,4 +88,11 @@
     };
 
     ko.applyBindings(updateLocation, document.getElementById('update_cart_address'))
+
+
+    //Setting the tickets to refresh on modal close, #TODO put in custom binding
+    $('#modal_window').on('hidden', function () {
+        //just reloading the current page
+        window.location.reload();
+    });
 </script>

@@ -28,7 +28,7 @@
             console.log(self.input_address());
 
             if (self.input_address().length == 5) {
-                console.log("in the search");
+
 
                 data = {"address":self.input_address()};
 

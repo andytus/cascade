@@ -87,7 +87,7 @@
                                     <b class="caret"></b>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url customer_app_new %}" data-target="#modal_new_customer"
+                                    <li><a href="{% url customer_app_new %}" data-target="#modal_window"
                                            data-toggle="modal">New</a></li>
                                     <li><a href="{% url customer_app_report %}">Reports</a></li>
                                 </ul>
@@ -145,7 +145,7 @@
     </div>
 
 
-
+{% block page %}
 <div id="middle" class="container-fluid">
 
     <div id="message" class="alert message" >
@@ -170,14 +170,20 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+
+<script type="text/javascript">
+    //added cart logic namespace
+    window.cartlogic = {};
+</script>
 
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/utilities/ajax.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap-tab.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.debug.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout.mapping.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/cart_manager_app.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartSearchViewModel.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_type.js"></script>
 
@@ -197,8 +203,6 @@
 
     // var cart_search =  new app.cart_search();
     ko.applyBindings(new cartlogic.CartSearchViewModel(), document.getElementById('cart_search_form'));
-
-
 
     //add to destroy modal content on close in order to properly refresh (i.e. new ticket, should not display previous
    //info)

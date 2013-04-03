@@ -1,0 +1,199 @@
+
+{% extends 'base.html' %}
+
+
+{% block title %}Customer Profile {% endblock %}
+
+{% block left %}
+{% endblock %}
+
+{% block main_content %}
+
+    <div id="customer-info" class="box-info" data-bind="with: profile.customer">
+
+
+    <form class="form-horizontal">
+        <fieldset>
+
+            <h2>Customer</h2>
+
+            <!-- first name-->
+            <div class="control-group">
+                <label class="control-label">First Name</label>
+                <div class="controls">
+                    <input id="first_name" name="first_name" type="text"  placeholder="Enter first name" class="input-xlarge" required="" data-bind="value: first_name, enable: $root.profile.edit_customer">
+                </div>
+            </div>
+
+            <!-- Last Name-->
+            <div class="control-group">
+                <label class="control-label">Last Name</label>
+                <div class="controls">
+                    <input id="last_name" name="last_name" type="text" placeholder="Enter last name" class="input-xlarge" required="" data-bind="value: last_name, enable: $root.profile.edit_customer">
+
+                </div>
+            </div>
+
+            <!-- Phone Number-->
+            <div class="control-group">
+                <label class="control-label">Phone Number</label>
+                <div class="controls">
+                    <input id="phone_number" name="phone_number" type="text" placeholder="123-456-7890" class="input-xlarge" data-bind="value: phone_number, enable: $root.profile.edit_customer">
+                    <p class="help-block">e.g. 123-456-7890</p>
+                </div>
+            </div>
+
+            <!--Email -->
+            <div class="control-group">
+                <label class="control-label">Email</label>
+                <div class="controls">
+                    <input id="email" name="email" type="text" placeholder="someone@here.com" class="input-xlarge" data-bind="value: email, enable: $root.profile.edit_customer">
+                    <p class="help-block"></p>
+                </div>
+            </div>
+
+            <!-- Edit & Save -->
+            <div class="control-group">
+                <label class="control-label"></label>
+                <div class="controls">
+                    <button id="edit" name="edit" class="btn btn-info" data-bind="click: $root.profile.allowEdit">Edit</button>
+                    <button id="Save" name="Save" class="btn btn-primary" data-bind="click: $root.profile.saveCustomerData">Save</button>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+
+    <h2>Cart Locations:</h2>
+    <div id="remove_confirm" style="display: none;"  class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Confirm Remove</h3>
+        </div>
+        <div class="modal-body" id="remove_confirm_address">
+
+        </div>
+        <div class="modal-footer">
+            <button data-bind="click: $root.profile.removeAddress" class="btn btn-danger">Delete</button>
+            <a href="#" class="btn" data-dismiss="modal">Close</a>
+        </div>
+     </div>
+
+    <div id="customer-locations" data-bind="foreach: $root.profile.customer_addresses">
+
+        <table class="customer-cart-table">
+        <tr>
+            <th data-bind="text: full_address"></th>
+            <th><button class="btn btn-mini btn-info" data-bind="click: $root.profile.confirmRemoveAddress">Remove</button></th>
+        </tr>
+        <tr data-bind="foreach: carts">
+
+            <td data-bind=""><i class="icon-trash icon-2x"></i>Serial: <a data-bind="text: serial_number, attr:{href: '{% url cart_app_profile %}' + serial_number}"></a></td>
+            <td data-bind="text: 'Size: ' + cart_type__size"></td>
+            <td data-bind="text: 'Type: ' + cart_type__name"></td>
+
+        </tr>
+        </table>
+
+
+    </div>
+
+
+    </div>
+
+
+    <div id="ticket_panel" data-bind="with: tickets">
+
+
+        <ul class="pager pull-left" data-bind="visible:count() > records_per_page()">
+            <li class="pager" data-bind="visible:page() > 1">
+                <a data-bind="click: function(){getTickets(page()-1)}"> << Previous</a>
+            </li>
+            <li class="pager" data-bind="visible:page() < total_pages()">
+                <a href="#" data-bind="click: function(){getTickets(page()+1)}">Next >></a>
+            </li>
+        </ul>
+
+{% comment %}        <ul class="pager pull-right">
+            <li><a class="btn btn-large btn-link"
+                   data-bind="attr: {href:'{% url ticket_app_new %}New?cart_id=' + $root.profile.cart_id()} "
+                   data-target="#modal_window" data-toggle="modal" role="dialog"><i class="icon-tag">New Ticket</i></a>
+            </li>
+        </ul>{% endcomment %}
+
+        <table id="ticket_table" class="table table-sorter table-striped table-hover table-condensed  box-info">
+            <thead>
+            <tr role="row" data-bind="foreach: ticket_table_headers">
+
+                <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
+                click:function(data, event){$parent.sortTickets(1, data, event)}"></th>
+
+            </tr>
+            </thead>
+            <tbody role="alert" data-bind="foreach: tickets()">
+            <tr>
+                <td data-bind="text: status"></td>
+                <td data-bind="text: service_type"></td>
+                <td data-bind="text: success_attempts"></td>
+                <td data-bind="text: date_created"></td>
+                <td data-bind="text: date_last_attempted"></td>
+                <td data-bind="text: house_number"></td>
+                <td data-bind="text: street_name"></td>
+                <td data-bind="text: unit"></td>
+                <td data-bind="text: serviced_cart"></td>
+                <td data-bind="text: expected_cart"></td>
+                <!-- #TODO put ticket id here for button -->
+                <td>
+                    <button class="btn-small, btn-info" data-bind="text: id"></button>
+                </td>
+            </tbody>
+
+            <tfoot data-bind="visible: count() == 0 ">
+
+            <tr>
+                <td class="text-warning">NO TICKETS FOUND</td>
+            </tr>
+            </tfoot>
+
+
+        </table>
+    </div>
+
+
+
+
+{% endblock %}
+
+{% block right %}
+{% endblock %}
+
+{% block page_scripts %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/customer.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CustomerProfileViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
+
+    <script type="text/javascript">
+       tickets_api_download = "{% url tickets_api_download %}";
+       customer_api_url = "{% url customer_api_profile %}";
+       location_api_search ="{% url location_api_search  %}";
+       location_api_profile ="{% url location_api_profile %}";
+       customer_id = "{{ customer_id }}";
+       var customerProfile = {
+           profile: new cartlogic.CustomerProfileViewModel,
+           tickets: new cartlogic.TicketsViewModel
+
+       };
+
+       ko.applyBindings(customerProfile, document.getElementById('main'));
+
+
+    </script>
+
+{% endblock %}
+
+
+
+

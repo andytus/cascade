@@ -74,14 +74,6 @@ class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
         model = CollectionCustomer
         fields = ('info',)
 
-class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
-    class Meta:
-        model = CollectionCustomer
-        depth = 1
-        exclude = ('site',)
-
-
-
 class LocationInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
 
@@ -164,3 +156,9 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
                    'street_name', 'unit', 'cart_type','cart_type_size')
 
 
+class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
+
+    class Meta:
+        model = CollectionCustomer
+        depth = 1
+        exclude = ('site',)

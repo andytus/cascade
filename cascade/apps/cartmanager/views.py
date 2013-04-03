@@ -19,7 +19,7 @@ from django.db.models import Q
 
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
-    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer
+    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, CustomerInfoSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
 
@@ -77,8 +77,23 @@ class LocationSearch(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
+
+class CustomerProfile(LoginSiteRequiredMixin, TemplateView):
+    template_name ='customer_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CustomerProfile, self).get_context_data()
+        if kwargs["customer_id"]:
+            context['customer_id'] = kwargs["customer_id"]
+        else:
+            raise Http404
+        return context
+
+
 class CustomerNew(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_new.html'
+
+
 
 
 class CustomerReport(LoginSiteRequiredMixin, TemplateView):
@@ -104,10 +119,9 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                 # data to the new ticket api
                 location_id = self.request.GET.get('location_id', None)
                 if location_id:
-                    #TODO Change to address!
                     #Just sending back the location id, the client can look up the address info using the API
                     #only needed for deliveries can get location id from cart for other request
-                    print location_id
+
                     context['location_id'] = location_id
 
                 cart_id = self.request.GET.get('cart_id', None)
@@ -191,6 +205,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
     def get_queryset(self):
         cart_serial = self.request.QUERY_PARAMS.get('serial_number', None)
+        customer_id = self.request.QUERY_PARAMS.get("customer_id", None)
         cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
         cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
@@ -207,6 +222,11 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             if  cart_serial:
                 query = query.filter(
                     Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
+            if customer_id:
+                customer = CollectionCustomer.on_site.get(pk=customer_id)
+                #get all tickets where the location is equal to a customers location
+                locations = customer.customer_location.all()
+                query = query.filter(location__in=locations)
             else:
                 if service_status != 'ALL':
                     query = query.filter(status__service_status=service_status)
@@ -238,11 +258,54 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
 class LocationProfileAPI(LoginSiteRequiredMixin, APIView):
     model = CollectionAddress
-    serializer = AddressCartProfileSerializer
+    serializer = LocationInfoSerializer
+
+    def get_object(self, location_id):
+        try:
+           return CollectionAddress.on_site.get(id=location_id)
+        except CollectionAddress.DoesNotExist:
+            raise Http404
+
+    def get(self, request, location_id, *args, **kwargs):
+        location = self.get_object(location_id)
+        serializer = self.serializer(location)
+        return RestResponse(serializer.data)
+
+
+    def post(self, request, location_id, *args, **kwargs):
+        location = self.get_object(location_id)
+        json_data = simplejson.loads(request.raw_post_data)
+
+        operation = json_data.get('operation', None)
+        customer_id = json_data.get('customer_id', None)
+
+        if customer_id:
+            customer = CollectionCustomer.on_site.get(id=customer_id)
+            if operation == 'remove':
+              #Make sure the customer is current assigned to the address #TODO test else
+                if location.customer == customer:
+                    location.customer = None
+                    location.save()
+                    return RestResponse({'details':{'message': "Removed address: %s  for customer: %s" %(location, customer._get_full_name()), 'message_type': 'Success'}},
+                        status=django_rest_status.HTTP_200_OK)
+                else:
+                    return RestResponse({'details':{'message': "Address: %s  does not have customer: %s" %(location, customer._get_full_name()), 'message_type': 'Failed'}},
+                        status=django_rest_status.HTTP_200_OK)
+            elif operation == 'change':
+                #TODO change from current customer to new customer id
+                current_customer = location.customer
+                location.customer = customer
+                location.save()
+                return RestResponse({'details':{'message': "Changed address: %s  from: %s to: %s" %(location, current_customer._get_full_name(),customer._get_full_name() ), 'message_type': 'Success'}},
+                    status=django_rest_status.HTTP_200_OK)
+            elif operation == None:
+                return RestResponse({'details':{'message': "No operation value given", 'message_type': 'Failed'}},
+                    status=django_rest_status.HTTP_200_OK)
 
 
 class LocationSearchAPI(LoginSiteRequiredMixin, APIView):
-    def get_queryset(self, address, address_id):
+
+    def get_queryset(self, address, address_id, customer_id):
         try:
             if address:
                 house_number = address.split(' ')[0].strip().upper()
@@ -250,18 +313,22 @@ class LocationSearchAPI(LoginSiteRequiredMixin, APIView):
                 query = CollectionAddress.on_site.filter(house_number=house_number, street_name__contains=street_name)
                 return query
             elif address_id:
-                query = CollectionAddress.on_site.get(pk=address_id)
+                query = CollectionAddress.on_site.get(id=address_id)
+                return query
+            elif customer_id:
+                customer = CollectionCustomer.on_site.get(id=customer_id)
+                query = CollectionAddress.on_site.filter(customer=customer)
                 return query
             else:
                 raise Http404
         except:
             raise Http404
 
-
     def get(self, request, format=None):
         address = self.request.QUERY_PARAMS.get('address', None)
         address_id = self.request.QUERY_PARAMS.get('address_id', None)
-        addresses = self.get_queryset(address, address_id)
+        customer_id = self.request.QUERY_PARAMS.get('customer_id', None)
+        addresses = self.get_queryset(address, address_id, customer_id)
         serializer = LocationInfoSerializer(addresses)
         return RestResponse(serializer.data)
 
@@ -278,7 +345,6 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
             raise Http404
 
     def get(self, request, serial_number, format=None):
-        #TODO need to redirect if cart does not exist (i.e. http404-location does not exist).. look for fix in serializer
         cart = self.get_object(serial_number)
         serializer = CartProfileSerializer(cart)
 
@@ -289,13 +355,14 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
             c = Context({'data': cart}, )
             response.write(t.render(c))
             return response
+
         return RestResponse(serializer.data)
 
     def post(self, request, serial_number, format=None):
         try:
             cart = self.get_object(serial_number)
             json_data = simplejson.loads(request.raw_post_data)
-            print json_data
+
 
             #grabbing values to be updated or None
             cart_type_id = json_data.get('cart_type', None)
@@ -324,7 +391,7 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
                 {"details": { 'message': "Darn, cart did not update, somethings wrong with the value for: %s" % (e), 'message_type':'Failed', "time": datetime.now()}}, status=django_rest_status.HTTP_200_OK)
 
 
-class TicketAPI(APIView):
+class TicketAPI(LoginSiteRequiredMixin, APIView):
     model = CartServiceTicket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
@@ -355,7 +422,7 @@ class TicketAPI(APIView):
 
     def post(self, request, ticket_id, format=None):
         json_data = simplejson.loads(request.raw_post_data)
-        print type(json_data)
+
 
         if ticket_id == 'New':
 
@@ -364,7 +431,7 @@ class TicketAPI(APIView):
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('address_unit', None)
-                print house_number, street_name
+
 
                 #excepts both location id and address for the Collection Address
                 #client built for address information, we want this flexibility as I may not know the address_id
@@ -379,8 +446,9 @@ class TicketAPI(APIView):
                         #ok no unit so just get the address using the house number and street name
                         location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
                 else:
-                    return "failed 404"
-                    #TODO return No Address Information given
+                    return RestResponse({
+                        "detail": {"No address information given"},
+                        "time": datetime.now()})
 
 
                 #Get the current service type and a cart service status object of requested
@@ -391,7 +459,7 @@ class TicketAPI(APIView):
                 cart_type_name = json_data.get('cart_type', None)
 
 
-                #if we have and expected service type it is likely a remove or exchange
+                #If we have an expected cart serial number it is a remove, exchange, repair or audit
                 #TODO put repair or audits in here
                 if expected_cart_serial_number:
                     expected_cart = Cart.on_site.get(serial_number=expected_cart_serial_number)
@@ -411,9 +479,8 @@ class TicketAPI(APIView):
                 #Create service ticket or tickets below, some code repeated but feels more readable
 
                 if requested_service_type == 'Delivery':
-                    #Delivery? You should get and add the cart type from name and size
-                    #Create a new delivery ticket service type of code
-                    # DEL.
+                    #Delivery? You should get and add the cart type from cart type name and size
+                    #Create a new delivery ticket service type of code DEL.
                     service_type = CartServiceType.on_site.get(code='DEL')
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
                     delivery_ticket = CartServiceTicket(location=location,service_type=service_type,
@@ -442,6 +509,7 @@ class TicketAPI(APIView):
                                       status=django_rest_status.HTTP_200_OK)
 
         else:
+            #TODO status change
             #Expecting this to be a status change if it is not New
             #Change status of the ticket id
             try:
@@ -451,21 +519,49 @@ class TicketAPI(APIView):
                 ticket.status = update_status
                 ticket.save()
             except ValueError as e:
-                return RestResponse({'details':{'message': "Sorry! ticket could not be created, code: %s" % e, 'message_type': 'Failed'}},
+                return RestResponse({'details':{'message': "Sorry! ticket could not be updated: %s" % e, 'message_type': 'Failed'}},
                     status=django_rest_status.HTTP_200_OK)
 
 
 
-class CustomerProfileAPI(RetrieveUpdateDestroyAPIView):
+class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
     model = CollectionCustomer
     serializer_class = CustomerProfileSerializer
 
+    def get_object(self, customer_id):
+        try:
+            return CollectionCustomer.on_site.get(id=customer_id)
+        except CollectionCustomer.DoesNotExist:
+            raise Http404
+
+    def get(self, request, customer_id, format=None):
+        customer = self.get_object(customer_id)
+        serializer = CustomerProfileSerializer(customer)
+
+        return RestResponse(serializer.data)
+
+    def post(self, request, customer_id, format=None):
+
+        customer = self.get_object(customer_id)
+        json_data = simplejson.loads(request.raw_post_data)
 
 
+        first_name = json_data.get('first_name', None)
+        last_name = json_data.get('last_name', None)
+        phone_number = json_data.get('phone_number', None)
+        email = json_data.get('email', None)
 
-
-
-
+        if (first_name and last_name and phone_number):
+            customer.first_name = first_name
+            customer.last_name = last_name
+            customer.email = email
+            customer.phone_number = phone_number
+            customer.save()
+            return RestResponse({'details':{'message': "Changes saved for customer id: %s" %(customer_id), 'message_type': 'Success'}},
+                                status=django_rest_status.HTTP_200_OK)
+        else:
+            return RestResponse({'details':{'message': "Missing one or more values", 'message_type': 'Failed'}},
+                                    status=django_rest_status.HTTP_200_OK)
 
 
 

@@ -155,7 +155,7 @@ class ServiceCenterAddress(Address):
     pass
 
 class CollectionCustomer(models.Model):
-    other_system_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    #other_system_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     first_name = models.CharField(max_length=25, default="UNKNOWN", null=True)
     last_name = models.CharField(max_length=50, default="UNKNOWN", null=True)
     phone_number = PhoneNumberField(max_length=15, null=True, blank=True)
@@ -184,14 +184,36 @@ class CollectionCustomer(models.Model):
         info = {"id":self.id, "name":self.full_name, "url": self.get_absolute_url()}
         return info
 
+
+
+
+class ForeignSystemCustomerID(models.Model):
+    system_name = models.CharField(max_length=25, blank=True, null=True)
+    identity = models.CharField(max_length=100)
+    last_updated = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    customer = models.ForeignKey(CollectionCustomer, related_name="customer")
+    description = models.TextField(max_length=300, blank=True, null=True)
+
+    #model managers:
+    site = models.ForeignKey(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
+    def __unicode__(self):
+        return "identity: %s to %s, last updated:%s" %(self.identity, self.system_name, self.last_updated)
+
+
+
+
 class CollectionAddress(Address):
     ADDRESS_TYPE = (('Inventory', 'Inventory'), ('Billing', 'Billing'))
     type = models.CharField(max_length=9, choices=ADDRESS_TYPE, default='Billing')
-    customer = models.ForeignKey(CollectionCustomer, null=True, blank=True)
+    customer = models.ForeignKey(CollectionCustomer, null=True, blank=True, related_name="customer_location")
 
     def get_info(self):
         info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                              "city":self.city, "state":self.state, "zipcode":self.zipcode, "carts":self.location.values('serial_number')},"type":"Feature", "geometry":
+                              "city":self.city, "state":self.state, "zipcode":self.zipcode,"carts":self.location.values("serial_number", "cart_type__size", "cart_type__name")},"type":"Feature", "geometry":
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
 
         return info
@@ -211,11 +233,22 @@ class Cart(models.Model):
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
     serial_number = models.CharField(max_length=30, null=True, blank=True)
+    #TODO remove size
     size = models.IntegerField(choices=CART_SIZE)
     current_status = models.ForeignKey(CartStatus, null=True, blank=True)
     cart_type = models.ForeignKey(CartType, null=True, blank=True, default=1)
     last_updated = models.DateTimeField(auto_now=datetime.now)
     born_date = models.DateTimeField()
+
+    def _get_size(self):
+        if self.cart_type:
+            return self.cart_type.size
+        else:
+            return "no cart type"
+
+    test = property(_get_size)
+
+    print test
 
     #model managers
     site = models.ForeignKey(Site)
@@ -247,7 +280,7 @@ class CartServiceTicket(models.Model):
     serviced_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='serviced_cart')
     expected_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='expected_cart')
 
-    location = models.ForeignKey(CollectionAddress, related_name="address")
+    location = models.ForeignKey(CollectionAddress, related_name="ticket_locations")
     service_type = models.ForeignKey(CartServiceType, null=True, blank=True, related_name="service_type")
     cart_type = models.ForeignKey(CartType, null=True, blank=True, related_name="cart_type")
     status = models.ForeignKey(CartServiceStatus, null=True, blank=True, related_name="status")
@@ -564,6 +597,8 @@ class CustomersUploadFile(UploadFile):
            #.full_clean checks for the correct data
            customer.full_clean()
            customer.save()
+
+           #TODO: for systemid, need to create ForeignSystemCustomerID, create then save to customer, will need extra fields
 
            #######################################################################################################
 

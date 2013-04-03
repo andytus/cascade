@@ -9,70 +9,50 @@
 
 {% block main_content %}
 
+    <div id="cart_profile" class="row-fluid" data-bind="with: profile.cart">
 
 
+        <div class="cart-info box-info">
 
-    <ul id="cart-profile-tab" class="nav nav-tabs">
-        <li class="active"><a href="#cart-info"><i class="icon-trash"></i> cart profile</a></li>
-        <li ><a href="#cart-info-map"  data-bind="click: $root.profile.createMap"> <i class="icon-map-marker"></i>  Map</a></li>
-    </ul>
-
-
-    <div id="cart-profile" class="container-fluid  active tab-content" data-bind="with: profile.cart">
-
-        <div id="cart-info" class="box-info tab-pane active">
-            <div class="cart-info-edit-title">Cart Profile: <i data-bind="text: serial_number"></i></div>
-
-            <div class="well" id="cart-info-display">
-
-                <a class="cart-info-link pull-left" data-bind="attr: {href: cart_profile_url}">
-                    <span class="cart-info-serial" data-bind="text: serial_number"></span>
-                    <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
-                </a>
+            <a class="cart-info-link pull-left" data-bind="attr: {href: cart_profile_url}">
+                <span class="cart-info-serial" data-bind="text: serial_number"></span>
+                <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
+            </a>
 
 
-                <div class="cart-info-header"><span class="cart-info-size" data-bind="text: size"></span></div>
+            <div class="cart-info-header"><span class="cart-info-size" data-bind="text: size"></span></div>
 
-                <div class="cart-info-type" data-bind="text:cart_type"></div>
+            <div class="cart-info-type" data-bind="text:cart_type"></div>
 
-                <div class="cart-info-status label"
-                     data-bind="text: current_status,  css: current_status_level"></div>
-                <br>
-                Produced:
-                <div class="cart-info-born_date" data-bind="text: born_date">
-
-                </div>
+            <div class="cart-info-status label" data-bind="text: current_status,  css: current_status_level"></div>
+            <br>
+            Produced:
+            <div class="cart-info-born_date" data-bind="text: born_date">
 
             </div>
+        </div>
 
+        <div id="cart-info-edit" class="box-info pull-right span7">
+            <p class="cart-info-edit-title">Cart Profile:</p>
 
-            <div id="cart-info-edit">
+             <div id="cart-info-edit-text">
+                <div class="well">
+                    <a href= "{% url cart_app_address_change %}{{ serial_number}}" data-target="#modal_window"  id="cart-info-edit-update"
+                       class="btn btn-info btn-large" data-toggle="modal"><i class="icon-home"> Change</i>
+                    </a>
 
-
-                <div id="cart-info-edit-address" class="well cart-info-edit-section">
-
-
-                    <a href="{% url cart_app_address_change %}{{ serial_number }}" data-target="#modal_window"
-                       class="btn btn-info btn-large cart-info-btn" data-toggle="modal"> <i class="icon-home">
-                        Change</i></a>
-
-
-                    <a id="cart-info-edit-customer_name" data-bind="attr: {href: customer_app_url + customer_id()}"><span
-                            class="icon-map-marker" data-bind="text:customer_name"></span></a>
+                    <p><a id="cart-info-edit-customer_name" data-bind="attr: {href:customer_url}"><span
+                            class="icon-map-marker" data-bind="text:customer_name"></span></a></p>
 
                     <p id="cart-info-edit-street_address" data-bind="text:location_address"></p>
                 </div>
 
 
-                <form class="form-inline well cart-info-edit-section"
-                      data-bind="submit: $root.profile.saveCartData">
+                 <form class="form-inline well" data-bind="submit: $root.profile.saveCartData">
 
                     <fieldset>
 
                         <div class="control-group">
-
-                            <button id="cart-info-edit-submit" class="cart-info-btn btn btn-info btn-large"
-                                    type="submit"><i class="icon-save"> Update</i></button>
 
 
                             <div class="controls-row">
@@ -81,17 +61,17 @@
                                         data-bind="foreach:{data: $root.profile.cart_type_options}">
                                     <option data-bind="text: name, value: id" selected="selected"></option>
                                 </select>
+                                <button id="cart-info-edit-submit" class="btn btn-info  btn-large pull-right"
+                                        type="submit"><i class="icon-save"> Update</i></button>
                             </div>
 
                             <div class="control-row">
-
                                 <label for="cart-info-edit-status" class="control-label">Status:</label>
 
                                 <select id="cart-info-edit-status" name="current_status" class="input-large"
                                         data-bind="foreach:{data: $root.profile.cart_status_options}">
                                     <option data-bind="text: label(), value: id()"></option>
-                                </select> <br>
-
+                                </select>
                             </div>
 
                             <div id="cart-info-edit-last_update"
@@ -105,21 +85,20 @@
                 <div id="cart-info-edit-rfid" data-bind="text: 'RFID Tag: ' + rfid()"></div>
 
             </div>
-
-
         </div>
 
+        <br>
 
-        <div id="cart-info-map" class="box-info tab-pane">
-            <div id="map_canvas" style="width: 100%; height: 100%">
+        <div id="cart-info-map" class="box-info">
+            <div id="map_canvas" style="width: 100%; height: 96%">
             </div>
-            {#        <button class="pull-left btn-small btn-info"><i class="icon-fullscreen icon"></i> Expand </button>#}
+            <button class="pull-left btn-small btn-info"><i
+                    class="icon-fullscreen icon"></i> Expand
+            </button>
 
         </div>
-
 
     </div>
-
 
 
     <div id="ticket_panel" data-bind="with: tickets">
@@ -127,10 +106,10 @@
 
         <ul class="pager pull-left" data-bind="visible:count() > records_per_page()">
             <li class="pager" data-bind="visible:page() > 1">
-                <a data-bind="click: function(){getTickets(page()-1)}"> << Previous</a>
+                <a data-bind="click: function(){getTickets(serial_number, page()-1)}"> << Previous</a>
             </li>
             <li class="pager" data-bind="visible:page() < total_pages()">
-                <a href="#" data-bind="click: function(){getTickets(page()+1)}">Next >></a>
+                <a href="#" data-bind="click: function(){getTickets(serial_number, page()+1)}">Next >></a>
             </li>
         </ul>
 
@@ -146,7 +125,7 @@
             <tr role="row" data-bind="foreach: ticket_table_headers">
 
                 <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
-                click:function(data, event){$parent.sortTickets(1, data, event)}"></th>
+                click:function(data, event){$parent.sortTickets(serial_number, 1, data, event)}"></th>
 
             </tr>
             </thead>
@@ -206,7 +185,7 @@
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
 
-        var cart_serial_number = '{{ serial_number }}';
+        var serial_number = '{{ serial_number }}';
         var cart_api_profile = "{% url cart_api_profile %}";
         var cart_app_url = "{% url cart_app_profile %}";
         var tickets_api_download = "{% url tickets_api_download %}";
@@ -215,11 +194,6 @@
         var cart_type_options_api_url = "{% url cart_type_api %}";
         var cart_app_profile_map = "{% url cart_app_profile_map %}";
 
-       //needed for bootstrap taps (with Google Maps)
-        $('#cart-profile-tab a').click(function (e) {
-            e.preventDefault();
-            $(this).tab('show');
-        });
 
         var cartProfile = {
             tickets:new cartlogic.TicketsViewModel,
