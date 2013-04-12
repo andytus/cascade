@@ -15,8 +15,6 @@
 
         var self = this;
 
-        console.log("in location search");
-
 
         self.input_address = ko.observable("");
         self.selected_address = ko.observable("");
@@ -25,7 +23,6 @@
 
 
         self.search = function () {
-            console.log(self.input_address());
 
             if (self.input_address().length == 5) {
 

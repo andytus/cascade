@@ -19,7 +19,7 @@ from django.db.models import Q
 
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
-    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, CustomerInfoSerializer
+    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, AdminLocationDefaultSerializer,  CustomerInfoSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
 
@@ -148,6 +148,17 @@ class TicketOpen(LoginSiteRequiredMixin, TemplateView):
 #API VIEWS: Used to render, create and update content to applications                                                #
 ######################################################################################################################
 
+class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
+    model = AdminDefaults
+    serializer = AdminLocationDefaultSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
+    def get(self, request):
+        print get_current_site(request).id
+        default_location = AdminDefaults.on_site.get(site=get_current_site(request).id)
+        serializer = self.serializer(default_location)
+        return RestResponse(serializer.data)
+
 class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
@@ -197,6 +208,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
+    #TODO deal with missing parameters better i.e. Response with failed status
     model = CartServiceTicket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
@@ -204,30 +216,32 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
 
     def get_queryset(self):
-        cart_serial = self.request.QUERY_PARAMS.get('serial_number', None)
-        customer_id = self.request.QUERY_PARAMS.get("customer_id", None)
-        cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
-        cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
-        service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
-        service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
-        processed = self.request.QUERY_PARAMS.get('processed', 'True')
-        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        search_by = simplejson.loads(self.request.QUERY_PARAMS.get('search_by', None))
+        if search_by:
+            cart_serial = search_by.get('serial_number', None)
+            customer_id = search_by.get("customer_id", None)
+            cart_size = search_by.get('cart_size', 'ALL')
+            cart_type = search_by.get('cart_type', 'ALL')
+            service_status = search_by.get('status', 'ALL')
+            service_type = search_by.get('service', 'ALL')
+            processed = search_by.get('processed', 'True')
 
-        try:
-            if sort_by:
-                query = CartServiceTicket.on_site.order_by(sort_by)
-            else:
-                query = CartServiceTicket.on_site.filter()
+            sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
 
-            if  cart_serial:
-                query = query.filter(
-                    Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
-            if customer_id:
-                customer = CollectionCustomer.on_site.get(pk=customer_id)
-                #get all tickets where the location is equal to a customers location
-                locations = customer.customer_location.all()
-                query = query.filter(location__in=locations)
-            else:
+            try:
+                if sort_by:
+                    query = CartServiceTicket.on_site.order_by(sort_by)
+                else:
+                    query = CartServiceTicket.on_site.filter()
+
+                if cart_serial:
+                    query = query.filter(
+                        Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
+                if customer_id:
+                    customer = CollectionCustomer.on_site.get(pk=customer_id)
+                    #get all tickets where the location is equal to a customers location
+                    locations = customer.customer_location.all()
+                    query = query.filter(location__in=locations)
                 if service_status != 'ALL':
                     query = query.filter(status__service_status=service_status)
                 if cart_type != 'ALL':
@@ -238,9 +252,11 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                     query = query.filter(service_type__service=service_type)
                 if processed == 'False':
                     query = query.filter(processed=False)
-            return query
-        except:
-            return Http404
+                return query
+            except:
+                raise Http404
+        else:
+            raise Http404
 
     #over ride list method to provide csv download
     def list(self, request, *args, **kwargs):
@@ -252,7 +268,6 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             c = Context({'data': self.get_queryset()}, )
             response.write(t.render(c))
             return response
-
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
 
@@ -552,9 +567,9 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
         email = json_data.get('email', None)
 
         if (first_name and last_name and phone_number):
-            customer.first_name = first_name
-            customer.last_name = last_name
-            customer.email = email
+            customer.first_name = first_name.upper()
+            customer.last_name = last_name.upper()
+            customer.email = email.upper()
             customer.phone_number = phone_number
             customer.save()
             return RestResponse({'details':{'message': "Changes saved for customer id: %s" %(customer_id), 'message_type': 'Success'}},

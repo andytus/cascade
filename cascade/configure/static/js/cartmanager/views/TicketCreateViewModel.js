@@ -308,7 +308,7 @@
                         //send error message to last step
                         self.currentStep(self.stepModels()[self.stepModels().length-1]);
                         self.server_message_type("ERROR!");
-                        self.server_message(jqXHR.statusText)
+                        self.server_message(jqXHR.statusText);
                     }
                 }
 

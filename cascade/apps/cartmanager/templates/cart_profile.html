@@ -12,11 +12,11 @@
 
 
 
-    <ul id="cart-profile-tab" class="nav nav-tabs">
-        <li class="active"><a href="#cart-info"><i class="icon-trash"></i> cart profile</a></li>
-        <li ><a href="#cart-info-map"  data-bind="click: $root.profile.createMap"> <i class="icon-map-marker"></i>  Map</a></li>
-    </ul>
-
+    <ul id="cart-profile-tab" class="nav nav-pills">
+        <li><a href="#cart-info" class="box-info"><i class="icon-trash"></i> cart profile</a></li>
+        <li><a href="#ticket_panel" class="box-info"><i class="icon-tags"></i> tickets</a></li>
+        <li><a href="#cart-map-wrapper" class="box-info" data-bind="click: $root.profile.createMap"><i class="icon-map-marker"></i> show cart map</a></li>
+   </ul>
 
     <div id="cart-profile" class="container-fluid  active tab-content" data-bind="with: profile.cart">
 
@@ -57,8 +57,12 @@
                         Change</i></a>
 
 
-                    <a id="cart-info-edit-customer_name" data-bind="attr: {href: customer_app_url + customer_id()}"><span
+                    <a id="cart-info-edit-customer_name"
+                       data-bind=" if: customer_id(), attr: {href: customer_app_url + customer_id()}"><span
                             class="icon-map-marker" data-bind="text:customer_name"></span></a>
+                    <!--ko ifnot: customer_id()-->
+                    <p id="cart-info-edit-add-customer-address" data-bind="text: 'No Customer Assigned'"></p>
+                    <!--/ko-->
 
                     <p id="cart-info-edit-street_address" data-bind="text:location_address"></p>
                 </div>
@@ -110,13 +114,7 @@
         </div>
 
 
-        <div id="cart-info-map" class="box-info tab-pane">
-            <div id="map_canvas" style="width: 100%; height: 100%">
-            </div>
-            {#        <button class="pull-left btn-small btn-info"><i class="icon-fullscreen icon"></i> Expand </button>#}
-
-        </div>
-
+        {#        <button class="pull-left btn-small btn-info"><i class="icon-fullscreen icon"></i> Expand </button>#}
 
     </div>
 
@@ -177,8 +175,13 @@
 
 
         </table>
+
     </div>
 
+
+    <div id="cart-map-wrapper"  style="display:none;" class="box-info">
+      <div id="cart-profile-map"></div>
+   </div>
 
 {% endblock %}
 
@@ -190,9 +193,6 @@
 
 
 
-    <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
-    </script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/map.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_status.js"></script>
@@ -205,28 +205,23 @@
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
-
         var cart_serial_number = '{{ serial_number }}';
         var cart_api_profile = "{% url cart_api_profile %}";
         var cart_app_url = "{% url cart_app_profile %}";
         var tickets_api_download = "{% url tickets_api_download %}";
+        var ticket_app_new = "{% url ticket_app_new %}";
         var customer_app_url = "{% url customer_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
         var cart_app_profile_map = "{% url cart_app_profile_map %}";
 
-       //needed for bootstrap taps (with Google Maps)
-        $('#cart-profile-tab a').click(function (e) {
-            e.preventDefault();
-            $(this).tab('show');
-        });
 
         var cartProfile = {
             tickets:new cartlogic.TicketsViewModel,
             profile:new cartlogic.CartProfileViewModel
         };
 
-        ko.applyBindings(cartProfile, document.getElementById('main'))
+        ko.applyBindings(cartProfile, document.getElementById('main'));
 
     </script>
 

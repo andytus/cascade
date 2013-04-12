@@ -3,18 +3,18 @@
     <div id="new_ticket" data-bind="template: {name: 'CurrentTemplate', data: create.currentStep }">
     </div>
     <div class="modal-footer">
-        <button class="btn pull-left" data-dismiss="modal" aria-hidden="true" data-bind="visible: !(create.isCompleteStep())">Cancel</button>
-        <button class="btn" data-bind="click: create.goPrevious, visible: create.canGoPrevious"><i
+        <button class="btn btn-large pull-left" data-dismiss="modal" aria-hidden="true" data-bind="visible: !(create.isCompleteStep())">Cancel</button>
+        <button class="btn btn-large" data-bind="click: create.goPrevious, visible: create.canGoPrevious"><i
                 class="icon-caret-left"> </i>Previous
         </button>
-        <button class="btn" data-bind="click: create.goNext, visible: create.canGoNext ">Next <i
+        <button class="btn btn-large" data-bind="click: create.goNext, visible: create.canGoNext ">Next <i
                 class="icon-caret-right"></i>
         </button>
 
-        <button class="btn" data-bind="visible: create.isCompleteStep" data-dismiss="modal" aria-hidden="true">Close
+        <button class="btn btn-large" data-bind="visible: create.isCompleteStep" data-dismiss="modal" aria-hidden="true">Close
         </button>
 
-        <button class="btn btn-primary" data-bind="visible: create.isConfirmStep, click: create.createNewTicket">Save changes</button>
+        <button class="btn btn-large btn-primary" data-bind="visible: create.isConfirmStep, click: create.createNewTicket">Save changes</button>
     </div>
 </div>
 

@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketSearchAPI, TicketsCompletedUploadView, \
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationSearchAPI, CartSearch, CartProfile, \
       CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketOpen, CustomerReport, CartReport, TicketAPI,\
-      CartProfileMap, LocationSearch, CartAddressChange, LocationProfileAPI, CustomerProfile, CustomerNew
+      CartProfileMap, LocationSearch, CartAddressChange, LocationProfileAPI, CustomerProfile, CustomerNew, AdminDefaultLocation
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -11,6 +11,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
 urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^api/location/profile/(?P<location_id>[a-zA-Z0-9]+)?$', LocationProfileAPI.as_view(), name='location_api_profile'),
+    url(r'^api/default/location/$', AdminDefaultLocation.as_view(), name='admin_api_location'),
     url(r'^app/cart/search/$', CartSearch.as_view(), name='cart_search'),
     url(r'^api/cart/search/$', CartSearchAPI.as_view(), name='cart_api_search'),
     url(r'^api/cart/report/$', CartReport.as_view(), name='cart_app_report'),

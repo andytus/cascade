@@ -26,6 +26,45 @@ def save_error(e, line):
     error.save()
 
 
+class AdminDefaults(models.Model):
+    city = models.CharField(max_length=200, blank=True, null=True)
+    state = models.CharField(max_length=2, blank=True, null=True)
+    account_admin = models.CharField(max_length=40, blank=True, null=True)
+
+    site = models.ForeignKey(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
+    def get_info(self):
+        return {'city':self.city, 'state': self.state, "account_admin":self.account_admin,
+                 'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
+
+    def get_location_info(self):
+        return {'city':self.city, 'state': self.state, 'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
+
+
+    def __unicode__(self):
+        return "%s, %s" % (self.city, self.state)
+
+
+
+class ZipCodes(models.Model):
+    zipcode = models.CharField(max_length=5)
+    plus_four = models.CharField(max_length=4)
+    defaults = models.ForeignKey(AdminDefaults, related_name='default_zipcodes', blank=True, null=True)
+
+    site = models.ForeignKey(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
+    def get_info(self):
+        return {'zipcode': self.zipcode, 'plus_four': self.plus_four}
+
+    def __unicode__(self):
+        return "%s-%s" % (self.zipcode, self.plus_four)
+
+
+
 class CartStatus(models.Model):
     LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
              ("label-inverse", "Default"), ('label', 'Inverse'))

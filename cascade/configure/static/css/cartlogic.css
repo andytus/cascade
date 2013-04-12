@@ -178,26 +178,35 @@ background-color: white;
      font-weight: bold;
 
 }
+html { height: 100% }
+body { height: 100%; margin: 0; padding: 0 }
 
-#cart-info-map{
+
+#cart-map-wrapper{
    padding: 15px;
    height: 500px;
+   width: 100%;
+   border: solid;
+   border-color: #a9a9a9;
+   border-width: 3px;
+   margin-bottom: 10px;
+}
+
+#cart-map-wrapper img{
+    /*TODO: hack fix for bootstrap ... has max-width:1000, overiding */
+    max-width: 10000%
+
 }
 
 
-#map_canvas{
-    display:none;
-    border: solid;
-    border-color: #a9a9a9;
-    border-width: 3px;
-    margin-bottom: 10px
+#cart-profile-map{
+    height: 100%;
 
-}
+ }
 
 /****login page****/
 #login_form{
     text-align: center;
-
     margin: auto;
     margin-top: 100px;
     width: 375px;
@@ -212,16 +221,14 @@ background-color: white;
     margin-right:auto;
 }
 
-
-
 /****Cart Profile Page****/
 
 #cart-profile-tab{
-    margin-bottom: 0;
+    margin-bottom: 1%;
  }
 
 #cart-profile-tab li {
-   padding-left: 1%;
+   padding: 1%;
 }
 
 
@@ -264,10 +271,11 @@ background-color: white;
 }
 
 
-#cart-info-edit-customer_name{
+#cart-info-edit-customer_name, #cart-info-edit-add-customer-address{
     font-size: 2.4em;
 
 }
+
 
 #cart-info-edit-street_address{
 
@@ -279,10 +287,10 @@ background-color: white;
 
 
 
-#cart-info-edit  label, select{
+#cart-info-edit select, #cart-info-edit label{
     color: #696969;
     font-size: 1.9em;
-    height: 2.2em;
+    height: 2.1em;
     padding-right: 10px;
 
 
@@ -349,13 +357,21 @@ table.table-sorter thead tr .sort-up{
     padding-right: 25px;
 }
 
+.modal-body {
+    max-height: 800px;
+    overflow-y:visible;
+
+}
+
+.typeahead.dropdown-menu {
+    z-index: 1051;
+}
 
 
+#map_address_wrapper{
+    height: 200px;
+    padding-bottom: 1em;
 
-
-
-
-
-
+}
 
 

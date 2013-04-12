@@ -134,7 +134,6 @@
 
   , render: function (items) {
       var that = this
-
       items = $(items).map(function (i, item) {
         i = $(that.options.item).attr('data-value', item)
         i.find('a').html(that.highlighter(item))
@@ -286,6 +285,7 @@
     })
   }
 
+ //jbennett-fixed problem with using this in a modal window
   $.fn.typeahead.defaults = {
     source: []
   , items: 8

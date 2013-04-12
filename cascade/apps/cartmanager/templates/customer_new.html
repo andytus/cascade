@@ -1,13 +1,274 @@
+<div id="create_customer">
 
+    <div id="new_customer" data-bind="template: {name: 'CurrentTemplate', data: create.currentStep }">
+    </div>
+    <div class="modal-footer">
 
-<div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="myModalLabel">New Customer</h3>
+        <p>
+            <button class="btn btn-large pull-left" data-dismiss="modal" aria-hidden="true"
+                    data-bind="visible: !(create.isCompleteStep())">Cancel
+            </button>
+
+            <a href="#" class="btn btn-large btn-info"
+               data-bind="click: create.mapIt, visible: create.currentIndex() == 1 "><i class="icon-map-marker"> </i>
+                Map Verify!
+
+            </a>
+
+            <button class="btn btn-large" data-bind="click: create.goPrevious, visible: create.canGoPrevious">
+                <i class="icon-caret-left"> </i>Previous
+            </button>
+
+            <button class="btn btn-large" data-bind="click: create.goNext, visible: create.canGoNext">Next
+                <i class="icon-caret-right"></i>
+            </button>
+
+            <button class="btn btn-large" data-bind="visible: create.isCompleteStep" data-dismiss="modal"
+                    aria-hidden="true">Close
+            </button>
+
+            <button class="btn btn-large btn-primary"
+                    data-bind="visible: create.isConfirmStep, click: create.createNewTicket">Save
+            </button>
+        </p>
+    </div>
+
 </div>
 
-<div>Customer New</div>
+<!--Main Template: all others wizard windows use this insert data to the modal body -->
+<script id="CurrentTemplate" type="text/html">
 
-<div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary">Save changes</button>
-</div>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 data-bind="html: name"></h4>
+    </div>
+
+    <div class="modal-body" data-bind="template: {name: getTemplate, data: model }">
+    </div>
+
+</script>
+
+
+<!-- Step Templates -->
+<script id="CustomerInfo" type="text/html">
+
+    <form class="form-horizontal"  data-bind="with: $root.create.customer">
+        <fieldset>
+
+            <h2>Customer</h2>
+
+            <!-- first name-->
+            <div class="control-group">
+                <label class="control-label">First Name</label>
+
+                <div class="controls" data-bind="css: {'text-error': first_name.hasError }">
+                    <p data-bind='visible: first_name.hasError, html: first_name.validationMessage'></p>
+                    <input id="first_name" name="first_name" type="text" placeholder="Enter first name"
+                           class="input-xlarge" required=""
+                           data-bind="value: first_name, hasfocus: first_name.hasFocus">
+                </div>
+            </div>
+
+            <!-- Last Name-->
+            <div class="control-group">
+                <label class="control-label">Last Name</label>
+
+                <div class="controls" data-bind="css: {'text-error': last_name.hasError }">
+                    <p data-bind='visible: last_name.hasError, html: last_name.validationMessage'></p>
+                    <input id="last_name" name="last_name" type="text" placeholder="Enter last name"
+                           class="input-xlarge" data-bind="value: last_name, hasfocus: last_name.hasFocus">
+
+                </div>
+            </div>
+
+            <!-- Phone Number-->
+            <div class="control-group">
+                <label class="control-label">Phone Number</label>
+
+                <div class="controls" data-bind="css:{'text-error': phone_number.hasError}">
+                    <p data-bind="visible: phone_number.hasError, html: phone_number.validationMessage"></p>
+                    <input id="phone_number" name="phone_number" type="text" placeholder="123-456-7890"
+                           class="input-xlarge" data-bind="value: phone_number, hasfocus: phone_number.hasFocus">
+
+                    <p class="help-block">e.g. 123-456-7890</p>
+                </div>
+            </div>
+
+            <!--Email -->
+            <div class="control-group">
+                <label class="control-label">Email</label>
+
+                <div class="controls" data-bind="css:{'text-error': email.hasError}">
+                    <p data-bind="visible: email.hasError, html: email.validationMessage"></p>
+                    <input id="email" name="email" type="text" placeholder="someone@someplace.com" class="input-xlarge"
+                           data-bind="value: email, hasfocus: email.hasFocus">
+
+                    <p class="help-block"></p>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</script>
+
+<script id="AddressInfo" type="text/html">
+    <h2>Location</h2>
+
+    <form class="form-horizontal" data-bind="with: $root.create.location">
+        <fieldset>
+            <!-- Text input-->
+            <div class="control-group">
+                <label class="control-label">House #</label>
+
+                <div class="controls">
+                    <input id="house_number" class="input-small" name="house_number" type="text" size="10"
+                           data-bind="value: house_number" required="">
+
+                </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="control-group">
+                <label class="control-label">Street</label>
+
+                <div class="controls">
+                    <input id="street_name" name="street_name" type="text" placeholder="" data-bind="value: street_name"
+                           class="input-xlarge" required="">
+
+                    <p class="help-block">Street name and prefix only</p>
+                </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="control-group">
+
+                <label class="control-label" >Street suffix\Unit: </label>
+                <div class="controls form-inline">
+                     <input id="street_suffix" name="street_suffix" class="typeahead input-mini"
+                           type="text" placeholder="(i.e. AVE, RD, DR, etc..)"
+                           data-bind="typeahead: $root.create.suffix_defaults, value: street_suffix" data-modal="true"/>
+                   <input id="unit" name="unit" type="text" placeholder="" data-bind="value: unit" class="input-small">
+                    <br>
+
+                </div>
+            </div>
+
+      {% comment %}      <!-- Text input-->
+            <div class="control-group">
+                <label class="control-label">Unit</label>
+
+                <div class="controls">
+                    <input id="unit" name="unit" type="text" placeholder="" data-bind="value: unit" class="input-small">
+
+                </div>{% endcomment %}
+
+
+                <!-- Appended checkbox -->
+                <div class="control-group">
+                    <label class="control-label">City\State</label>
+                    <div class="controls form-inline">
+                        <div class="input-append">
+                               <input id="city" name="city" class="input-medium" type="text" placeholder="" required=""
+                                   data-bind="value:city, disable: $root.create.use_default_state_city">
+                               <span class="add-on">
+                               <input type="checkbox" checked="" data-bind="checked: $root.create.use_default_state_city">
+                               </span>
+                        </div>
+
+                         <div class="input-append">
+                                <input id="state" name="state" class="input-mini" type="text" placeholder="" required=""
+                                       data-bind="value: state, disable: $root.create.use_default_state_city">
+                              <span class="add-on">
+                                <input type="checkbox" checked="false" data-bind="checked: $root.create.use_default_state_city">
+                              </span>
+                         </div>
+                            <p class="help-block">Note: check for default</p>
+
+                    </div>
+                </div>
+
+                <!-- Select Basic -->
+                <div class="control-group">
+                    <label class="control-label">Zipcode</label>
+
+                    <div class="controls">
+                        <select id="zipcode" name="zipcode" class="input-small"
+                                data-bind="value: $root.create.location().zipcode, options:  $root.create.default_zipcodes">
+
+                        </select>
+                    </div>
+                </div>
+
+        </fieldset>
+    </form>
+</script>
+
+<script id="MapLocation" type="text/html">
+
+
+    <input id="address_lat" data-bind="value: $root.create.location.latitude" disabled=""/>
+    <input id="address_lon" data-bind="value: $root.create.location.longitude" disabled=""/>
+    <input id="geocode_status" disabled=""/>
+    <br><br>
+
+    <div id="map_address_wrapper">
+        <div id="map_canvas_address" style="height:100%; width:100%">
+            <a href="#" class="btn btn-large btn-info" data-bind="click: $root.create.mapIt"><i
+                    class="icon-map-marker"> </i> Map Verify!
+            </a>
+        </div>
+    </div>
+    <br>
+
+
+</script>
+
+<script id="ConfirmSave" type="text/html">
+    <div id="confirm-new-customer" data-bind="with:$root.create.customer">
+        <p data-bind="html: '<b>CUSTOMER NAME:</b> ' + first_name() + ' ' + last_name()"></p>
+
+        <p data-bind="html: '<b>EMAIL:</b> ' + email()"></p>
+
+        <p data-bind="html: '<b>PHONE NUMBER:</b> ' + phone_number()"></p>
+    </div>
+
+    <div id="confirm-new-address" data-bind="with: $root.create.location">
+        <p data-bind="html: '<b>ADDRESS: </b>'+ full_address_ci_st_zip()"></p>
+
+        <p></p>
+
+        <p></p>
+    </div>
+</script>
+
+
+<script id="Complete" type="text/html">
+
+</script>
+
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap-typeahead.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/koUtilities.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/map.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/customer.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/utilities/common_data.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CustomerNewViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/utilities/validators.js"></script>
+
+<script type="text/javascript">
+
+    var admin_api_location = "{% url admin_api_location %}";
+
+    //adding the validator library
+    utilities.validateKo();
+    var customerCreate = {
+        create:new cartlogic.CustomerNewViewModel
+    };
+
+    ko.applyBindings(customerCreate, document.getElementById('create_customer'));
+
+</script>
+
+
+

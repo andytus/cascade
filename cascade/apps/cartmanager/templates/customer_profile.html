@@ -16,20 +16,21 @@
         <fieldset>
 
             <h2>Customer</h2>
-
             <!-- first name-->
             <div class="control-group">
                 <label class="control-label">First Name</label>
-                <div class="controls">
-                    <input id="first_name" name="first_name" type="text"  placeholder="Enter first name" class="input-xlarge" required="" data-bind="value: first_name, enable: $root.profile.edit_customer">
+                <div class="controls" data-bind="css: {'text-error': first_name.hasError }">
+                    <p data-bind='visible: first_name.hasError, html: first_name.validationMessage'> </p>
+                    <input id="first_name" name="first_name" type="text"  placeholder="Enter first name" class="input-xlarge" required="" data-bind="value: first_name, enable: $root.profile.edit_customer, hasfocus: first_name.hasFocus">
                 </div>
             </div>
 
             <!-- Last Name-->
             <div class="control-group">
                 <label class="control-label">Last Name</label>
-                <div class="controls">
-                    <input id="last_name" name="last_name" type="text" placeholder="Enter last name" class="input-xlarge" required="" data-bind="value: last_name, enable: $root.profile.edit_customer">
+                 <div class="controls" data-bind="css: {'text-error': last_name.hasError }">
+                        <p data-bind='visible: last_name.hasError, html: last_name.validationMessage'> </p>
+                        <input id="last_name" name="last_name" type="text" placeholder="Enter last name" class="input-xlarge"  data-bind="value: last_name, enable: $root.profile.edit_customer, hasfocus: last_name.hasFocus">
 
                 </div>
             </div>
@@ -37,8 +38,9 @@
             <!-- Phone Number-->
             <div class="control-group">
                 <label class="control-label">Phone Number</label>
-                <div class="controls">
-                    <input id="phone_number" name="phone_number" type="text" placeholder="123-456-7890" class="input-xlarge" data-bind="value: phone_number, enable: $root.profile.edit_customer">
+                <div class="controls" data-bind="css:{'text-error': phone_number.hasError}">
+                    <p data-bind="visible: phone_number.hasError, html: phone_number.validationMessage"></p>
+                    <input id="phone_number" name="phone_number" type="text" placeholder="123-456-7890" class="input-xlarge" data-bind="value: phone_number, enable: $root.profile.edit_customer, hasfocus: phone_number.hasFocus">
                     <p class="help-block">e.g. 123-456-7890</p>
                 </div>
             </div>
@@ -46,8 +48,9 @@
             <!--Email -->
             <div class="control-group">
                 <label class="control-label">Email</label>
-                <div class="controls">
-                    <input id="email" name="email" type="text" placeholder="someone@here.com" class="input-xlarge" data-bind="value: email, enable: $root.profile.edit_customer">
+                <div class="controls" data-bind="css:{'text-error': email.hasError}">
+                    <p data-bind="visible: email.hasError, html: email.validationMessage"></p>
+                    <input id="email" name="email" type="text" placeholder="someone@someplace.com" class="input-xlarge" data-bind="value: email, enable: $root.profile.edit_customer, hasfocus: email.hasFocus">
                     <p class="help-block"></p>
                 </div>
             </div>
@@ -57,7 +60,7 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <button id="edit" name="edit" class="btn btn-info" data-bind="click: $root.profile.allowEdit">Edit</button>
-                    <button id="Save" name="Save" class="btn btn-primary" data-bind="click: $root.profile.saveCustomerData">Save</button>
+                    <button id="Save" name="Save" class="btn btn-primary" data-bind="click: $root.profile.saveCustomerData, enable: valid()">Save</button>
                 </div>
             </div>
 
@@ -85,6 +88,7 @@
         <table class="customer-cart-table">
         <tr>
             <th data-bind="text: full_address"></th>
+            <th><span data-bind="text: ' : ' + city() + ',' +  state() +' '+ zipcode()"></span></th>
             <th><button class="btn btn-mini btn-info" data-bind="click: $root.profile.confirmRemoveAddress">Remove</button></th>
         </tr>
         <tr data-bind="foreach: carts">
@@ -174,8 +178,12 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CustomerProfileViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/utilities/validators.js"></script>
 
     <script type="text/javascript">
+        //adding the validator library
+        utilities.validateKo();
+
        tickets_api_download = "{% url tickets_api_download %}";
        customer_api_url = "{% url customer_api_profile %}";
        location_api_search ="{% url location_api_search  %}";

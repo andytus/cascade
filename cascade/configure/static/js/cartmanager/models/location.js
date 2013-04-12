@@ -11,10 +11,11 @@
 
     function Location(data) {
         var self = this;
-        self.id = ko.observable(data.info.properties.id);
-        self.house_number = ko.observable(data.info.properties.house_number);
-        self.street_name = ko.observable(data.info.properties.street_name);
-        self.unit = ko.observable(data.info.properties.unit);
+        self.id = ko.observable();
+        self.house_number = ko.observable();
+        self.street_name = ko.observable();
+        self.street_suffix = ko.observable();
+        self.unit = ko.observable(null);
         self.full_address = ko.computed(function(){
             var full_address = self.house_number() + " "+ self.street_name();
             if (self.unit()){
@@ -22,9 +23,31 @@
             }
             return full_address;
         });
-        self.carts = ko.observableArray(data.info.properties.carts);
+        self.zipcode = ko.observable("");
+        self.city = ko.observable("");
+        self.state = ko.observable("");
+        self.full_address_ci_st_zip = ko.computed(function(){
+            return  self.full_address() + " " + self.city() + " " +self.state()+ ", " + self.zipcode()
+        });
+        self.carts = ko.observableArray([]);
         self.latitude = ko.observable(null);
         self.longitude = ko.observable(null);
+
+        if(data){
+
+            self.id(data.info.properties.id);
+            self.house_number(data.info.properties.house_number);
+            self.street_name(data.info.properties.street_name);
+            self.unit(data.info.properties.unit);
+            self.zipcode(data.info.properties.zipcode);
+            self.city(data.info.properties.city);
+            self.state(data.info.properties.state);
+            self.carts(data.info.properties.carts);
+            self.latitude(null);
+            self.longitude(null);
+
+        }
+
     }
 
     cartlogic.Location = Location;

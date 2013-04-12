@@ -40,10 +40,7 @@
 
         self.saveCustomerData = function(){
 
-            console.log(self.customer().email());
-
-
-            //grab changes
+             //grab changes
              data = ko.toJSON({customer_id: self.customer_id(), first_name: self.customer().first_name(),
                               last_name: self.customer().last_name(), phone_number: self.customer().phone_number,
                               email: self.customer().email()});

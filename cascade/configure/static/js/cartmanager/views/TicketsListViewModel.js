@@ -36,8 +36,8 @@
                 {field:'location__street_name', displayName:'Street', sort:ko.observable(0)},
                 {field:'location__unit', displayName:'Unit', sort:ko.observable(0)},
                 {field:'serviced_cart__rfid', displayName:'Serviced RFID', sort:ko.observable(0)},
-                {field:'expected_cart__rfid', displayName:'Expected RFID', sort:ko.observable(0)},
-             ]
+                {field:'expected_cart__rfid', displayName:'Expected RFID', sort:ko.observable(0)}
+            ]
         );
 
         self.getTickets = function (page) {
@@ -45,25 +45,33 @@
             self.page(page); //update page
 
             //TODO Refactor to accept more data for searching tickets (i.e. Open, Type, ect...)
-            data = {"page":self.page(), "sort_by":self.sort_default()};
+            //TODO ugly way to test for search options, which are global
+
+            var search_by = {};
 
             //check if serial and/or customer id is not undefined and add to the data load
-            if (typeof cart_serial_number != 'undefined'&& cart_serial_number != null){
-                data.serial_number = cart_serial_number;
+            if (typeof cart_serial_number != 'undefined' && cart_serial_number != null) {
+                console.log("cart serial is good");
+                search_by.serial_number = cart_serial_number;
             }
 
-            if (typeof customer_id != 'undefined' && customer_id != null){
-                data.customer_id = customer_id;
+            if (typeof customer_id != 'undefined' && customer_id != null) {
+                search_by.customer_id = customer_id;
             }
+           //TODO this is very ugly ... may be get search parameters from view model i.e. ko.compute = function(){grab the shit you need}
+            if (!jQuery.isEmptyObject(search_by)) {
+                var data = {page:self.page(), sort_by:self.sort_default()};
+                data.search_by = ko.toJSON(search_by);
+                $.getJSON(url, data, function (data) {
+                    console.log(data);
+                    self.count(data.count);
+                    var cartTickets = $.map(data.results, function (item) {
+                        return new cartlogic.Ticket(item);
+                    });
+                    self.tickets(cartTickets);
 
-            $.getJSON(url, data, function (data) {
-               // console.log(customer_id);
-                self.count(data.count);
-                var cartTickets = $.map(data.results, function (item) {
-                    return new cartlogic.Ticket(item);
                 });
-                self.tickets(cartTickets);
-            });
+            }
 
         };
 
@@ -78,7 +86,7 @@
                 sort_by.sort(1);
                 self.sort_default(sort_by.field);
                 self.getTickets(1);
-             }
+            }
 
             else if (sort_by.sort() == 1) {
                 sort_by.sort(2);
@@ -99,9 +107,12 @@
 
         //Setting the tickets to refresh on modal close, #TODO put in custom binding
         $('#modal_window').on('hidden', function () {
-            //checking for not null serial number because we don't want a refresh of the ticket
-           self.getTickets(1);
-
+            //#TODO Fix returning all tickets after removal
+            //checking for not null serial number because we don't want a refresh of the ticket if (typeof yourvar != 'undefined')
+            if (typeof cart_serial_number != 'undefined' || typeof customer_id != 'undefined') {
+                console.log(" calling getTickets");
+                self.getTickets(1)
+            }
 
         });
 

@@ -41,6 +41,8 @@ function CartProfileViewModel() {
                 self.getTypeOptions();
                 //Calling to get the cart status options
                 self.getStatusOptions();
+                //Change data going into the new ticket link tool bar
+                $("#new-ticket-link").attr("href", ticket_app_new + 'New?cart_id='+data.id);
           },
             error: function(data){
                $("#message").removeClass("alert-info").addClass("alert-error").html("Error:" + data.statusText).show();
@@ -126,14 +128,45 @@ function CartProfileViewModel() {
 
     };
 
-   self.createMap = function(){
-       cartlogic.Map(document.getElementById("map_canvas"), self.cart().rfid(), self.cart().location_latitude(), self.cart().location_longitude());
-       $("#map_canvas").show();
-   };
 
+
+    self.createMap = function(){
+
+        var isMapHidden = $("#cart-profile-map").is(':hidden');
+
+        if (isMapHidden){
+
+        var cartLatLng = new google.maps.LatLng(self.cart().location_latitude(), self.cart().location_longitude());
+        var style = new cartlogic.MapStyle();
+        var marker = new cartlogic.Marker('cart',self.cart().rfid()).getMarker();
+
+        var mapOptions = {
+            center:cartLatLng,
+            zoom:15,
+            mapTypeId:google.maps.MapTypeId.ROADMAP,
+            styles:style.getStyle()
+        };
+
+
+        var map = new google.maps.Map(document.getElementById("cart-profile-map"), mapOptions);
+       // google.maps.event.trigger(map, 'resize');
+        console.log("in create map")
+
+        marker.setPosition(cartLatLng);
+        marker.setMap(map);
+
+        google.maps.event.addListener(marker, 'dragend', function () {
+            self.updateCoordinates();
+        });
+        $('#cart-map-wrapper').show();
+        }
+
+        document.location.href='#cart-profile-map';
+    };
 
     self.getLocation = function () {
         //#TODO
+        console.log("ok")
 
     };
 
@@ -147,9 +180,10 @@ function CartProfileViewModel() {
     };
 
     //call the api to get the data on load
-
-
     self.getCartData();
+
+
+
 
 }
 
