@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
-    CartServiceTicket, AdminDefaults
+    Ticket, AdminDefaults, CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, TicketStatus, TicketComments
 
 #Monkey patch on django rest framework for supporting nulls: https://github.com/tomchristie/django-rest-framework/issues/384
 class NullSerializerPatch(serializers.BaseSerializer):
@@ -76,7 +76,6 @@ class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
 class LocationInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
-
     class Meta:
         model = CollectionAddress
         exclude = ('site',)
@@ -115,21 +114,27 @@ class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
 class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = GetInfoRelatedField(source='location')
+    inventory_location = GetInfoRelatedField(source='inventory_location')
     customer = CartLocationCustomerField(source='location')
     cart = serializers.Field(source='get_info')
     class Meta:
         model = Cart
-        fields = ('cart', 'customer', 'location')
+        fields = ('cart', 'customer', 'location', 'inventory_location')
 
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
-    serviced_cart = CleanRelatedField(source='serviced_cart.rfid')
+    serviced_cart = CleanRelatedField(source='serviced_cart.serial_number')
+    serviced_cart_id = CleanRelatedField(source='serviced_cart.id')
+    serviced_cart_type = CleanRelatedField(source='serviced_cart.cart_type.name')
     serviced_cart_size = CleanRelatedField(source='serviced_cart.cart_type.size')
-    expected_cart = CleanRelatedField(source='expected_cart.rfid')
+    expected_cart = CleanRelatedField(source='expected_cart.serial_number')
+    expected_cart_id = CleanRelatedField(source='expected_cart.id')
 
     status = CleanRelatedField(source='status.service_status')
-    service_type = CleanRelatedField(source='service_type.code')
+    status_level = CleanRelatedField(source='status.level')
+    service_type_code = CleanRelatedField(source='service_type.code')
+    service_type = CleanRelatedField(source='service_type.service')
 
     #Cart Requested Info####################################
     cart_type = CleanRelatedField(source='cart_type.name')
@@ -139,15 +144,35 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
     #Location Info###############################################
     house_number =CleanRelatedField(source='location.house_number')
     street_name = CleanRelatedField(source='location.street_name')
-    unit = CleanRelatedField(source='location.unit')
+    unit = serializers.RelatedField(source='location.unit')
     #############################################################
 
+    created_by = CleanRelatedField(source='created_by.username')
+    updated_by = CleanRelatedField(source='updated_by.username')
+
+
     class Meta:
-        model = CartServiceTicket
-        fields = ('id','service_type', 'success_attempts', 'serviced_cart', 'serviced_cart_size',
-                  'expected_cart', 'status', 'processed', 'date_completed', 'date_created', 'date_last_attempted', 'latitude',
-                  'longitude', 'device_name', 'audit_status', 'broken_component', 'broken_comments', 'house_number',
-                   'street_name', 'unit', 'cart_type','cart_type_size')
+        model = Ticket
+        fields = ('id','service_type_code', 'service_type', 'success_attempts', 'serviced_cart',
+                  'serviced_cart_id', 'serviced_cart_size', 'serviced_cart_type',
+                  'expected_cart', 'status', 'status_level', 'processed', 'date_completed', 'date_created',
+                  'date_processed', 'date_last_attempted', 'latitude',
+                  'longitude', 'device_name', 'audit_status', 'house_number',
+                  'street_name', 'unit', 'cart_type','cart_type_size', 'created_by', 'updated_by')
+
+
+class TicketCommentSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    created_by = CleanRelatedField(source='created_by.username')
+    class Meta:
+        model = TicketComments
+        exclude = ('site', )
+
+
+
+class TicketStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = TicketStatus
+        exclude = ('site',)
 
 
 class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
@@ -164,5 +189,11 @@ class AdminLocationDefaultSerializer(serializers.ModelSerializer, NullSerializer
         model = AdminDefaults
         depth = 1
         fields = ('info',)
+
+
+class CartsUploadFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartsUploadFile
+        fields = ('size', 'status', 'uploaded_by', 'date_uploaded', 'file_path', 'records_processed')
 
 

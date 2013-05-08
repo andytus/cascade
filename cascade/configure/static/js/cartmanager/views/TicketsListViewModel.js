@@ -35,8 +35,9 @@
                 {field:'location__house_number', displayName:'House', sort:ko.observable(0)},
                 {field:'location__street_name', displayName:'Street', sort:ko.observable(0)},
                 {field:'location__unit', displayName:'Unit', sort:ko.observable(0)},
-                {field:'serviced_cart__rfid', displayName:'Serviced RFID', sort:ko.observable(0)},
-                {field:'expected_cart__rfid', displayName:'Expected RFID', sort:ko.observable(0)}
+                {field:'serviced_cart__serial_number', displayName:'Serviced #', sort:ko.observable(0)},
+                {field:'serviced_cart__cart_type__size', displayName:'Size', sort:ko.observable(0)},
+                {field:'expected_cart__serial_number', displayName:'Expected #', sort:ko.observable(0)}
             ]
         );
 
@@ -51,19 +52,19 @@
 
             //check if serial and/or customer id is not undefined and add to the data load
             if (typeof cart_serial_number != 'undefined' && cart_serial_number != null) {
-                console.log("cart serial is good");
                 search_by.serial_number = cart_serial_number;
             }
 
             if (typeof customer_id != 'undefined' && customer_id != null) {
                 search_by.customer_id = customer_id;
             }
-           //TODO this is very ugly ... may be get search parameters from view model i.e. ko.compute = function(){grab the shit you need}
+
+            //making sure the search_by is not empty
             if (!jQuery.isEmptyObject(search_by)) {
                 var data = {page:self.page(), sort_by:self.sort_default()};
+                //adding search_by to data
                 data.search_by = ko.toJSON(search_by);
                 $.getJSON(url, data, function (data) {
-                    console.log(data);
                     self.count(data.count);
                     var cartTickets = $.map(data.results, function (item) {
                         return new cartlogic.Ticket(item);
@@ -90,13 +91,12 @@
 
             else if (sort_by.sort() == 1) {
                 sort_by.sort(2);
-                //rest the current default to 0 sort
-                console.log(sort_by.sort());
+                //reset the current default to 0 sort
                 self.sort_default("-" + sort_by.field);
                 self.getTickets(1);
             }
             else {
-                //rest the current default to 0 sort
+                //reset the current default to 0 sort
                 sort_by.sort(0);
             }
 
@@ -109,10 +109,8 @@
         $('#modal_window').on('hidden', function () {
             //#TODO Fix returning all tickets after removal
             //checking for not null serial number because we don't want a refresh of the ticket if (typeof yourvar != 'undefined')
-            if (typeof cart_serial_number != 'undefined' || typeof customer_id != 'undefined') {
-                console.log(" calling getTickets");
-                self.getTickets(1)
-            }
+
+               self.getTickets(1)
 
         });
 

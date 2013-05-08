@@ -61,7 +61,7 @@
         //For example only show
         self.cart_type_unique_type = ko.computed(
             function () {
-                var types = ko.utils.arrayFilter(self.cart_type_options(), function (item) {
+                var types = ko.utils.arrayFilter(self.cart_type_options(), function(item) {
                     if (self.cart_size() == item.size) {
                         return item
                     }
@@ -70,6 +70,7 @@
                 var names = ko.utils.arrayMap(types, function (item) {
                     return item.name
                 });
+
                 return names;
             }
 
@@ -275,12 +276,11 @@
             //#TODO Should do validation before sending to server, if any of the above observables where not completed ,... return fix first
             var data = {'service_type':self.service_type(), 'house_number': self.cart_house_number(), 'street_name':self.cart_street_name()};
 
-            if (self.cart_unit()) {
+            if (self.cart_unit() && self.cart_unit() != " ") {
                 //add the unit so we get a unique address
-                //Note could have just set back an address id, but want to stay away from system ids (fear they could
+                //Note could have just sent back an address id, but want to stay away from system ids (fear they could
                 //change)
                 data.address_unit = self.cart_unit();
-
             }
 
             if (self.service_type() == 'Delivery' || self.service_type() == 'Exchange') {
@@ -301,13 +301,13 @@
                         self.server_message_type(data.details.message_type);
                         self.server_message(data.details.message);
                         //send message to last step
-                        self.currentStep(self.stepModels()[self.stepModels().length-1])
+                        self.currentStep(self.stepModels()[self.stepModels().length-1]);
                     },
 
                     error: function(jqXHR, status, error){
                         //send error message to last step
                         self.currentStep(self.stepModels()[self.stepModels().length-1]);
-                        self.server_message_type("ERROR!");
+                        self.server_message_type("FAILED");
                         self.server_message(jqXHR.statusText);
                     }
                 }

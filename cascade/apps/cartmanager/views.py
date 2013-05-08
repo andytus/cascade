@@ -19,7 +19,8 @@ from django.db.models import Q
 
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
-    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, AdminLocationDefaultSerializer,  CustomerInfoSerializer
+    CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, AdminLocationDefaultSerializer,  \
+    CustomerInfoSerializer, CartsUploadFileSerializer, TicketStatusSerializer, TicketCommentSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
 
@@ -118,11 +119,12 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                 # None will mean we need to get them from the user before pushing
                 # data to the new ticket api
                 location_id = self.request.GET.get('location_id', None)
+
                 if location_id:
                     #Just sending back the location id, the client can look up the address info using the API
                     #only needed for deliveries can get location id from cart for other request
-
                     context['location_id'] = location_id
+
 
                 cart_id = self.request.GET.get('cart_id', None)
                 #TODO change to serial number
@@ -131,17 +133,31 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                     #Note: should use cart serial but currently can not be trusted as unique for each account
                     cart = Cart.on_site.get(pk=cart_id)
                     context['cart_id'] = cart_id
-                    context['cart_address_house_number'] = cart.location.house_number
-                    context['cart_address_street_name'] = cart.location.street_name
-                    context['cart_address_unit'] = cart.location.unit
                     context['serial_number'] = cart.serial_number
+                    # check for a location else use inventory location
+                    if cart.location:
+                        context['cart_address_house_number'] = cart.location.house_number
+                        context['cart_address_street_name'] = cart.location.street_name
+                        if cart.location.unit:
+                            context['cart_address_unit'] = cart.location.unit
         else:
             raise Http404
         return context
 
 
-class TicketOpen(LoginSiteRequiredMixin, TemplateView):
-    template_name = "ticket_open.html"
+
+class TicketProfile(LoginSiteRequiredMixin, TemplateView):
+    template_name = "ticket_profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(TicketProfile, self).get_context_data(**kwargs)
+        if kwargs['ticket_id']:
+            context['ticket_id'] = kwargs['ticket_id']
+        else:
+            raise Http404
+        return context
+
+
 
 
 ######################################################################################################################
@@ -162,7 +178,7 @@ class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
 class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
-    paginate_by = 50
+    paginate_by = 35
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
 
     def get_queryset(self, *args, **kwargs):
@@ -179,6 +195,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             if search_type == 'address':
                 house_number = value.split(' ')[0].strip().upper()
                 street_name = value.split(house_number)[1].strip().upper()
+                print house_number, street_name
                 query = query.filter(location__street_name=street_name, location__house_number=house_number)
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
@@ -209,7 +226,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
     #TODO deal with missing parameters better i.e. Response with failed status
-    model = CartServiceTicket
+    model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
     paginate_by = 100
@@ -230,9 +247,9 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
             try:
                 if sort_by:
-                    query = CartServiceTicket.on_site.order_by(sort_by)
+                    query = Ticket.on_site.order_by(sort_by)
                 else:
-                    query = CartServiceTicket.on_site.filter()
+                    query = Ticket.on_site.filter()
 
                 if cart_serial:
                     query = query.filter(
@@ -271,9 +288,10 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
 
-class LocationProfileAPI(LoginSiteRequiredMixin, APIView):
+class LocationAPI(LoginSiteRequiredMixin, APIView):
     model = CollectionAddress
     serializer = LocationInfoSerializer
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
 
     def get_object(self, location_id):
         try:
@@ -288,34 +306,54 @@ class LocationProfileAPI(LoginSiteRequiredMixin, APIView):
 
 
     def post(self, request, location_id, *args, **kwargs):
-        location = self.get_object(location_id)
         json_data = simplejson.loads(request.raw_post_data)
-
         operation = json_data.get('operation', None)
         customer_id = json_data.get('customer_id', None)
 
         if customer_id:
             customer = CollectionCustomer.on_site.get(id=customer_id)
-            if operation == 'remove':
-              #Make sure the customer is current assigned to the address #TODO test else
-                if location.customer == customer:
-                    location.customer = None
-                    location.save()
-                    return RestResponse({'details':{'message': "Removed address: %s  for customer: %s" %(location, customer._get_full_name()), 'message_type': 'Success'}},
-                        status=django_rest_status.HTTP_200_OK)
-                else:
-                    return RestResponse({'details':{'message': "Address: %s  does not have customer: %s" %(location, customer._get_full_name()), 'message_type': 'Failed'}},
-                        status=django_rest_status.HTTP_200_OK)
-            elif operation == 'change':
-                #TODO change from current customer to new customer id
-                current_customer = location.customer
-                location.customer = customer
+            if location_id == 'New':
+                house_number = json_data.get('house_number', None)
+                street_name = json_data.get('street_name', None)
+                unit = json_data.get('unit', None)
+                zipcode = json_data.get('zipcode', None)
+                property_type = json_data.get('property_type', None)
+                city = json_data.get('city', None)
+                state = json_data.get('state', None)
+                latitude = json_data.get('latitude', None)
+                longitude = json_data.get('longitude', None)
+                geocode_status = json_data.get('geocode_status', None)
+                location = CollectionAddress(site=get_current_site(self.request), house_number=house_number.strip(), street_name=street_name.strip().upper(),
+                    unit=unit, zipcode=zipcode, property_type=property_type, city=city, state=state, latitude=latitude, longitude=longitude,
+                    geocode_status=geocode_status,customer=customer)
                 location.save()
-                return RestResponse({'details':{'message': "Changed address: %s  from: %s to: %s" %(location, current_customer._get_full_name(),customer._get_full_name() ), 'message_type': 'Success'}},
+                return RestResponse({'details':{'message': "Saved new address: %s  for customer: %s" %
+                (location, customer._get_full_name()), 'message_type': 'Success'}},
                     status=django_rest_status.HTTP_200_OK)
-            elif operation == None:
-                return RestResponse({'details':{'message': "No operation value given", 'message_type': 'Failed'}},
-                    status=django_rest_status.HTTP_200_OK)
+            else:
+                location = self.get_object(location_id)
+                if operation == 'remove':
+                #Make sure the customer is current assigned to the address #TODO test else
+                    if location.customer == customer:
+                        location.customer = None
+                        location.save()
+                        return RestResponse({'details':{'message': "Removed address: %s  for customer: %s" %(location, customer._get_full_name()), 'message_type': 'Success'}},
+                            status=django_rest_status.HTTP_200_OK)
+                    else:
+                        return RestResponse({'details':{'message': "Address: %s  does not have customer: %s" %(location, customer._get_full_name()), 'message_type': 'Failed'}},
+                            status=django_rest_status.HTTP_200_OK)
+                elif operation == 'change':
+                    current_customer = location.customer
+                    location.customer = customer
+                    location.save()
+                    return RestResponse({'details':{'message': "Changed address: %s  from: %s to: %s" %(location, current_customer._get_full_name(),customer._get_full_name() ), 'message_type': 'Success'}},
+                        status=django_rest_status.HTTP_200_OK)
+                elif operation == None:
+                    return RestResponse({'details':{'message': "No operation value given", 'message_type': 'Failed'}},
+                        status=django_rest_status.HTTP_200_OK)
+        else:
+            return RestResponse({'details':{'message': "No customer information received", 'message_type': 'Failed'}},
+                status=django_rest_status.HTTP_200_OK)
 
 
 class LocationSearchAPI(LoginSiteRequiredMixin, APIView):
@@ -386,7 +424,7 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
 
             #check for cart type and save to cart, if None then no value given skip it
             if cart_type_id:
-                cart.cart_type = CartType.on_site.get(pk=cart_type_id)
+                cart.cart_type = CartType.objects.get(pk=cart_type_id)
 
             #check for current status
             if current_status_id:
@@ -407,13 +445,13 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
 
 
 class TicketAPI(LoginSiteRequiredMixin, APIView):
-    model = CartServiceTicket
+    model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
     def get_object(self, ticket_id):
         try:
-            ticket = CartServiceTicket.on_site.get(id=ticket_id)
+            ticket = Ticket.on_site.get(id=ticket_id)
             return ticket
 
         except ObjectDoesNotExist:
@@ -436,8 +474,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
             "time": datetime.now()})
 
     def post(self, request, ticket_id, format=None):
-        json_data = simplejson.loads(request.raw_post_data)
-
+        json_data = simplejson.loads(request.body)
 
         if ticket_id == 'New':
 
@@ -451,15 +488,18 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 #excepts both location id and address for the Collection Address
                 #client built for address information, we want this flexibility as I may not know the address_id
                 if location_id:
-                    location = CollectionAddress.on_site.get(pk=location_id)
+                     location = CollectionAddress.on_site.get(pk=location_id)
                 #else try to get the house number and street name
                 elif house_number and street_name:
                     #check for a unit (i.e. apartment or condo)
                     if unit:
-                        location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name, unit=unit)
+                       location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name, unit=unit)
                     else:
                         #ok no unit so just get the address using the house number and street name
+                        print house_number, street_name
+
                         location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
+
                 else:
                     return RestResponse({
                         "detail": {"No address information given"},
@@ -468,11 +508,10 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
 
                 #Get the current service type and a cart service status object of requested
                 requested_service_type = json_data.get('service_type', None)
-                requested_ticket_status = CartServiceStatus.on_site.get(service_status='Requested')
+                requested_ticket_status = TicketStatus.on_site.get(service_status='Requested')
                 expected_cart_serial_number = json_data.get('cart_serial_number', None)
                 size = json_data.get('cart_size', None)
                 cart_type_name = json_data.get('cart_type', None)
-
 
                 #If we have an expected cart serial number it is a remove, exchange, repair or audit
                 #TODO put repair or audits in here
@@ -482,12 +521,14 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                         if requested_service_type == 'Exchange':
                             service_type_remove = CartServiceType.on_site.get(code='EX-REM')
                         else:
+                            print requested_service_type
                             service_type_remove = CartServiceType.on_site.get(code='REM')
 
-                        remove_ticket = CartServiceTicket(location=location,
+                        remove_ticket = Ticket(created_by=request.user, location=location,
                                                           status=requested_ticket_status,
                                                           expected_cart=expected_cart,
                                                           service_type=service_type_remove,
+                                                          cart_type=expected_cart.cart_type
                                                           )
                         remove_ticket.save()
 
@@ -498,7 +539,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                     #Create a new delivery ticket service type of code DEL.
                     service_type = CartServiceType.on_site.get(code='DEL')
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
-                    delivery_ticket = CartServiceTicket(location=location,service_type=service_type,
+                    delivery_ticket = Ticket(created_by=request.user, location=location,service_type=service_type,
                                                         status= requested_ticket_status,
                                                         cart_type=cart_type,
                                                         )
@@ -511,7 +552,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                     #Create a new delivery ticket with service type EX-DEL and remove ticket with service type EX-REM,
                     service_type = CartServiceType.on_site.get(code='EX-DEL')
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
-                    exchange_del_ticket = CartServiceTicket(location=location, service_type=service_type,
+                    exchange_del_ticket = Ticket(created_by=request.user, location=location, service_type=service_type,
                                                             status= requested_ticket_status,
                                                             cart_type=cart_type
                                                             )
@@ -524,47 +565,136 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                                       status=django_rest_status.HTTP_200_OK)
 
         else:
-            #TODO status change
+
             #Expecting this to be a status change if it is not New
-            #Change status of the ticket id
+            #Change status of the ticket id & process the cart changes
             try:
                 ticket = self.get_object(ticket_id)
-                update_status = json_data['status']
-                status = CartServiceStatus.on_site.get(service_status=update_status)
-                ticket.status = update_status
+                update_status = json_data.get('status', None)
+                ticket.updated_by = request.user
+                #updated success_attempts no matter what the service type iss
+                ticket.success_attempts = ticket.success_attempts + 1
+
+                if update_status == 'Completed':
+                     #get the serviced_cart_serial_number
+                    serial_number = json_data.get('serial_number', None)
+                    cart = Cart.on_site.get(serial_number=serial_number)
+                    status = TicketStatus.on_site.get(service_status=update_status)
+                    #change the carts current status to the tickets service type complete status map
+                    cart.current_status = ticket.service_type.complete_cart_status_change
+                    #TODO Check that the ticket has not already been completed
+
+                    #Update the Ticket
+                    ticket.status = status
+                    ticket.serviced_cart = cart
+                    ticket.processed = True
+                    ticket.date_completed = datetime.now()
+                    #Update the Cart
+                    if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
+                        cart.location = ticket.location
+                    elif ticket.service_type.code == "EX-REM" or ticket.service_type.code == "REM":
+                        cart.location = None
+                        cart.at_inventory = True
+                        cart.inventory_location = InventoryAddress.on_site.get(default=True)
+
+                    cart.save()
                 ticket.save()
+                return RestResponse({'details':{'message': 'Ticket: %s has been updated' % ticket_id,
+
+                                    'message_type': 'Success'}},
+                        status=django_rest_status.HTTP_200_OK)
+
             except ValueError as e:
+                #TODO beef up the error response ...to generic
+
                 return RestResponse({'details':{'message': "Sorry! ticket could not be updated: %s" % e, 'message_type': 'Failed'}},
                     status=django_rest_status.HTTP_200_OK)
+
+
+
+
+class TicketCommentAPI(APIView):
+    model = TicketComments
+    serializer_class = TicketCommentSerializer
+    renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
+    def get_object(self, ticket_id):
+        try:
+            return TicketComments.on_site.filter(ticket=ticket_id)
+        except TicketComments.DoesNotExist:
+            return False
+
+    def get(self, request, ticket_id, format=None):
+        comments = self.get_object(ticket_id)
+        if comments:
+            serializer =  TicketCommentSerializer(comments)
+            return RestResponse(serializer.data)
+        else:
+            return RestResponse({'details':{'message': 'Nothing to say...', 'count': 0, 'message_type': 'Success'}},
+                status=django_rest_status.HTTP_200_OK)
+
+    def post(self, request, ticket_id, format=None):
+
+        json_data = simplejson.loads(request.body)
+        comment = json_data.get('text', None)
+        ticket = Ticket.on_site.get(pk=ticket_id)
+
+        if comment:
+            new_comment = TicketComments(site=get_current_site(self.request), text=comment, ticket=ticket, created_by=self.request.user)
+            new_comment.save()
+
+            return RestResponse({'details':{'message': "Comment Saved", 'message_type': 'Success', 'comment_id': new_comment.id}},
+                status=django_rest_status.HTTP_200_OK)
+        else:
+            return RestResponse({'details':{'message': "No text given", 'message_type': 'Failed'}},
+                status=django_rest_status.HTTP_200_OK)
+
+    def delete(self, request, ticket_id, format=None):
+        json_data = simplejson.loads(request.body)
+        comment_id = json_data.get('comment_id', None)
+        try:
+            comment = TicketComments.on_site.get(pk=comment_id)
+            if comment.created_by == request.user:
+                comment.delete()
+                return RestResponse({'details':{'message': "Comment has been deleted", 'message_type': 'Success'}},
+                status=django_rest_status.HTTP_200_OK)
+        except TicketComments.DoesNotExist:
+            return RestResponse({'details':{'message': "Comment Does not exist", 'message_type': 'Failed'}},
+                status=django_rest_status.HTTP_200_OK)
 
 
 
 class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
     model = CollectionCustomer
     serializer_class = CustomerProfileSerializer
+    renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
     def get_object(self, customer_id):
         try:
-            return CollectionCustomer.on_site.get(id=customer_id)
+           return CollectionCustomer.on_site.get(id=customer_id)
         except CollectionCustomer.DoesNotExist:
             raise Http404
+
 
     def get(self, request, customer_id, format=None):
         customer = self.get_object(customer_id)
         serializer = CustomerProfileSerializer(customer)
-
         return RestResponse(serializer.data)
 
     def post(self, request, customer_id, format=None):
 
-        customer = self.get_object(customer_id)
         json_data = simplejson.loads(request.raw_post_data)
-
 
         first_name = json_data.get('first_name', None)
         last_name = json_data.get('last_name', None)
         phone_number = json_data.get('phone_number', None)
         email = json_data.get('email', None)
+
+        if customer_id == 'New':
+            customer = CollectionCustomer()
+            customer.site = get_current_site(self.request)
+        else:
+            customer = self.get_object(customer_id)
 
         if (first_name and last_name and phone_number):
             customer.first_name = first_name.upper()
@@ -572,8 +702,10 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
             customer.email = email.upper()
             customer.phone_number = phone_number
             customer.save()
-            return RestResponse({'details':{'message': "Changes saved for customer id: %s" %(customer_id), 'message_type': 'Success'}},
+
+            return RestResponse({"details":{"message": "Changes saved for customer: %s" % (customer._get_full_name()), "customer_id":customer.id,  "message_type": "Success"}},
                                 status=django_rest_status.HTTP_200_OK)
+
         else:
             return RestResponse({'details':{'message': "Missing one or more values", 'message_type': 'Failed'}},
                                     status=django_rest_status.HTTP_200_OK)
@@ -594,18 +726,28 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
 #    def delete(self, request, *args, **kwargs):
 #        return self.destroy(request, *args, **kwargs)
 
+
 class CartStatusAPI(ListAPIView):
     model = CartStatus
     serializer_class = CartStatusSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
-    queryset = CartStatus.on_site.filter()
+
+    def get_queryset(self):
+        return  CartStatus.on_site.all()
+
+class TicketStatusAPI(ListAPIView):
+    model = TicketStatus
+    serializer_class = TicketStatusSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+
+    def get_queryset(self):
+        return  TicketStatus.on_site.all()
 
 
 class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
     model = CartType
     serializer = CartTypeSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
-
 
     def get_queryset(self):
         size = self.request.QUERY_PARAMS.get('size', None)
@@ -632,43 +774,100 @@ class DataErrorsView(ListView):
         return context
 
 
-class UploadFormView(FormView):
+#class UploadFormView(FormView):
+#    """
+#     A base view for rendering upload forms.
+#
+#     Subclasses FormView from django.
+#     Expects process boolean and csv file type
+#
+#    """
+#    template_name = 'upload_form.html'
+#    form_class = None
+#    MODEL = None
+#    FILE = None
+#    KIND = None
+#    LINK = None
+#
+#
+#    def form_valid(self, form, **kwargs):
+#        if self.request.POST.get('process'):
+#            process = True
+#        else:
+#            process = False
+#        context = self.get_context_data(**kwargs)
+#        upload_file = self.MODEL
+#        file = self.request.FILES[self.FILE]
+#
+#        if file.content_type == "application/vnd.ms-excel" or "text/csv":
+#            upload_file.file_path =  file
+#            upload_file.size = file.size
+#            upload_file.records_processed = process
+#            upload_file.file_kind = self.KIND
+#            upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
+#            upload_file.uploaded_by = self.request.user
+#            upload_file.save()
+#            total_count, good_count, error_count = upload_file.process(process)
+##            context['total_count'] = total_count
+##            context['good_count'] = good_count
+##            context['error_count'] = error_count
+##            context['form'] = self.form_class
+##            context['link'] = self.LINK
+##            context['completed'] = True
+##            return self.render_to_response(context)
+#
+#            return self.render_to_response({'details':{'message': "Saved %s" % self.FILE, "total_count": total_count, "good_count": good_count, 'message_type': 'Success'}},
+#                status=django_rest_status.HTTP_200_OK)
+
+class UploadFormView(TemplateView):
+    """
+     A base view for uploading files
+
+     Subclasses API View.
+     Expects process boolean and csv file type
+
+    """
     template_name = 'upload_form.html'
-    form_class = None
+
     MODEL = None
     FILE = None
     KIND = None
     LINK = None
 
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['link'] = self.LINK
+        return self.render_to_response(context)
 
-    def form_valid(self, form, **kwargs):
-        if self.request.POST.get('process'):
-            process = True
-        else:
-            process = False
+
+    def post(self, request, **kwargs):
+        #TODO implement processing option
+        #TODO for now it is just True
+        process = request.POST.get('process', True)
         context = self.get_context_data(**kwargs)
         upload_file = self.MODEL
-        file = self.request.FILES[self.FILE]
-
+        file = self.request.FILES['upload_file']
+        #looks for csv type file
         if file.content_type == "application/vnd.ms-excel" or "text/csv":
-            upload_file.file_path = file
+            upload_file.file_path =  file
             upload_file.size = file.size
-            upload_file.process_records = process
+            upload_file.records_processed = process
             upload_file.file_kind = self.KIND
             upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
+            upload_file.uploaded_by = self.request.user
             upload_file.save()
+            #Here the records are processed
             total_count, good_count, error_count = upload_file.process(process)
-            context['total_count'] = total_count
-            context['good_count'] = good_count
-            context['error_count'] = error_count
-            context['form'] = self.form_class
-            context['link'] = self.LINK
-            context['completed'] = True
-            return self.render_to_response(context)
+            return HttpResponse(simplejson.dumps({'details':{'message': "Saved %s" % self.FILE,
+                                                 "total_count": total_count, "good_count": good_count,
+                                                  "error_count": error_count, 'message_type': 'Success'}}),
+                                                  content_type="application/json")
+
+
 
 
 class CartUploadView(UploadFormView):
-    form_class = CartsUploadFileForm
+    #form_class = CartsUploadFileForm
     MODEL = CartsUploadFile()
     FILE = 'cart_file'
     KIND = 'Cart'
@@ -676,95 +875,12 @@ class CartUploadView(UploadFormView):
 
 
 class CustomerUploadView(UploadFormView):
-    form_class = CustomerUploadFileForm
+    #form_class = CustomerUploadFileForm
     MODEL = CustomersUploadFile()
     FILE = 'customer_file' #is an attribute on CustomerUploadFileForm
     KIND = 'Customer'
     LINK = 'Customer File Upload'
 
-
-#class CSVResponseMixin(object):
-#    """
-#    This mixin works renders a csv file using render_to_response method.
-#    It currently only works with a ValuesQuerySet as part of the context.
-#    You must also create a csv_header context for column headings in the
-#    generic views get_context_object.
-#
-#    """
-#    #inspired by http://palewi.re/posts/2009/03/03/django-recipe-dump-your-queryset-out-as-a-csv-file/
-#
-#    def render_to_response(self, context,**httpresponse_kwargs ):
-#        """Constructs HttpResponse and send to the convert_to_csv for write to csv.
-#           Return CSV containing 'context' as payload"""
-#
-#        header = []
-#        if  context['csv_header']:
-#            header = context['csv_header']
-#        self.response =HttpResponse(mimetype="text/csv",  **httpresponse_kwargs)
-#        self.response['Content-Disposition']= 'attachment; filename=import.csv'
-#        self.response['content'] = self.convert_to_csv(context[self.context_object_name], header)
-#
-#        return self.response
-#
-#
-#    def convert_to_csv(self, context, header):
-#        writer = csv.writer(self.response)
-#        #fields come from ValuesQuerySet keys (acts like a dictionary)
-#        context_fields = context[0].keys()
-#        context_fields.sort()
-#        writer.writerow(header)
-#
-#        for obj in context:
-#            row = []
-#            for field in context_fields:
-#                #iterate through values in each context object
-#                #check for correct encoding (python csv doesn't like unicode)
-#                val = obj[field]
-#                if type == unicode:
-#                    val = val.encode('utf-8')
-#                row.append(val)
-#            writer.writerow(row)
-#        return writer
-
-#class TicketsDownloadView(CSVResponseMixin, ListView):
-#    template_name = 'ticketdownload.html'
-#    context_object_name = 'tickets'
-#
-#    def get_queryset(self):
-#
-#        query = CartServiceTicket.on_site.values('cart__rfid','location__street_name', 'location__house_number', 'location__unit', 'service_type', 'id' )
-#
-#
-#        if self.kwargs['status'] != 'all':
-#            query = query.filter(status=self.kwargs['status'])
-#        if self.kwargs['cart_type'] != 'all':
-#            query = query.filter(cart_type=self.kwargs['cart_type'])
-#        if self.kwargs['service_type'] != 'all':
-#            query = query.filter(service_type__contains=self.kwargs['service_type'])
-#        return query
-#
-#    def get_context_data(self, **kwargs):
-#        context = super(TicketsDownloadView, self).get_context_data(**kwargs)
-#        return context
-#
-#    def render_to_response(self, context,**httpresponse_kwargs ):
-#
-#        if not context[self.context_object_name]:
-#            context["message"] = "No Values"
-#            return render(self.request, self.template_name, context)
-#        else:
-#            if self.request.GET.get('format', 'html') == 'csv':
-#                context['csv_header'] = ['RFID', 'SystemID', 'HouseNumber', 'StreetName', 'UnitNumber', 'ServiceType']
-#                return CSVResponseMixin.render_to_response(self, context)
-#            elif self.request.GET.get('format', 'html') == 'json':
-#                #TODO get json
-#                context["message"] = "json"
-#                #TODO
-#                #return render(self.request, self.template_name, context)
-#            else:
-#                #TODO html page
-#                context["message"] = "just html here"
-#                return render(self.request, self.template_name, context)
 
 class TicketsCompletedUploadView(UploadFormView):
     form_class = TicketsCompletedUploadFileForm
@@ -772,19 +888,3 @@ class TicketsCompletedUploadView(UploadFormView):
     FILE = 'ticket_file'
     KIND = 'Ticket'
     LINK = 'Ticket Upload'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

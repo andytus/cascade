@@ -7,13 +7,6 @@
  */
 
 
-/**
- * User: joe.bennett
- * Date: 12/22/12
- * Time: 12:16 AM
- * s.
- */
-
 (function (cartlogic){
 
 
@@ -28,7 +21,6 @@ function CartProfileViewModel() {
 
 
     self.getCartData = function () {
-
         $.ajax({
             url: cart_api_profile + cart_serial_number,
             type:"GET",
@@ -55,7 +47,7 @@ function CartProfileViewModel() {
     self.getStatusOptions = function () {
         $.getJSON(cart_status_options_api_url + "?format=jsonp&callback=?", function (data) {
             var cartStatusOptions = $.map(data, function (item) {
-                return new cartlogic.StatusOption(item);
+                 return new cartlogic.StatusOption(item);
             });
             self.cart_status_options(cartStatusOptions);
             //set drop down to current status
@@ -150,7 +142,7 @@ function CartProfileViewModel() {
 
         var map = new google.maps.Map(document.getElementById("cart-profile-map"), mapOptions);
        // google.maps.event.trigger(map, 'resize');
-        console.log("in create map")
+        console.log("in create map");
 
         marker.setPosition(cartLatLng);
         marker.setMap(map);

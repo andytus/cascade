@@ -74,10 +74,8 @@
                             <ul class="dropdown-menu">
                                 <li><a id="new-ticket-link" href="{% url ticket_app_new %}New" data-target="#modal_window"
                                        data-toggle="modal">New</a></li>
-                                <li><a href="{% url ticket_app_open %}" data-target="#modal_open_ticket"
-                                       data-toggle="modal">Open</a></li>
-                                <li><a href="{% url tickets_completed_upload %}">Upload Completed</a></li>
-                                <li><a href="{% url ticket_app_report %}">Reports</a></li>
+                                <li><a href="{% url tickets_completed_upload %}">Submit Completed (UPLOAD)</a></li>
+                                <li><a href="{% url ticket_app_report %}">Reports (DOWNLOAD)</a></li>
                             </ul>
                         </li>
 
@@ -211,7 +209,7 @@
     //add to destroy modal content on close in order to properly refresh (i.e. new ticket, should not display previous
     //info)
     $('.modal').on('hidden', function () {
-        $('.modal').data('modal', null);
+       $('.modal').data('modal', null);
     });
 
 </script>

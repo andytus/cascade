@@ -81,7 +81,7 @@
         });
 
         self.canGoNext = ko.computed(function () {
-            return self.currentIndex() < self.stepModels().length - 1;
+            return self.currentIndex() < self.stepModels().length - 2;
         });
 
 

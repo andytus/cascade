@@ -1,8 +1,8 @@
 from django.conf.urls import patterns, url
 from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketSearchAPI, TicketsCompletedUploadView, \
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationSearchAPI, CartSearch, CartProfile, \
-      CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketOpen, CustomerReport, CartReport, TicketAPI,\
-      CartProfileMap, LocationSearch, CartAddressChange, LocationProfileAPI, CustomerProfile, CustomerNew, AdminDefaultLocation
+      CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketProfile, CustomerReport, CartReport, TicketAPI,\
+      CartProfileMap, LocationSearch, CartAddressChange, LocationAPI, CustomerProfile, CustomerNew, AdminDefaultLocation, TicketStatusAPI, TicketCommentAPI
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -10,7 +10,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
 urlpatterns = patterns('cascade.apps.cartmanager.views',
-    url(r'^api/location/profile/(?P<location_id>[a-zA-Z0-9]+)?$', LocationProfileAPI.as_view(), name='location_api_profile'),
+    url(r'^api/location/profile/(?P<location_id>[a-zA-Z0-9]+)?$', LocationAPI.as_view(), name='location_api_profile'),
     url(r'^api/default/location/$', AdminDefaultLocation.as_view(), name='admin_api_location'),
     url(r'^app/cart/search/$', CartSearch.as_view(), name='cart_search'),
     url(r'^api/cart/search/$', CartSearchAPI.as_view(), name='cart_api_search'),
@@ -33,9 +33,11 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^upload/tickets/completed/', TicketsCompletedUploadView.as_view(), name='tickets_completed_upload' ),
     url(r'^api/report/tickets/$', TicketSearchAPI.as_view(), name='tickets_api_download'),
     url(r'^api/ticket/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketAPI.as_view(), name='ticket_api'),
+    url(r'^api/ticket/comment/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketCommentAPI.as_view(), name='ticket_comment_api'),
+    url(r'^api/ticket/status/options/$', TicketStatusAPI.as_view(), name='ticket_status_api'),
     url(r'^app/tickets/report/$', TicketReport.as_view(), name='ticket_app_report'),
     url(r'^app/tickets/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketNew.as_view(), name='ticket_app_new'),
-    url(r'^app/tickets/open/$', TicketOpen.as_view(), name='ticket_app_open'),
+    url(r'^app/tickets/profile/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketProfile.as_view(), name='ticket_app_profile'),
 
  )
 urlpatterns = format_suffix_patterns(urlpatterns)

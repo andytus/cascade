@@ -9,6 +9,10 @@ body{
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 
+.bar {
+    height: 18px;
+    background: blue;
+}
 
 #middle {
   /*  border: red dotted; */
@@ -124,7 +128,7 @@ background-color: white;
     padding: 3px;
 }
 
-.cart-info-type{
+.cart-info-type, .ticket-info-font{
     font-size: 2em;
     letter-spacing: 1px;
     margin-bottom: 10px;
@@ -170,14 +174,19 @@ background-color: white;
 .cart-info-status{
      margin-top: 15px;
      margin-bottom: 10px;
-     font-size: 1em;
-     padding: 10px;
-     width: 100px;
-     text-align: center;
-     text-transform: uppercase;
-     font-weight: bold;
+}
+
+.info-status{
+    font-size: 1em;
+    padding: 10px;
+    width: 100px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
 
 }
+
+
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 
@@ -209,10 +218,12 @@ body { height: 100%; margin: 0; padding: 0 }
     text-align: center;
     margin: auto;
     margin-top: 100px;
-    width: 375px;
-    height: 170px;
+    width: 50%;
     padding: 20px;
+}
 
+#login_form{
+    font-weight: bolder;
 }
 
 
@@ -232,23 +243,23 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 
-#cart-profile{
+#cart-profile, #ticket-profile{
     display: inline;
 
 }
 
-#cart-info{
+#cart-info, #ticket-info{
     width: 100%;
   }
 
-#cart-info-display{
+#cart-info-display, #ticket-info-display{
     width: 30%;
     float: left;
     margin-left: 8%;
 }
 
 
-.cart-info-edit-title{
+.info-title{
     padding: 1.5%;
     margin-bottom: 1.5% ;
     text-align: center;
@@ -256,12 +267,11 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 
-#cart-info-edit{
+#cart-info-edit, #ticket-info-edit{
     width:50%;
     margin-left: 45%;
 
 }
-
 
 
 .cart-info-btn{
@@ -269,7 +279,6 @@ body { height: 100%; margin: 0; padding: 0 }
     margin-right: 5%;
 
 }
-
 
 #cart-info-edit-customer_name, #cart-info-edit-add-customer-address{
     font-size: 2.4em;
@@ -316,6 +325,40 @@ body { height: 100%; margin: 0; padding: 0 }
     padding-bottom: 2%;
 }
 
+#customer-info-form{
+    margin-left: 5%;
+}
+
+#customer-locations{
+    margin-left: 45%;
+    width: 50%;
+}
+
+.customer-cart-table{
+    width:100%;
+ }
+
+
+.customer-cart-table-address{
+     font-size: 1.7em;
+}
+
+.customer-cart-table-city-state{
+  cart-info-type  margin-top: .5%;
+    font-size: 1.1em;
+
+}
+
+.customer-cart-table-address-remove{
+    float: right;
+    margin-bottom: 2%;
+}
+
+.customer-cart-table-address-new-ticket{
+    float: right;
+    margin-right: 1%;
+}
+
 #ticket_panel {
     width: 100%;
 }
@@ -324,7 +367,89 @@ body { height: 100%; margin: 0; padding: 0 }
 #ticket_table {
     width: 100%;
     margin-top: 3%;
+}
 
+
+.ticket-info-address{
+    font-size: 1.8em;
+    padding-top: 1%;
+    padding-bottom: 3%;
+}
+
+#ticket-info-processed, #ticket-info-attempts, #ticket-info-device-name{
+    font-size: 1.5em;
+    padding-top: 2%;
+}
+
+#ticket-info-edit label{
+    font-size: 2.1em;
+}
+
+#ticket-edit-status{
+    font-size: 2.1em;
+}
+
+#ticket-info-status{
+    font-size: 2.1em;
+    margin-left:auto;
+    margin-bottom: 4%;
+    margin-right:auto;
+    padding: 5%;
+    width: 80%;
+
+}
+
+.ticket-info-service-type{
+    font-size: 1.5em;
+}
+
+
+#fileupload-wrapper{
+    text-align: center;
+    margin: auto;
+    margin-top: 100px;
+    width: 40%;
+    padding: 20px;
+    font-size: 1.9em;
+    font-weight: bolder;
+}
+
+#progress{
+    margin: auto;
+    margin-top: 5%;
+    width: 70%;
+    height: 18px;
+    display: none;
+}
+
+
+
+
+.comment{
+    font-size: 1.5em;
+
+}
+
+#info-new-comment-text{
+   width: 85%;
+   margin-left: 7%;
+   font-size: 2em;
+   border-color: #a9a9a9;
+   border-width: .3em;
+
+}
+
+#info-new-comment button{
+    margin-left: 8%;
+
+}
+
+.ticket-info-comment-date{
+    float: right;
+}
+
+#ticket-info-edit-add-serial-number{
+   font-size: 1.2em;
 }
 
 
@@ -373,5 +498,3 @@ table.table-sorter thead tr .sort-up{
     padding-bottom: 1em;
 
 }
-
-

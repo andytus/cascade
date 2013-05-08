@@ -10,20 +10,11 @@
 {% endblock %}
 
 
-
-
-
-
-
-
-
-
-
 {% block main_content %}
 {% block content %}
     <div id="login_form" class="box-info">
     {% if form.errors %}
-        <p>Your username and password didn't match. Please try again.</p>
+        <p class="text-error">Your username and password didn't match. Please try again.</p>
     {% endif %}
     <h4>Welcome to CartLogic for {{ site_name }}</h4>
     <form method="post" action="{% url django.contrib.auth.views.login %}">

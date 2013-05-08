@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+
+
+{% block title %}Ticket Profile {% endblock %}
+
+{% block left %}
+{% endblock %}
+
+{% block main_content %}
+
+    <div id="ticket-profile" class="container-fluid" data-bind="with:profile.ticket">
+
+    <div id="ticket-info" class="box-info row">
+
+        <div id="ticket-profile-title" class="info-title"><i class="icon-tag"> </i> Service Ticket Profile: <i
+                data-bind="text: id"></i></div>
+
+        <div id="ticket-info-display" class="well">
+            <div id="ticket-info-status" class="label info-status ticket-info-status "
+                 data-bind="text: status , css: status_level"></div>
+            <div class="ticket-info-address" data-bind="text: 'Location: ' + location_address()"></div>
+            <div class="ticket-info-service-type"
+                 data-bind="html: '<u>' + service_type() + ' of ' +  + cart_type_size() + ' ' + cart_type() + '</u>'"></div>
+            <!-- ko if: serviced_cart -->
+            <div><a data-bind=" text:serviced_cart ,attr:{href:'{% url cart_app_profile%}' + serviced_cart()}"> </a>,
+                <span data-bind="text: 'Size: ' + serviced_cart_size() + ', Type: ' + serviced_cart_type()"></span>
+            </div>
+            <!-- /ko -->
+            <!-- ko if: expected_cart -->
+            <div data-bind="text: 'Expected Cart: ' +  expected_cart() + ', Size: ' + cart_type_size() + ', Type: ' + cart_type()"></div>
+            <!-- /ko -->
+            <br>
+            <div id="ticket-info-device-name" data-bind="html: '<b>Device Name</b> ' + device_name(), visible: device_name" ></div>
+            <div id="ticket-info-processed" data-bind="html: '<b>Processed:</b> ' + processed()"></div>
+            <div id="ticket-info-attempts" data-bind="html: 'Attempts: ' + success_attempts()"></div>
+            <br>
+
+
+            <div data-bind="html: '<b>Date Created:</b> ' + date_created()"></div>
+            <!-- ko if not: date_completed -->
+            <div data-bind="html: '<b>Date Completed: </b> ' + date_completed()"></div>
+            <!-- /ko -->
+            <br>
+
+            <div data-bind="html: '<b>Created by:</b> ' + created_by()"></div>
+            <div data-bind="html: '<b>Updated by:</b> ' + updated_by()"></div>
+
+
+        </div>
+
+        <div id="ticket-info-edit" class="well">
+
+            {% comment %}                    <div class="control-group">
+                    <label for="ticket-edit-status" class="control-label">Current Status:</label>
+                    <select id="ticket-edit-status" class="input-large" name="ticket_status"
+                            data-bind="options: $root.profile.ticket_status_options,
+                      optionsText: 'service_status', value: $root.profile.selected_status">
+                    </select>
+
+                    </div>{% endcomment %}
+
+            <div id="ticket-info-edit-section">
+                <!-- ko if: $root.profile.ticket().status() != 'Completed' -->
+                <div class="control-group">
+                    <label class="control-label">Add Serviced Cart:</label>
+                   <br>
+                    <div class="controls">
+                        <input id="add-serial-number" name="add-serial-number"
+                               data-bind="value: $root.profile.add_serial_number" type="text" placeholder="Type Serial Number"
+                               class="input-xlarge search-query" style="height: 2.1em; padding-right: 10%">
+                        <button class="btn btn-primary" data-bind="click:function(){$root.profile.completeTicket('Completed')}">Complete</button>
+                        <button class="btn  btn-info" data-bind="click:function(){$root.profile.completeTicket('Unsuccessful')}"><i class="icon-plus"></i>Attempt</button>
+                        <button class="btn  btn-danger">Delete</button>
+
+                   </div>
+                    <br>
+                    <hr style="border-color: gray">
+                </div>
+                <!-- /ko -->
+
+
+                <!-- ko if: $root.profile.ticket_comments().length > 0 -->
+                <p style="font-size: 2.1em"><i class="icon-comments-alt icon-2x"> </i>Comments:</p>
+                <!-- /ko -->
+                <div id="ticket-info-comments" data-bind="foreach: $root.profile.ticket_comments">
+
+                    <p class="comment alert alert-info">
+                        <span data-bind="html: '<b>' + created_by() + '</b>  said: ' "></span>
+                        <br><br>
+                        <i class="icon-quote-left"> </i><span data-bind="text:text"></span>
+                        <i class="icon-quote-right"> </i>
+                        <br>
+                        <span class="ticket-info-comment-date" data-bind="text: date_created "></span>
+                        <br><br>
+                        <!-- Only show delete button if comment was created by the current user-->
+                        <button class="btn btn-small btn-danger pull-right"
+                                data-bind="click:
+                         function(data, event){$root.profile.deleteComment(data)},
+                          visible: created_by() == '{{ user.username }}' ">Delete
+                        </button>
+                        <br><br>
+                    </p>
+
+                </div>
+
+
+                <div id="info-new-comment">
+
+                    <label for="info-new-comment-text" style="font-size: 2.1em"><i class="icon-comment"> </i>New Comment</label>
+                    <textarea id="info-new-comment-text" name="text" rows="7" cols="50"></textarea>
+
+                    <button class="btn btn-large btn-info" data-bind="click: $root.profile.saveComment"> Add</button>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+
+{% block right %}
+{% endblock %}
+
+{% block page_scripts %}
+
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketProfileViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/comments.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket_status.js"></script>
+
+    <script type="text/javascript">
+        var user_name = '{{ user.username }}';
+        var ticket_id = '{{ticket_id }}' || null;
+        var ticket_api = '{% url ticket_api %}';
+        var ticket_status_api = '{% url ticket_status_api %}';
+        var ticket_comment_api = '{% url ticket_comment_api %}';
+        var ticketProfile = {
+            profile:new cartlogic.TicketsProfileViewModel()
+        };
+
+        ko.applyBindings(ticketProfile, document.getElementById('main'));
+
+    </script>
+{% endblock %}

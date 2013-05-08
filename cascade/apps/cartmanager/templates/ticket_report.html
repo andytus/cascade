@@ -1,1 +1,27 @@
-{% extends 'construction.html' %}
+{% extends 'base.html' %}
+
+{% block main_content %}
+    <div id="ticket-query"></div>
+   <p>"Show service_type:default=Requested tickets of cart_type:default=ALL type(s) and of cart_type:default=ALL>size(s)."</p>
+
+
+
+
+{% endblock %}
+
+
+{% block page_scripts %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsReportViewModel.js"></script>
+<script type="text/javascript">
+
+    var ticketsReport = {
+        report: new cartlogic.TicketsReportViewModel
+    };
+
+    ko.applyBindings(ticketsReport, document.getElementById('main'));
+
+</script>
+
+{% endblock %}

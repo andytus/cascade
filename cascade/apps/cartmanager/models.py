@@ -12,9 +12,6 @@ from django import forms
 
 import os
 
-#Note: os.path.dirname(__file__) used to upload files into the app directory
-UPLOADEDFILES = FileSystemStorage(location= os.path.join(os.path.dirname(__file__), 'uploads' ))
-
 def save_error(e, line):
     error_message = e.message
     print error_message
@@ -63,8 +60,6 @@ class ZipCodes(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.zipcode, self.plus_four)
 
-
-
 class CartStatus(models.Model):
     LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
              ("label-inverse", "Default"), ('label', 'Inverse'))
@@ -72,7 +67,7 @@ class CartStatus(models.Model):
     label = models.CharField(max_length=35)
 
     #model managers:
-    site = models.ForeignKey(Site)
+    site = models.ManyToManyField(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -83,7 +78,7 @@ class CartType(models.Model):
      name = models.CharField(max_length=20)
      size = models.IntegerField()
      #model managers:
-     site = models.ForeignKey(Site)
+     site = models.ManyToManyField(Site)
      objects = models.Manager()
      on_site = CurrentSiteManager()
 
@@ -98,14 +93,15 @@ class CartType(models.Model):
          return "%s" % (self.name)
 
 
-class CartServiceStatus(models.Model):
+class TicketStatus(models.Model):
+
     LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
              ("label-inverse", "Default"), ('label', 'Inverse'))
     level = models.CharField(max_length=35, choices=LEVEL)
     service_status = models.CharField(max_length=30)
 
 
-    site = models.ForeignKey(Site)
+    site = models.ManyToManyField(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -114,14 +110,14 @@ class CartServiceStatus(models.Model):
 
 
 class CartServiceType(models.Model):
-    SERVICE_CODE = (('EX-DEL', 'EX-REM'), ('DEL','DEL'), ('REM', 'REM'), ('REPAIR', 'REPAIR'), ('AUDIT', 'AUDIT'))
+    SERVICE_CODE = (('EX-DEL', 'EX-DEL'), ('EX-REM', 'EX-REM'), ('DEL','DEL'), ('REM', 'REM'), ('REPAIR', 'REPAIR'), ('AUDIT', 'AUDIT'))
     service = models.CharField(max_length=25)
     code = models.CharField(max_length=15, choices=SERVICE_CODE)
     description = models.TextField(max_length=300, null=True)
     complete_cart_status_change = models.ForeignKey(CartStatus)
 
     #model Managers:
-    site = models.ForeignKey(Site)
+    site = models.ManyToManyField(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
@@ -130,6 +126,10 @@ class CartServiceType(models.Model):
 
     def __unicode__(self):
          return "%s" % (self.service)
+
+class ServiceReasonCodes(models.Model):
+    code = models.CharField(max_length=30)
+    description = models.TextField(max_length=300, null=True)
 
 
 class Route(models.Model):
@@ -150,7 +150,7 @@ class Route(models.Model):
 
 class Address(models.Model):
     #Over ride defaults with instance applications.
-    CITY = "DEFAULT"
+    CITY = "NA"
     ST = "NA"
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
@@ -160,6 +160,9 @@ class Address(models.Model):
     zipcode = models.IntegerField()
     latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    geocode_status = models.CharField(max_length=20, null=True, blank=True)
+    geocode_type = models.CharField(max_length=20, null=True, blank=True)
+    property_type = models.CharField(max_length=25, null=True, choices=(('Residential','Residential'), ('Business', 'Business')))
     route = models.ForeignKey(Route, null=True, blank=True)
 
     #model managers:
@@ -177,7 +180,12 @@ class Address(models.Model):
 
     def __unicode__(self):
 
-        return "%s %s %s"  %(self.house_number, self.street_name, self.unit)
+        full_address =  "%s %s"  %(self.house_number, self.street_name)
+
+        if self.unit:
+            full_address = full_address + " " + self.unit
+
+        return full_address
 
     #TODO def get_absolute_url
 
@@ -185,13 +193,6 @@ class Address(models.Model):
         abstract = True
         #Do not want to add a new address that already exist
         unique_together = (('house_number', 'street_name', 'unit'))
-
-class ServiceCenter(models.Model):
-    #service center can also be an A&D service center
-    pass
-
-class ServiceCenterAddress(Address):
-    pass
 
 class CollectionCustomer(models.Model):
     #other_system_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
@@ -246,13 +247,27 @@ class ForeignSystemCustomerID(models.Model):
 
 
 class CollectionAddress(Address):
-    ADDRESS_TYPE = (('Inventory', 'Inventory'), ('Billing', 'Billing'))
-    type = models.CharField(max_length=9, choices=ADDRESS_TYPE, default='Billing')
     customer = models.ForeignKey(CollectionCustomer, null=True, blank=True, related_name="customer_location")
 
     def get_info(self):
-        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                              "city":self.city, "state":self.state, "zipcode":self.zipcode,"carts":self.location.values("serial_number", "cart_type__size", "cart_type__name")},"type":"Feature", "geometry":
+        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,  "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
+                              "city":self.city, "state":self.state, "zipcode":self.zipcode, "geocode_type":self.geocode_type, "geocode_status": self.geocode_status,
+                              "carts":self.location.values("id", "serial_number", "cart_type__size", "cart_type__name")},"type":"Feature", "geometry":
+                    {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
+
+        return info
+
+
+class InventoryAddress(Address):
+    contact_number = PhoneNumberField(max_length=15, null=True, blank=True)
+    capacity = models.IntegerField()
+    description = models.TextField(max_length=300, null=True, blank=True)
+    default = models.BooleanField(default=False)
+
+    def get_info(self):
+        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,  "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
+                              "city":self.city, "state":self.state, "zipcode":self.zipcode, "geocode_type":self.geocode_type, "geocode_status": self.geocode_status,
+                              },"type":"Feature", "geometry":
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
 
         return info
@@ -265,9 +280,12 @@ class Cart(models.Model):
     These fields are loaded from manufacturing:
     1) Size, 2) Cart Type, 3)RFID, 4) Serial Number, and 5)Born data
     Location comes from Services Center, A & D or from customer delivery services.
+
     """
     CART_SIZE = ((35, 35), (64, 64), (96, 96))
     location = models.ForeignKey(CollectionAddress, null=True, blank=True, related_name='location')
+    inventory_location = models.ForeignKey(InventoryAddress, null=True, blank=True, related_name="inventory_location")
+    at_inventory = models.BooleanField(default=True)
     last_latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
@@ -278,16 +296,7 @@ class Cart(models.Model):
     cart_type = models.ForeignKey(CartType, null=True, blank=True, default=1)
     last_updated = models.DateTimeField(auto_now=datetime.now)
     born_date = models.DateTimeField()
-
-    def _get_size(self):
-        if self.cart_type:
-            return self.cart_type.size
-        else:
-            return "no cart type"
-
-    test = property(_get_size)
-
-    print test
+    updated_by = models.ForeignKey(User, related_name="cart_updated_by_user" )
 
     #model managers
     site = models.ForeignKey(Site)
@@ -312,7 +321,7 @@ class Cart(models.Model):
         self.site = current_site
         super(Cart,self).save(*args, **kwargs)
 
-class CartServiceTicket(models.Model):
+class Ticket(models.Model):
 
     AUDIT_STATUS = (('No Change','No Change'), ('Changed','Changed'))
 
@@ -322,7 +331,7 @@ class CartServiceTicket(models.Model):
     location = models.ForeignKey(CollectionAddress, related_name="ticket_locations")
     service_type = models.ForeignKey(CartServiceType, null=True, blank=True, related_name="service_type")
     cart_type = models.ForeignKey(CartType, null=True, blank=True, related_name="cart_type")
-    status = models.ForeignKey(CartServiceStatus, null=True, blank=True, related_name="status")
+    status = models.ForeignKey(TicketStatus, null=True, blank=True, related_name="status")
 
     #date information
     date_completed = models.DateTimeField(null=True)
@@ -335,9 +344,13 @@ class CartServiceTicket(models.Model):
     device_name = models.CharField(max_length=50, null=True, blank=True)
     success_attempts = models.IntegerField(default=0)
     audit_status = models.CharField(max_length=15, null=True, blank=True, choices=AUDIT_STATUS)
-    broken_component = models.CharField(max_length=60, null=True, blank=True)
-    broken_comments = models.CharField(max_length=60, null=True, blank=True)
+    reason_codes = models.ForeignKey(ServiceReasonCodes, null=True, blank=True)
     processed = models.BooleanField(default=False)
+
+
+    created_by = models.ForeignKey(User, related_name='created_by_user')
+    updated_by = models.ForeignKey(User, related_name="updated_by_user", null=True, blank=True)
+
 
     #model managers
     site = models.ForeignKey(Site)
@@ -345,11 +358,9 @@ class CartServiceTicket(models.Model):
     on_site = CurrentSiteManager()
 
 
-
     #TODO created and completed by.... hook to user.
     #TODO going to need reason code for incomplete
-    #created_by
-    #completed_bys
+
     #TODO def get_absolute_url
 
     class Meta:
@@ -361,7 +372,22 @@ class CartServiceTicket(models.Model):
     def save(self, *args, **kwargs):
         current_site = Site.objects.get_current()
         self.site = current_site
-        super(CartServiceTicket,self).save(*args, **kwargs)
+        super(Ticket,self).save(*args, **kwargs)
+
+
+class TicketComments(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+    text = models.TextField(max_length=200, null=True, blank=True)
+    ticket = models.ForeignKey(Ticket, related_name="ticket_comment")
+    created_by = models.ForeignKey(User, blank=True, related_name="created_by")
+
+    site = models.ForeignKey(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
+    def get_info(self):
+        info = {'text': self.text, 'date_created': self.date_created, 'ticket': self.ticket}
+        return info
 
 
 
@@ -373,8 +399,25 @@ class UserAccountProfile(models.Model):
     on_site = CurrentSiteManager()
 
 
+def get_upload_path(instance, filename):
+    """
+     gets correct path for an uploaded file
+
+    """
+    #Note: os.path.dirname(__file__) used to upload files into the app directory
+    return os.path.join(os.path.dirname(__file__), 'uploads', instance.site.domain, instance.file_kind, filename)
+
 
 class UploadFile(models.Model):
+    """
+    meta class for all upload models
+
+    Public methods
+    ---------------
+    process: defines a consistent way of processing all uploaded files.
+    save_records: must be implemented in subclasses
+
+    """
 
     STATUSES = (
         ("PENDING", "PENDING"),
@@ -386,7 +429,8 @@ class UploadFile(models.Model):
         ("Cart","Carts"),
         ("CartTicket","Tickets"),
     )
-    #uploaded_by = models.ForeignKey('auth.User')
+    file_path = models.FileField(upload_to=get_upload_path, max_length=300)
+    uploaded_by = models.ForeignKey(User)
     size = models.PositiveIntegerField()
     date_uploaded = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=64, choices=STATUSES, default='PENDING')
@@ -398,7 +442,8 @@ class UploadFile(models.Model):
     total_process_time = models.IntegerField(null=True)
     file_kind = models.CharField(max_length=10, choices=FILE_KIND)
     message = models.CharField(max_length=200, null=True, blank=True)
-    process_records = models.BooleanField(default=False)
+    records_processed = models.BooleanField(default=False)
+
 
     #model managers
     site = models.ForeignKey(Site)
@@ -412,14 +457,21 @@ class UploadFile(models.Model):
         pass
 
     def process(self, process):
+        """
+         Processes new uploaded files
+
+         Saves number of records, number of good and number of errors.
+         Saves status and processing time in seconds.
+
+        """
         self.num_records = 0
         self.num_good = 0
         self.num_error = 0
 
-        process = process
+        #self.records_processed = process
 
         file = self.file_path
-        #Read just the first header row:
+        # Read just the first header row:
         file.readline()
         self.status = 'UPLOADED'
         self.date_start_processing = datetime.now()
@@ -429,7 +481,7 @@ class UploadFile(models.Model):
                 break
             for line in lines:
 
-                self.save_records(line, self.site, self.process_records)
+                self.save_records(line, self.site, self.records_processed)
 
         self.num_records = self.num_good + self.num_error
         self.date_end_processing = datetime.now()
@@ -439,17 +491,30 @@ class UploadFile(models.Model):
         return self.num_records, self.num_good, self.num_error
 
 class CartsUploadFile(UploadFile):
-    file_path = models.FileField(storage=UPLOADEDFILES, upload_to="carts")
+
+   # file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Carts")
 
     def save_records(self, line, site, process_records):
+        """
+        Saves a cart record for each line given
+
+        rfid, serial, size, cart type and born date are obtained from the line.
+        updated by is obtained by the parent class attribute uploaded by
+        Inventory address is obtained from the default inventory object
+
+        """
+
         try:
-            #default status is produced
+            # default status is produced
             status = CartStatus.objects.get(label = 'Produced')
             rfid, serial, size, cart_type, born_date = line.split(',')
-            #get cart type by name
-            cart_type = CartType.on_site.get(name=cart_type, size=size)
-            cart = Cart(site=site, rfid=rfid, serial_number=serial, size=size, cart_type=cart_type, current_status=status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y %H:%M"))
-            cart.location = CollectionAddress.on_site.get(type='Inventory')
+            # get cart type by name
+            cart_type = CartType.objects.get(name=cart_type, size=size)
+            cart = Cart(site=site, inventory_location = InventoryAddress.on_site.get(default=True),
+                        updated_by = self.uploaded_by, rfid=rfid, serial_number=serial, size=size,
+                        cart_type=cart_type, current_status=status,
+                        born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+
             cart.full_clean()
             cart.save()
             self.num_good += 1
@@ -460,26 +525,25 @@ class CartsUploadFile(UploadFile):
             #TODO def get_absolute_url
 
 class TicketsCompleteUploadFile(UploadFile):
-    file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
+   # file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
     success_count = models.IntegerField(default=0)
     removal_count = models.IntegerField(default=0)
     audit_count = models.IntegerField(default=0)
     adhoc_count = models.IntegerField(default=0)
-    unsucessful = models.IntegerField(default=0)
+    unsuccessful = models.IntegerField(default=0)
     repair_count = models.IntegerField(default=0)
 
     def save_records(self, line, site, process_records):
         try:
-            #Get imported files data
-
+            # Get imported files data
             system_id, street, house_number, unit_number, container_size, container_type, rfid, upload_ticket_status, service_type, \
             complete_datetime, device_name, lat, lon, broken_component, broken_comments = line.split(',')
 
-            ticket = CartServiceTicket.on_site.get(site=site, id=system_id)
-            #Cart Service status object
+            ticket = Ticket.on_site.get(site=site, id=system_id)
+            # Cart Service status object
             time_format = '%m/%d/%Y %H:%M' #matches time as 11/1/2012 15:20
 
-            #check for status uploaded or complete, because you don't want to over write already completed tickets.
+            # check for status uploaded or complete, because you don't want to over write already completed tickets.
             if ticket.status.service_status != 'Uploaded' and ticket.status.service_status != 'Completed':
 
                 if lat and lon and lat != 'No Fix':
@@ -491,8 +555,9 @@ class TicketsCompleteUploadFile(UploadFile):
                     self.success_count +=1
                     ticket.success_attempts +=1
                     ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
+                    #get cart by rfid and assign to serviced cart on ticket
                     ticket.serviced_cart =  Cart.objects.get(rfid__exact=rfid)
-                    ticket.status = CartServiceStatus.on_site.get(site=site, service_status='Uploaded')
+                    ticket.status = TicketStatus.on_site.get(site=site, service_status='Uploaded')
                     print "in COMPLETED"
 
                 elif ticket.service_type.code == 'REPAIR':
@@ -500,25 +565,26 @@ class TicketsCompleteUploadFile(UploadFile):
                     ticket.success_attempts +=1
                     ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                     ticket.serviced_cart =  Cart.objects.get(rfid__exact=rfid)
-                    ticket.status = CartServiceStatus.on_site.get(site=site, service_status='Uploaded')
+                    ticket.status = TicketStatus.on_site.get(site=site, service_status='Uploaded')
 
                 elif upload_ticket_status == "UNSUCCESSFUL":
                     ticket.success_attempts +=1
                     self.unsucessful +=1
                     ticket.date_last_attempted =  datetime.strptime(complete_datetime.strip(), time_format)
-                    ticket.status = CartServiceStatus.on_site.get(site=site, service_status='Unsuccessful')
-                    print "in UNSUCCESFUL"
+                    ticket.status = TicketStatus.on_site.get(site=site, service_status='Unsuccessful')
+                    print "in UNSUCCESSFUL"
 
                 elif upload_ticket_status == "ADD":
                     #TODO Create new adhoc tickets
-                    #Have systemid from ticket be the inventory id of customers
-                    #self.adhoc_count = +1
+                    # Have systemid from ticket be the inventory id of customers
+                    # self.adhoc_count = +1
                     pass
                 ticket.save()
+            #goes into  cart processing here
             if process_records:
-
+                #grab cart from the serviced cart
                 cart = ticket.serviced_cart
-                ticket.status = CartServiceStatus.objects.get(service_status='Completed')
+                ticket.status = TicketStatus.on_site.get(site=site,service_status='Completed')
                 ticket.processed = True
 
                 if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
@@ -527,84 +593,31 @@ class TicketsCompleteUploadFile(UploadFile):
                     print "in DEL Proccessing"
 
                 elif ticket.service_type.code == "EX-REM" or ticket.service_type.code == "REM":
-                    #check to see if the expected cart is the same as the serviced cart
-                    #In other words, did the correct cart get removed
+                    # check to see if the expected cart is the same as the serviced cart
+                    # In other words, did the correct cart get removed
                     if ticket.expected_cart == ticket.serviced_cart:
-                        #check to see if the removed cart still at the ticket location before removing
-                        #because it could have been delivered to another address
+                        # check to see if the removed cart still at the ticket location before removing
+                        # because it could have been delivered to another address
                         if ticket.location == cart.location:
                             #remove location from serviced cart and put in inventory
                             cart.location = None
+                            cart.inventory_location = InventoryAddress.on_site.get(site=site, default=True)
+                            cart.at_inventory = True
+                            #basically updating to inventory
                             cart.current_status = ticket.service_type.complete_cart_status_change
                     else:
-                    #else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
-                    #Check if last update is greater than or equal to 1 day and update location to none
-                    #else it has been updated, and most likely it has been processed as a delivery today.
+                    # else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
+                    # Check if last update is greater than or equal to 2 days and update location to None
+                    # else it has been updated, and most likely it has been processed as a delivery today, leave it alone.
                     #TODO WORK ON THIS LOGIC!
                         days_last_updated = (datetime.today() - cart.last_updated).days
                         if days_last_updated >= 2:
-                            ticket.serviced_cart.location = None
+                            cart.location = None
+                            cart.inventory_location = InventoryAddress.on_site.get(site=site, default=True)
                             cart.current_status = ticket.service_type.complete_cart_status_change
                 cart.save()
                 ticket.save()
             self.num_good += 1
-
-
-
-            #status from the upload file
-        #                if upload_ticket_status == "COMPLETED":
-        #                    cart = Cart.objects.get(rfid__exact=rfid)
-        #                    cart.current_status = ticket.cartservicetype.complete_cart_status_change
-        #
-        #                    if lat and lon:
-        #                        cart.last_latitude = lat
-        #                        cart.last_longitude = lon
-
-        #                    #For Deliveries
-        #                    if  ticket.service_type.code == 'DEL':
-        #                        ticket.delivered_cart = cart
-        #                        cart.location = ticket.location
-        #                        self.delivery_count += 1
-
-        #For Removals and Swaps (REM-DEL)
-        #                    elif ticket.service_type.code == 'REM-DEL' or  ticket.service_type.code == 'REM':
-        #check to see if the swapped(REM-DEL) cart is still at the ticket location before removing
-        #Because it could have been delivered to another address
-        #                        if ticket.removed_cart.location == ticket.location:
-        #if the removed cart associated with the ticket is still located in the database at the location
-        #associated with the ticket, then simply place it in inventory and change its status!
-        #                           ticket.removed_cart.location = CollectionAddress.on_site.get(type='Inventory')
-        #                            ticket.removed_cart.current_status = CartStatus.on_site.get(label="Inventory")
-        #                           ticket.removed_cart.save()
-        #                          self.removal_count += 1
-        #
-        #                            if ticket.service_type.code == 'REM-DEL':
-        #                                ticket.delivered_cart = cart
-        #                                cart.location = ticket.location
-        #                                self.delivery_count +=1
-        #
-        #                    #For AUDITS
-        #elif  ticket.service_type.code == 'AUDIT':
-
-        #self.audit_count +=1
-        #                        #check to see if the cart was changed
-        #                        if ticket.audit_cart == cart:
-        #                            ticket.audit_status = "No Change"
-        #                        else:
-        #                            cart.location = ticket.location
-        #                            ticket.audit_status = "Changed"
-        #
-
-        #                        ticket.broken_component = broken_component
-        #                        ticket.broken_comments = broken_comments
-        #
-        #
-        #                    ticket.date_completed= datetime.strptime(complete_datetime.strip(), time_format)
-        #                    ticket.device_name = device_name
-        #                    ticket.status = CartServiceStatus.on_site.get(service_status='completed')
-        #                    ticket.success_attempts += 1
-        #                    cart.save()
-
 
         except (Exception, ValidationError, ValueError, IntegrityError) as e:
             self.status = "FAILED"
@@ -619,7 +632,7 @@ class TicketsCompleteUploadFile(UploadFile):
             #TODO def get_absolute_url
 
 class CustomersUploadFile(UploadFile):
-    file_path = models.FileField(storage=UPLOADEDFILES, upload_to="customers")
+   # file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Customers")
 
     #TODO def get_absolute_url
 
@@ -638,35 +651,30 @@ class CustomersUploadFile(UploadFile):
            customer.save()
 
            #TODO: for systemid, need to create ForeignSystemCustomerID, create then save to customer, will need extra fields
-
-           #######################################################################################################
-
-           #Collection_Address setup & save:
+           # Collection_Address setup & save:
            collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number,
                                                   street_name=street_name.upper(), unit=unit, city=city, zipcode=zipcode,
                                                   state=state,latitude=latitude, longitude=longitude)
            collection_address.full_clean()
            collection_address.save()
 
-           ########################################################################################################
-
-           #Tickets setup & save for Refuse, Recycling, Other, Yard\Organics:
-           #Refactor to dictionary for keys, then for values.
+           # Tickets setup & save for Refuse, Recycling, Other, Yard\Organics:
+           # Refactor to dictionary for keys, then for values.
            delivery = CartServiceType.on_site.get(site=site, code="DEL")
-           open = CartServiceStatus.on_site.get(site=site, service_status="Open")
+           open = TicketStatus.on_site.get(site=site, service_status="Open")
 
            if refuse.isdigit():
                for x in range(int(refuse)):
-                   CartServiceTicket(cart_type=CartType.on_site.get(site=site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
            if recycle.isdigit():
                for x in range(int(recycle)):
-                   CartServiceTicket(cart_type=CartType.on_site.get(site=site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
            if yard_organics.isdigit():
                for x in range(int(yard_organics)):
-                   CartServiceTicket(cart_type=CartType.on_site.get(site=site, name="Yard-Organics", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Yard-Organics", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
            if other.isdigit():
                for x in range(int(other)):
-                   CartServiceTicket(cart_type=CartType.on_site.get(site=site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
 
            self.num_good += 1
 

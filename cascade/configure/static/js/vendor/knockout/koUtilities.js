@@ -62,7 +62,7 @@ ko.bindingHandlers.typeahead = {
 
         }
 
-        //jbennett - notice the call to typeahead here  <ul class='typeahead dropdown-menu', style='z-index:150'></ul>
+        //jbennett - note the call to typeahead here  <ul class='typeahead dropdown-menu', style='z-index:150'></ul>
         if (typeaheadSource == null) $(element).typeahead();
 
         else {
@@ -76,14 +76,3 @@ ko.bindingHandlers.typeahead = {
 
     }
 };
-
-ko.bindingHandlers.map = {
-
-
-
-
-
-
-
-}
-

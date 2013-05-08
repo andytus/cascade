@@ -13,8 +13,8 @@
 
         var self = this;
         self.customer_id = ko.observable("");
-        self.first_name = ko.observable("").extend({ validate: {required: true,  requiredMessage: "Please enter a first name"} });
-        self.last_name = ko.observable("").extend({ validate: {required: true, requiredMessage: "Please enter a last name"} });
+        self.first_name = ko.observable(" ").extend({ validate: {required: true,  requiredMessage: "Please enter a first name"} });
+        self.last_name = ko.observable(" ").extend({ validate: {required: true, requiredMessage: "Please enter a last name"} });
         self.phone_number = ko.observable("").extend({validate:{required: false, pattern: "phone"}});
         self.email = ko.observable("").extend({validate:{required: false, pattern: 'email'}});
 

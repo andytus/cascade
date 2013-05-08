@@ -12,9 +12,10 @@
     function Location(data) {
         var self = this;
         self.id = ko.observable();
-        self.house_number = ko.observable();
-        self.street_name = ko.observable();
-        self.street_suffix = ko.observable();
+        self.property_type = ko.observable();
+        self.house_number = ko.observable().extend({ validate: {required: true,  requiredMessage: "Missing house number"} });
+        self.street_name = ko.observable().extend({ validate: {required: true,  requiredMessage: "Need a street"} });
+        self.street_suffix = ko.observable("");
         self.unit = ko.observable(null);
         self.full_address = ko.computed(function(){
             var full_address = self.house_number() + " "+ self.street_name();
@@ -32,13 +33,19 @@
         self.carts = ko.observableArray([]);
         self.latitude = ko.observable(null);
         self.longitude = ko.observable(null);
+        self.geocode_status = ko.observable(null);
+        self.valid = function(){
+         return !(self.house_number.hasError())
+                && !(self.street_name.hasError())
+         };
 
         if(data){
 
             self.id(data.info.properties.id);
+            self.property_type(data.info.properties.property_type);
             self.house_number(data.info.properties.house_number);
             self.street_name(data.info.properties.street_name);
-            self.unit(data.info.properties.unit);
+            self.unit(data.info.properties.unit || " ");
             self.zipcode(data.info.properties.zipcode);
             self.city(data.info.properties.city);
             self.state(data.info.properties.state);

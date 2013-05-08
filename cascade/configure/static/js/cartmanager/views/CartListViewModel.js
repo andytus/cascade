@@ -24,7 +24,7 @@
     self.count = ko.observable(0);
     self.page = ko.observable(1);
     //#TODO Implement records per page (hard coded in html for now)
-    self.records_per_page = ko.observable(30);
+    self.records_per_page = ko.observable(35);
     self.total_pages = ko.computed(function () {
         return (Math.round(self.count() / self.records_per_page()));
     });

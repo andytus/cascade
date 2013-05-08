@@ -23,14 +23,24 @@ function Cart(data){
     self.customer_id = ko.observable((data.customer.id) || "");
     self.customer_name = ko.observable((data.customer.name) || "Unknown or Not Assigned");
     self.customer_url = ko.observable((customer_url || "") + this.customer_id());
+    self.current_status_level = ko.observable(data.cart.current_status_level);
+    if(data.location){
     self.address = ko.observable(data.location.properties.house_number + " " + data.location.properties.street_name);
     if (data.location.properties.unit) {
         this.address(this.address() + " " + "Unit: " + data.location.properties.unit);
     }
-    self.latitude = ko.observable((data.location.geometry.coordinates[1]) || -46);
-    self.longitude = ko.observable((data.location.geometry.coordinates[0]) || 85);
-    self.current_status_level = ko.observable(data.cart.current_status_level);
+    self.latitude = ko.observable((data.location.geometry.coordinates[1]) || 0);
+    self.longitude = ko.observable((data.location.geometry.coordinates[0]) || 0);
 
+    } else{
+
+        self.address = ko.observable(data.inventory_location.properties.house_number + " " + data.inventory_location.properties.street_name);
+        if (data.inventory_location.properties.unit) {
+            this.address(this.address() + " " + "Unit: " + data.inventory_location.properties.unit);
+        }
+        self.latitude = ko.observable((data.inventory_location.geometry.coordinates[1]) || 0);
+        self.longitude = ko.observable((data.inventory_location.geometry.coordinates[0]) || 0);
+     }
 }
 
 //add to cartlogic name space

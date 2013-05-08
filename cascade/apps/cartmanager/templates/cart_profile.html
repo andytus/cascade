@@ -10,22 +10,20 @@
 {% block main_content %}
 
 
-
-
     <ul id="cart-profile-tab" class="nav nav-pills">
         <li><a href="#cart-info" class="box-info"><i class="icon-trash"></i> cart profile</a></li>
         <li><a href="#ticket_panel" class="box-info"><i class="icon-tags"></i> tickets</a></li>
         <li><a href="#cart-map-wrapper" class="box-info" data-bind="click: $root.profile.createMap"><i class="icon-map-marker"></i> show cart map</a></li>
    </ul>
 
-    <div id="cart-profile" class="container-fluid  active tab-content" data-bind="with: profile.cart">
+    <div id="cart-profile" class="container-fluid" data-bind="with: profile.cart">
 
-        <div id="cart-info" class="box-info tab-pane active">
-            <div class="cart-info-edit-title">Cart Profile: <i data-bind="text: serial_number"></i></div>
+        <div id="cart-info" class="box-info">
+            <div class="info-title">Cart Profile: <i data-bind="text: serial_number"></i></div>
 
             <div class="well" id="cart-info-display">
 
-                <a class="cart-info-link pull-left" data-bind="attr: {href: cart_profile_url}">
+                <a class="cart-info-link pull-left" data-bind="attr: {href: cart_app_url + cart_serial_number}">
                     <span class="cart-info-serial" data-bind="text: serial_number"></span>
                     <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
                 </a>
@@ -35,7 +33,7 @@
 
                 <div class="cart-info-type" data-bind="text:cart_type"></div>
 
-                <div class="cart-info-status label"
+                <div class="cart-info-status info-status label"
                      data-bind="text: current_status,  css: current_status_level"></div>
                 <br>
                 Produced:
@@ -47,15 +45,10 @@
 
 
             <div id="cart-info-edit">
-
-
-                <div id="cart-info-edit-address" class="well cart-info-edit-section">
-
-
+            <div id="cart-info-edit-address" class="well cart-info-edit-section">
                     <a href="{% url cart_app_address_change %}{{ serial_number }}" data-target="#modal_window"
                        class="btn btn-info btn-large cart-info-btn" data-toggle="modal"> <i class="icon-home">
                         Change</i></a>
-
 
                     <a id="cart-info-edit-customer_name"
                        data-bind=" if: customer_id(), attr: {href: customer_app_url + customer_id()}"><span
@@ -67,18 +60,12 @@
                     <p id="cart-info-edit-street_address" data-bind="text:location_address"></p>
                 </div>
 
-
                 <form class="form-inline well cart-info-edit-section"
                       data-bind="submit: $root.profile.saveCartData">
-
                     <fieldset>
-
                         <div class="control-group">
-
                             <button id="cart-info-edit-submit" class="cart-info-btn btn btn-info btn-large"
                                     type="submit"><i class="icon-save"> Update</i></button>
-
-
                             <div class="controls-row">
                                 <label for="cart-info-edit-type" class="control-label">Type:</label>
                                 <select id="cart-info-edit-type" class="input-large" name="cart_type"
@@ -86,24 +73,17 @@
                                     <option data-bind="text: name, value: id" selected="selected"></option>
                                 </select>
                             </div>
-
                             <div class="control-row">
-
                                 <label for="cart-info-edit-status" class="control-label">Status:</label>
-
                                 <select id="cart-info-edit-status" name="current_status" class="input-large"
                                         data-bind="foreach:{data: $root.profile.cart_status_options}">
                                     <option data-bind="text: label(), value: id()"></option>
                                 </select> <br>
-
                             </div>
-
                             <div id="cart-info-edit-last_update"
                                  data-bind="text: 'Last Updated: ' + last_updated()"></div>
-
                         </div>
                     </fieldset>
-
                 </form>
 
                 <div id="cart-info-edit-rfid" data-bind="text: 'RFID Tag: ' + rfid()"></div>
@@ -158,11 +138,12 @@
                 <td data-bind="text: house_number"></td>
                 <td data-bind="text: street_name"></td>
                 <td data-bind="text: unit"></td>
-                <td data-bind="text: serviced_cart"></td>
-                <td data-bind="text: expected_cart"></td>
-                <!-- #TODO put ticket id here for button -->
+                <td><a data-bind="text: serviced_cart, attr: {href:'{% url cart_app_profile %}' + serviced_cart()}"></a></td>
+                <td data-bind="text: serviced_cart_size"></td>
+                <td><a data-bind="text: expected_cart, attr: {href:'{% url cart_app_profile %}' + expected_cart()}"></a></td>
                 <td>
-                    <button class="btn-small, btn-info" data-bind="text: id"></button>
+                    <a class=" btn btn-small, btn-info"
+                       data-bind="attr: {href:'{% url ticket_app_profile %}' + id()}" >Open</a>
                 </td>
             </tbody>
 
@@ -199,8 +180,6 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/tablesorter/jquery.metadata.js"></script>
 
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->

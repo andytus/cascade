@@ -144,7 +144,7 @@
                             $("#" + status_element).val(results[0].geometry.location_type);
 
                     } else {
-                        element.innerHTML = "Geocode was not successful for the following reason: " + status;
+                        element.innerHTML = "<h2 class='text-error'>Geocode was not successful for the following reason: " + status +"</h2>";
                     }
                 });
             }
@@ -203,44 +203,5 @@
 
     cartlogic.Marker = Marker;
 
-/*
-   Removed in favor of putting maps in the ViewModels
-    function SingleCartMap(element, options) {
-
-
-        var self = this;
-
-        if (options.lat && options.lon) {
-
-            self.cartLatLng = new google.maps.LatLng(options.lat, options.lon);
-            self.style = new cartlogic.MapStyle();
-            self.marker = new cartlogic.Marker('cart', options.label).getMarker();
-
-
-            self.mapOptions = {
-                center:self.cartLatLng,
-                zoom:15,
-                mapTypeId:google.maps.MapTypeId.ROADMAP,
-                styles:self.style.getStyle()
-            };
-
-            var map = new google.maps.Map(element, self.mapOptions);
-            console.log("in single map")
-            google.maps.event.trigger(map, 'resize');
-
-            self.marker.setPosition(self.cartLatLng);
-            self.marker.setMap(map);
-
-
-            google.maps.event.addListener(self.marker, 'dragend', function () {
-                self.updateCoordinates();
-            });
-
-
-        }
-    }
-
-    cartlogic.SingleCartMap = SingleCartMap;
-*/
 
 })(window.cartlogic);

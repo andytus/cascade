@@ -24,6 +24,7 @@ function CartProfile(data){
     self.cart_type_id = ko.observable(data.cart_type.id);
     self.last_updated = ko.observable(new Date(data.last_updated).toDateString());
     self.born_date = ko.observable(new Date(data.born_date).toDateString());
+
     //location information
     if(data.location != null){
 
@@ -49,20 +50,19 @@ function CartProfile(data){
     }
 
 
-    if(data.location.customer != null){
+    if(data.location != null && data.location.customer != null){
     //customer information
     self.customer_id = ko.observable(data.location.customer.info.id);
     self.customer_name = ko.observable(data.location.customer.info.name);
     self.customer_url = ko.observable(data.location.customer.info.url);
     } else{
     self.customer_id = ko.observable(null);
-    self.customer_name = ko.observable(" Add or Change Customer");
+    self.customer_name = ko.observable("Add or Change Customer");
     self.customer_url = ko.observable(null);
     }
 
 
     //status information
-
     self.current_status_id = ko.observable(data.current_status.id);
     self.current_status = ko.observable(data.current_status.label);
     self.current_status_level = ko.observable(data.current_status.level);

@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.countdown.css">
 {% endblock %}
 
-{% block title %}test {% endblock %}
+{% block title %}Location Search{% endblock %}
 
 {% block left %}
 {% endblock %}
@@ -43,7 +43,7 @@
 
     var searchLocation = {
         address_search: new cartlogic.LocationSearchViewModel
-    }
+    };
 
     ko.applyBindings(searchLocation, document.getElementById('location_search'))
 

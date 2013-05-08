@@ -154,7 +154,8 @@
 <script id="Complete" type="text/html">
      <p data-bind="css:{'text-success': $root.create.server_message_type() == 'Success', 'text-error':
       $root.create.server_message_type() == 'Failed'}, text: $root.create.server_message_type"></p>
-     <p data-bind="text: $root.create.server_message"></p>
+    <p data-bind="text: $root.create.server_message"></p>
+
 </script>
 
 
@@ -165,6 +166,7 @@
     //Globals coming from incoming request
     var cart_serial_number = '{{ serial_number }}' || null;
     var cart_id = '{{ cart_id }}' || null;
+    var location_id = '{{ location_id }}' || null;
     var cart_address = '{{ cart_address }}' || null;
     var cart_address_unit ='{{ cart_address_unit }}' || null;
     var cart_address_street_name = '{{ cart_address_street_name }}' || null;

@@ -65,7 +65,7 @@ class Migration(SchemaMigration):
             'size': ('django.db.models.fields.IntegerField', [], {})
         },
         'cartmanager.cartserviceticket': {
-            'Meta': {'ordering': "['-date_created']", 'object_name': 'CartServiceTicket'},
+            'Meta': {'ordering': "['-date_created']", 'object_name': 'Ticket'},
             'audit_status': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
             'broken_comments': ('django.db.models.fields.CharField', [], {'max_length': '60', 'null': 'True', 'blank': 'True'}),
             'broken_component': ('django.db.models.fields.CharField', [], {'max_length': '60', 'null': 'True', 'blank': 'True'}),

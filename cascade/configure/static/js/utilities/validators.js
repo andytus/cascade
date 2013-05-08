@@ -32,12 +32,16 @@
             target.validationMessage = ko.observable();
 
             //define a function to do required and validate patterns if needed
-            function check(newValue) {
-                if (options.required === true) {
+            function check(newValue, start) {
+
+                 if (options.required === true) {
                     target.hasError(newValue ? false : true);
                     target.hasFocus(newValue ? false : true);
+                    // do not show message on load:
+
                     target.validationMessage(newValue ? "" : options.requiredMessage || "This field is required");
-                }
+                    }
+
                 //check for a test pattern type (i.e. email or phone) and for the target value
                 if (options.pattern) {
                      //get the appropriate filter to test
@@ -49,6 +53,7 @@
                     if (pass == false) {
                         target.hasError(true);
                         target.hasFocus(true);
+
                         target.validationMessage(filter[0].message)
 
                     } else {
@@ -56,10 +61,15 @@
                         target.validationMessage("");
                     }
                 }
+               if (start){
+                   //remove the validation message if this is a initial load
+                   target.validationMessage("")
+               }
+
             }
 
             //initial validation
-            //check(target());
+            check(target(), start=true);
 
             //validate whenever the value changes
             target.subscribe(check);
