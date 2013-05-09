@@ -60,7 +60,6 @@
 
       self.saveComment = function(){
           var new_comment = new cartlogic.Comments({text:$("[name=text]").val(), date_created: new Date(),  created_by: user_name});
-          console.log(new_comment);
           $.ajax(ticket_comment_api + ticket_id, {
                   data: ko.toJSON(new_comment),
                   type:"post", contentType:"application/json",
@@ -142,7 +141,6 @@
      };
 
        self.completeTicket = function(status){
-          console.log(status);
           cart_serial_number =  $("[name=add-serial-number]").val();
           $.ajax(ticket_api + ticket_id, {
               data: ko.toJSON({serial_number: cart_serial_number, status: status}),

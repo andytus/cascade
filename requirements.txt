@@ -5,6 +5,8 @@ distribute==0.6.27
 dj-database-url==0.2.1
 django-debug-toolbar==0.9.4
 django-haystack==1.2.7
-djangorestframework==2.1.2
+django-rest==0.0.1
+djangorestframework==2.2.4
+gunicorn==0.17.4
 psycopg2==2.4.6
 wsgiref==0.1.2
