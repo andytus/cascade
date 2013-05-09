@@ -23,7 +23,7 @@
             <div class="ticket-info-service-type"
                  data-bind="html: '<u>' + service_type() + ' of ' +  + cart_type_size() + ' ' + cart_type() + '</u>'"></div>
             <!-- ko if: serviced_cart -->
-            <div><a data-bind=" text:serviced_cart ,attr:{href:'{% url cart_app_profile%}' + serviced_cart()}"> </a>,
+            <div>Serviced Cart: <a data-bind=" text: serviced_cart() ,attr:{href:'{% url cart_app_profile%}' + serviced_cart()}"> </a>,
                 <span data-bind="text: 'Size: ' + serviced_cart_size() + ', Type: ' + serviced_cart_type()"></span>
             </div>
             <!-- /ko -->
@@ -50,15 +50,6 @@
         </div>
 
         <div id="ticket-info-edit" class="well">
-
-            {% comment %}                    <div class="control-group">
-                    <label for="ticket-edit-status" class="control-label">Current Status:</label>
-                    <select id="ticket-edit-status" class="input-large" name="ticket_status"
-                            data-bind="options: $root.profile.ticket_status_options,
-                      optionsText: 'service_status', value: $root.profile.selected_status">
-                    </select>
-
-                    </div>{% endcomment %}
 
             <div id="ticket-info-edit-section">
                 <!-- ko if: $root.profile.ticket().status() != 'Completed' -->

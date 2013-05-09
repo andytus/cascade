@@ -1,8 +1,87 @@
 {% extends 'base.html' %}
 
 {% block main_content %}
-    <div id="ticket-query"></div>
-   <p>"Show service_type:default=Requested tickets of cart_type:default=ALL type(s) and of cart_type:default=ALL>size(s)."</p>
+    <div class="box-info">
+    <div id="ticket-query" class="well" data-bind="with: $root.report">
+         Show <select id="ticket-query-select-status" data-bind="options: ticket_status_options,
+         value:selected_status"  class="input-medium"></select> tickets for
+        <select id="ticket-query-select-type" data-bind="options: $root.report.ticket_type_options,
+         value: selected_type" class="input-large"></select> services, and
+        <select id="ticket-query-cart-type" data-bind="options: cart_type_options,
+        value: selected_cart_type" class="input-medium"></select> cart type(s), and
+        <select id="ticket-query-cart-type-size" data-bind="options: cart_size_options,
+        value: selected_cart_size" class="input-small"></select> gallon cart(s).
+        <button class="btn-primary" data-bind="click: function(data, event){$root.tickets.getTickets(1, null, 'json',
+        selected_status(), selected_type(), selected_cart_type(), selected_cart_size())}"> Go <i class="icon-arrow-right"></i></button>
+        <button class="btn btn-success"
+        data-bind="click: function(data, event){$root.tickets.getTickets(1, null, 'csv',
+        selected_status(), selected_type(), selected_cart_type(), selected_cart_size())}">
+        <i class="icon-download pull-right" title="Download"></i></button>
+
+    </div>
+
+    </div>
+
+    <div id="ticket-report" data-bind="with:$root.tickets">
+
+       <div id="ticket-pager">
+        <ul class="pager" data-bind="visible: count() >  records_per_page()">
+            <li class="pager" data-bind="visible: page() > 1">
+                <a href="#" data-bind="click: function(){getTickets(page()-1, null, 'json', $root.report.selected_status(),
+                 $root.report.selected_type(), $root.report.selected_cart_type(), $root.report.selected_cart_size())}"> << Previous</a>
+            </li>
+            <li class="pager" data-bind="visible: $root.tickets.page() <  total_pages()">
+                <a href="#" data-bind="click: function(){ getTickets(page()+1, null, 'json', $root.report.selected_status(),
+                 $root.report.selected_type(), $root.report.selected_cart_type(), $root.report.selected_cart_size() )}">Next >></a>
+            </li>
+        </ul>
+       </div>
+
+        <table id="ticket_table" class="table table-sorter table-striped table-hover table-condensed  box-info">
+            <thead>
+            <tr role="row" data-bind="foreach: $root.tickets.ticket_table_headers">
+
+                <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
+                click:function(data, event){$root.tickets.getTickets(
+                1, data, 'json', $root.report.selected_status(), $root.report.selected_type(),
+                $root.report.selected_cart_type(), $root.report.selected_cart_size() )}"></th>
+
+            </tr>
+            </thead>
+            <tbody role="alert" data-bind="foreach: $root.tickets.tickets()">
+            <tr>
+                <td data-bind="text: status"></td>
+                <td data-bind="text: service_type"></td>
+                <td data-bind="text: cart_type_size"></td>
+                <td data-bind="text: cart_type"></td>
+                <td data-bind="text: success_attempts"></td>
+                <td data-bind="text: date_created"></td>
+                <td data-bind="text: date_last_attempted"></td>
+                <td data-bind="text: house_number"></td>
+                <td data-bind="text: street_name"></td>
+                <td data-bind="text: unit"></td>
+                <td><a data-bind="text: serviced_cart, attr: {href:'{% url cart_app_profile %}' + serviced_cart()}"></a>
+                </td>
+                 <td><a data-bind="text: expected_cart, attr: {href:'{% url cart_app_profile %}' + expected_cart()}"></a>
+                </td>
+                <td>
+                    <a class=" btn btn-small, btn-info"
+                       data-bind="attr: {href:'{% url ticket_app_profile %}' + id()}">Open</a>
+                </td>
+                <!-- #TODO put ticket id here for button -->
+            </tbody>
+
+            <tfoot data-bind="visible: $root.tickets.count() == 0 ">
+            <tr>
+                <td class="text-warning">NO TICKETS FOUND</td>
+            </tr>
+            </tfoot>
+        </table>
+
+
+
+    </div>
+
 
 
 
@@ -16,8 +95,16 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsReportViewModel.js"></script>
 <script type="text/javascript">
 
+    var tickets_api_download = "{% url tickets_api_download %}";
+    var ticket_service_type_api = "{% url ticket_service_type_api %}";
+    var ticket_status_api = "{% url ticket_status_api %}";
+    var cart_type_api = "{% url cart_type_api %}";
+
+
     var ticketsReport = {
-        report: new cartlogic.TicketsReportViewModel
+        report:  new cartlogic.TicketsReportViewModel,
+        tickets: new cartlogic.TicketsViewModel
+
     };
 
     ko.applyBindings(ticketsReport, document.getElementById('main'));

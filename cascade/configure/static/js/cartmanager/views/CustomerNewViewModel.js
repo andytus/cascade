@@ -116,7 +116,7 @@
                         //send message to last step
                         self.currentStep(self.stepModels()[self.stepModels().length - 1]);
                     },
-                    error:function (jqXHR, status, error) {
+                    error:function (jqXHR) {
                         //send error message to last step
                         self.currentStep(self.stepModels()[self.stepModels().length - 1]);
                         self.server_message_type("Failed");

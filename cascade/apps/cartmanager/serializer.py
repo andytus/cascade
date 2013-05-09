@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
-    Ticket, AdminDefaults, CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, TicketStatus, TicketComments
+    Ticket, AdminDefaults, CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, TicketStatus,\
+    TicketComments, CartServiceType
 
 #Monkey patch on django rest framework for supporting nulls: https://github.com/tomchristie/django-rest-framework/issues/384
 class NullSerializerPatch(serializers.BaseSerializer):
@@ -173,6 +174,11 @@ class TicketStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = TicketStatus
         exclude = ('site',)
+
+class CartServiceTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = CartServiceType
+        exclude = ("site", )
 
 
 class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):

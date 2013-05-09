@@ -177,7 +177,7 @@
             <tr role="row" data-bind="foreach: ticket_table_headers">
 
                 <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
-                click:function(data, event){$parent.sortTickets(1, data, event)}"></th>
+                click:function(data, event){$parent.getTickets(1, data, 'json')}"></th>
 
             </tr>
             </thead>
@@ -185,6 +185,8 @@
             <tr>
                 <td data-bind="text: status"></td>
                 <td data-bind="text: service_type"></td>
+                <td data-bind="text: cart_type"></td>
+                <td data-bind="text: cart_type_size"></td>
                 <td data-bind="text: success_attempts"></td>
                 <td data-bind="text: date_created"></td>
                 <td data-bind="text: date_last_attempted"></td>
@@ -193,7 +195,6 @@
                 <td data-bind="text: unit"></td>
                 <td><a data-bind="text: serviced_cart, attr: {href:'{% url cart_app_profile %}' + serviced_cart()}"></a>
                 </td>
-                <td data-bind="text: serviced_cart_size"></td>
                 <td><a data-bind="text: expected_cart, attr: {href:'{% url cart_app_profile %}' + expected_cart()}"></a>
                 </td>
                 <td>

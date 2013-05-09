@@ -127,7 +127,6 @@
 
                  },
                  error:function (data, jqXHR) {
-                     //send error message to last step
                      $("#message").addClass("alert-error").show();
                      $("#message-type").text("Error! ");
                      $("#message-text").text(data.statusText);

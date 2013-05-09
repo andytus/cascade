@@ -661,20 +661,20 @@ class CustomersUploadFile(UploadFile):
            # Tickets setup & save for Refuse, Recycling, Other, Yard\Organics:
            # Refactor to dictionary for keys, then for values.
            delivery = CartServiceType.on_site.get(site=site, code="DEL")
-           open = TicketStatus.on_site.get(site=site, service_status="Open")
+           requested = TicketStatus.on_site.get(site=site, service_status="Requested")
 
            if refuse.isdigit():
                for x in range(int(refuse)):
-                   Ticket(cart_type=CartType.on_site.get(site=site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
            if recycle.isdigit():
                for x in range(int(recycle)):
-                   Ticket(cart_type=CartType.on_site.get(site=site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
            if yard_organics.isdigit():
                for x in range(int(yard_organics)):
-                   Ticket(cart_type=CartType.on_site.get(site=site, name="Yard-Organics", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Yard-Organics", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
            if other.isdigit():
                for x in range(int(other)):
-                   Ticket(cart_type=CartType.on_site.get(site=site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=open).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
 
            self.num_good += 1
 

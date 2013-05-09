@@ -1,4 +1,4 @@
-import csv
+from datetime import datetime
 from django.shortcuts import  render
 from django.utils import simplejson
 from django.contrib.sites.models import get_current_site
@@ -20,7 +20,8 @@ from django.db.models import Q
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
     CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, AdminLocationDefaultSerializer,  \
-    CustomerInfoSerializer, CartsUploadFileSerializer, TicketStatusSerializer, TicketCommentSerializer
+    CustomerInfoSerializer, CartsUploadFileSerializer, TicketStatusSerializer, TicketCommentSerializer, \
+    CartServiceTypeSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
 
@@ -224,8 +225,6 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
 
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
-    #TODO make this api except json list of values to filter for each parameter (i.e. select multiple)
-    #TODO deal with missing parameters better i.e. Response with failed status
     model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
@@ -278,7 +277,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     #over ride list method to provide csv download
     def list(self, request, *args, **kwargs):
         if self.request.accepted_renderer.format == "csv":
-            file_name = self.request.QUERY_PARAMS.get('file_name', 'import')
+            file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
             response = HttpResponse(mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             t = loader.get_template('ticket.csv')
@@ -578,7 +577,12 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 if update_status == 'Completed':
                      #get the serviced_cart_serial_number
                     serial_number = json_data.get('serial_number', None)
-                    cart = Cart.on_site.get(serial_number=serial_number)
+                    try:
+                        cart = Cart.on_site.get(serial_number=serial_number)
+                    except Cart.DoesNotExist as e:
+                        return RestResponse({'details':{'message':
+                            'Could not find  a cart with serial number: %s' % serial_number, 'message_type': 'Fail'}},
+                            status=django_rest_status.HTTP_200_OK)
                     status = TicketStatus.on_site.get(service_status=update_status)
                     #change the carts current status to the tickets service type complete status map
                     cart.current_status = ticket.service_type.complete_cart_status_change
@@ -743,6 +747,14 @@ class TicketStatusAPI(ListAPIView):
     def get_queryset(self):
         return  TicketStatus.on_site.all()
 
+class TicketServiceTypeAPI(ListAPIView):
+    model = CartServiceType
+    serializer_class = CartServiceTypeSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+
+    def get_queryset(self):
+        return CartServiceType.on_site.all()
+
 
 class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
     model = CartType
@@ -862,9 +874,6 @@ class UploadFormView(TemplateView):
                                                  "total_count": total_count, "good_count": good_count,
                                                   "error_count": error_count, 'message_type': 'Success'}}),
                                                   content_type="application/json")
-
-
-
 
 class CartUploadView(UploadFormView):
     #form_class = CartsUploadFileForm

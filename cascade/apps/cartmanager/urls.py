@@ -2,7 +2,8 @@ from django.conf.urls import patterns, url
 from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, TicketSearchAPI, TicketsCompletedUploadView, \
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationSearchAPI, CartSearch, CartProfile, \
       CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketProfile, CustomerReport, CartReport, TicketAPI,\
-      CartProfileMap, LocationSearch, CartAddressChange, LocationAPI, CustomerProfile, CustomerNew, AdminDefaultLocation, TicketStatusAPI, TicketCommentAPI
+      CartProfileMap, LocationSearch, CartAddressChange, LocationAPI, CustomerProfile, CustomerNew, AdminDefaultLocation, \
+      TicketStatusAPI, TicketCommentAPI, TicketServiceTypeAPI
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -35,6 +36,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^api/ticket/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketAPI.as_view(), name='ticket_api'),
     url(r'^api/ticket/comment/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketCommentAPI.as_view(), name='ticket_comment_api'),
     url(r'^api/ticket/status/options/$', TicketStatusAPI.as_view(), name='ticket_status_api'),
+    url(r'^api/ticket/service/options/$', TicketServiceTypeAPI.as_view(), name='ticket_service_type_api'),
     url(r'^app/tickets/report/$', TicketReport.as_view(), name='ticket_app_report'),
     url(r'^app/tickets/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketNew.as_view(), name='ticket_app_new'),
     url(r'^app/tickets/profile/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketProfile.as_view(), name='ticket_app_profile'),
