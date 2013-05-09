@@ -1,2 +1,2 @@
-#production requirements
--r  requirements/prod.txt
+#production settings
+-r requirements/common.txt
