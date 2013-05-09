@@ -1,9 +1,10 @@
 from common import *
 
-
 # Parse database configuration from $DATABASE_URL
 from urlparse import urlparse
-
+#import dj_database_url
+#DATABASES['default'] =  dj_database_url.config()
+#
 
 if os.environ.has_key('DATABASE_URL'):
     url = urlparse(os.environ['DATABASE_URL'])
@@ -15,3 +16,12 @@ if os.environ.has_key('DATABASE_URL'):
         'HOST': url.hostname,
         'PORT': url.port,
         }
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SOUTH_DATABASE_ADAPTERS ={
+    'default': "south.db.postgresql_psycopg2"
+
+}
+
+DEBUG = False

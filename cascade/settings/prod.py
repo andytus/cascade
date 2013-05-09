@@ -23,3 +23,5 @@ SOUTH_DATABASE_ADAPTERS ={
 'default': "south.db.postgresql_psycopg2"
 
 }
+
+DEBUG = False
