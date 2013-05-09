@@ -14,4 +14,4 @@ class MultiSiteMiddleware(object):
 
         except Site.DoesNotExist:
             #TODO change redirect ...just for testing
-            return http.Http404
+            raise http.Http404

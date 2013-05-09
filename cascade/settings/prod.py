@@ -16,3 +16,10 @@ if os.environ.has_key('DATABASE_URL'):
         'HOST': url.hostname,
         'PORT': url.port,
         }
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SOUTH_DATABASE_ADAPTERS ={
+'default': "south.db.postgresql_psycopg2"
+
+}
