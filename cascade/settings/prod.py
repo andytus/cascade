@@ -4,7 +4,7 @@ from common import *
 from urlparse import urlparse
 #import dj_database_url
 #DATABASES['default'] =  dj_database_url.config()
-
+#
 
 if os.environ.has_key('DATABASE_URL'):
     url = urlparse(os.environ['DATABASE_URL'])
