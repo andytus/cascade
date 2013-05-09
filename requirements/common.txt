@@ -1,6 +1,7 @@
 Django==1.4
 South==0.7.5
 argparse==1.2.1
+boto==2.9.2
 distribute==0.6.27
 dj-database-url==0.2.1
 django-debug-toolbar==0.9.4
