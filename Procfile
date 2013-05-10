@@ -1,1 +1,1 @@
-web: gunicorn cascade.wsgi
+web: gunicorn cascade.wsgi -b 0.0.0.0:\$PORT -w9
