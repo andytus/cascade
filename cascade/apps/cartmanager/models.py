@@ -658,7 +658,7 @@ class CustomersUploadFile(UploadFile):
            collection_address.full_clean()
            collection_address.save()
 
-           # Tickets setup & save for Refuse, Recycling, Other, Yard\Organics:
+           # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
            # Refactor to dictionary for keys, then for values.
            delivery = CartServiceType.on_site.get(site=site, code="DEL")
            requested = TicketStatus.on_site.get(site=site, service_status="Requested")
