@@ -13,5 +13,5 @@ class MultiSiteMiddleware(object):
             settings.SITE_ID = site.id
 
         except Site.DoesNotExist:
-            #TODO change redirect ...just for testing
+            #TODO change redirect to generic about page
             raise http.Http404
