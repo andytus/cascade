@@ -644,11 +644,13 @@ class CustomersUploadFile(UploadFile):
            yard_organics_size, other, other_size, route, route_day = line.split(',')
 
            customer = CollectionCustomer(site=site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
-                      other_system_id = systemid, phone_number = phone)
+                      phone_number = phone)
 
            #.full_clean checks for the correct data
            customer.full_clean()
            customer.save()
+
+
 
            #TODO: for systemid, need to create ForeignSystemCustomerID, create then save to customer, will need extra fields
            # Collection_Address setup & save:
