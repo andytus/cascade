@@ -656,7 +656,7 @@ class CustomersUploadFile(UploadFile):
            # Collection_Address setup & save:
            collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number,
                                                   street_name=street_name.upper(), unit=unit, city=city, zipcode=zipcode,
-                                                  state=state,latitude=latitude, longitude=longitude)
+                                                  state=state,latitude=latitude, longitude=longitude, property_type='Residential')
            collection_address.full_clean()
            collection_address.save()
 
