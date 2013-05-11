@@ -348,7 +348,7 @@ class Ticket(models.Model):
     processed = models.BooleanField(default=False)
 
 
-    created_by = models.ForeignKey(User, related_name='created_by_user')
+    created_by = models.ForeignKey(User, related_name='created_by_user', null=True, blank=True)
     updated_by = models.ForeignKey(User, related_name="updated_by_user", null=True, blank=True)
 
 
