@@ -884,7 +884,7 @@ class UploadFormView(TemplateView):
 
 class CartUploadView(UploadFormView):
     #form_class = CartsUploadFileForm
-    MODEL = CartsUploadFile
+    MODEL = CartsUploadFile()
     FILE = 'cart_file'
     KIND = 'Cart'
     LINK = 'Cart File Upload'
