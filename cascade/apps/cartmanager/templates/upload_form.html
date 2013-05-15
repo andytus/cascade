@@ -60,6 +60,8 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.fileupload.js"></script>
     <script type="text/javascript">
 
+
+
         $(function () {
             $('#fileupload').fileupload({
                 type:'POST',
@@ -68,6 +70,14 @@
                     $("#upload_button").click(function () {
                         data.context = $('<p/>').text('Uploading...').replaceAll($(this));
                         data.submit();
+                        $("#message").addClass("alert-info").show();
+                        i = 0;
+                        setInterval(function() {
+                            i = ++i % 4;
+                            $("#message-text").text("Uploading"+Array(i+1).join("."));
+                        }, 300);
+
+
                         $("#add-file").hide();
                         $("#progress").show();
                     });
@@ -96,6 +106,7 @@
                     $("#fileupload-message").html("<p> TOTAL RECORDS PROCESSED: "+data.result.details.total_count
                     +"</p><p class='text-success'>SUCCESS: " + data.result.details.good_count +
                             "<p class='text-error'> ERROR:  <a href='{% url upload_errors %}'>"+ data.result.details.error_count +"</a></p>  Retry: <a href=''> {{ link }} </a>");
+                    $("#message").addClass("alert-info").hide();
 
                 },
                 fail:function (e, data) {
