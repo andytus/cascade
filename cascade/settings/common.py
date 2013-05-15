@@ -85,7 +85,7 @@ STATICFILES_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     )
-print STATICFILES_DIRS
+
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'django_rq',
     'rest_framework',
     'south',
     'storages',

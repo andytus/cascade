@@ -1,4 +1,4 @@
-rfid, SystemID, HouseNumber, StreetName, UnitNumber, ServiceType{% for row in data%}
-'{{row.expected.rfid}}',{{row.id}},{{row.location.house_number}},{{row.location.street_name}},{{row.location.unit}},{{row.expected.cart_type.size}}{{row.cart_type.size}}{{row.service_type.code}}{% endfor %}
+SystemID, StreetName, HouseNumber, UnitNumber, ServiceType, RFID, CartSize, CartType {% for row in data%}
+{{row.id}},{{row.location.street_name}},{{row.location.house_number}},{% if row.location.unit == None %}{% else %}{{row.location.unit}}{% endif %},{{row.service_type.code}},'{{row.expected_cart.rfid}}',{{row.cart_type.size}},{{row.cart_type.name}}{% endfor %}
 
 

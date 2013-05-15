@@ -39,4 +39,22 @@ SOUTH_DATABASE_ADAPTERS ={
 
 
 
-DEBUG = False
+DEBUG = True
+
+
+RQ_QUEUES = {
+    'default': {
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'PORT': 6379,
+        'DB': 0,
+        },
+    'high': {
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'), # Heroku
+        'DB': 0,
+        },
+    'low': {
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'PORT': 6379,
+        'DB': 0,
+        }
+}

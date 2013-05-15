@@ -100,7 +100,6 @@ class TicketStatus(models.Model):
     level = models.CharField(max_length=35, choices=LEVEL)
     service_status = models.CharField(max_length=30)
 
-
     site = models.ManyToManyField(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
@@ -468,7 +467,7 @@ class UploadFile(models.Model):
         self.num_good = 0
         self.num_error = 0
 
-        #self.records_processed = process
+        self.records_processed = process
 
         file = self.file_path
         # Read just the first header row:
@@ -536,12 +535,14 @@ class TicketsCompleteUploadFile(UploadFile):
     def save_records(self, line, site, process_records):
         try:
             # Get imported files data
-            system_id, street, house_number, unit_number, container_size, container_type, rfid, upload_ticket_status, service_type, \
+            # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType,RFID,ContainerSize,ContainerType,TicketStatus,DateTime,UserName,Latitude,Longitude,BrokenComponent,Comments
+            system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status, \
             complete_datetime, device_name, lat, lon, broken_component, broken_comments = line.split(',')
 
             ticket = Ticket.on_site.get(site=site, id=system_id)
             # Cart Service status object
-            time_format = '%m/%d/%Y %H:%M' #matches time as 11/1/2012 15:20
+            time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
+            print upload_ticket_status
 
             # check for status uploaded or complete, because you don't want to over write already completed tickets.
             if ticket.status.service_status != 'Uploaded' and ticket.status.service_status != 'Completed':
@@ -588,6 +589,7 @@ class TicketsCompleteUploadFile(UploadFile):
                 ticket.processed = True
 
                 if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
+                    print cart
                     cart.location = ticket.location
                     cart.current_status = ticket.service_type.complete_cart_status_change
                     print "in DEL Proccessing"
@@ -673,7 +675,7 @@ class CustomersUploadFile(UploadFile):
                    Ticket(cart_type=CartType.on_site.get(site=site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
            if yard_organics.isdigit():
                for x in range(int(yard_organics)):
-                   Ticket(cart_type=CartType.on_site.get(site=site, name="Yard-Organics", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
+                   Ticket(cart_type=CartType.on_site.get(site=site, name="Yard", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()
            if other.isdigit():
                for x in range(int(other)):
                    Ticket(cart_type=CartType.on_site.get(site=site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=requested).save()

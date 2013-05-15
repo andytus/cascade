@@ -16,6 +16,8 @@ from rest_framework.response import Response as RestResponse
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from cascade.libs.renderers import CSVRenderer
 from django.db.models import Q
+from django_rq import enqueue
+from cascade.libs.uploads import process_upload_records
 
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
@@ -857,18 +859,23 @@ class UploadFormView(TemplateView):
         #TODO for now it is just True
         process = request.POST.get('process', True)
         context = self.get_context_data(**kwargs)
+       #TODO Remove upload_file = self.MODEL()
         upload_file = self.MODEL
         file = self.request.FILES['upload_file']
         #looks for csv type file
         if file.content_type == "application/vnd.ms-excel" or "text/csv":
             upload_file.file_path =  file
             upload_file.size = file.size
-            upload_file.records_processed = process
+            upload_file.records_processed = False
             upload_file.file_kind = self.KIND
+            upload_file.status = 'UPLOADED'
             upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
             upload_file.uploaded_by = self.request.user
             upload_file.save()
             #Here the records are processed
+            #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
+            #enqueue(process_upload_records, self.MODEL, upload_file.site, upload_file.id)
+            #total_count, good_count, error_count = (1,2,3)
             total_count, good_count, error_count = upload_file.process(process)
             return HttpResponse(simplejson.dumps({'details':{'message': "Saved %s" % self.FILE,
                                                  "total_count": total_count, "good_count": good_count,
@@ -877,7 +884,7 @@ class UploadFormView(TemplateView):
 
 class CartUploadView(UploadFormView):
     #form_class = CartsUploadFileForm
-    MODEL = CartsUploadFile()
+    MODEL = CartsUploadFile
     FILE = 'cart_file'
     KIND = 'Cart'
     LINK = 'Cart File Upload'
