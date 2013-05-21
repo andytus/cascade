@@ -117,34 +117,34 @@
         }
     }
 
-  cartlogic.MapStyle = MapStyle;
+    cartlogic.MapStyle = MapStyle;
 
 
- function GeocodeMap(element, lat_element, lon_element, status_element, options) {
+    function GeocodeMap(element, lat_element, lon_element, status_element, options) {
         var self = this;
 
-         console.log(options.address);
+        console.log(options.address);
 
-         self.geocode = function () {
+        self.geocode = function () {
             //Planning to add other client geocoders in the future this is a reminder of where to do it
 
             if (options.coder == 'google') {
-               geocoder = new google.maps.Geocoder();
+                geocoder = new google.maps.Geocoder();
 
-               geocoder.geocode({'address':options.address}, function (results, status) {
+                geocoder.geocode({'address':options.address}, function (results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         var lat = results[0].geometry.location.lat();
                         var lon = results[0].geometry.location.lng();
 
-                         $("#map_address_wrapper").html('<img src="https://maps.googleapis.com/maps/api/staticmap?center='+ lat+','+lon +'&zoom=16&size=600x275&maptype=roadmap&markers' +
-                            '=color:blue%7Clabel:*%7C' +lat + ',' + lon + '&style='+'&sensor=false" />');
+                        $("#map_address_wrapper").html('<img src="https://maps.googleapis.com/maps/api/staticmap?center=' + lat + ',' + lon + '&zoom=16&size=600x275&maptype=roadmap&markers' +
+                            '=color:blue%7Clabel:*%7C' + lat + ',' + lon + '&style=' + '&sensor=false" />');
 
-                            $("#" + lat_element).val(lat);
-                            $("#" + lon_element).val(lon);
-                            $("#" + status_element).val(results[0].geometry.location_type);
+                        $("#" + lat_element).val(lat);
+                        $("#" + lon_element).val(lon);
+                        $("#" + status_element).val(results[0].geometry.location_type);
 
                     } else {
-                        element.innerHTML = "<h2 class='text-error'>Geocode was not successful for the following reason: " + status +"</h2>";
+                        element.innerHTML = "<h2 class='text-error'>Geocode was not successful for the following reason: " + status + "</h2>";
                     }
                 });
             }
@@ -156,9 +156,11 @@
 
     function Marker(type, info) {
         var self = this;
-
+        var image = null;
+        self.drag = false;
         if (type == 'cart') {
-            var image = new google.maps.MarkerImage(
+            self.drag = true;
+            image = new google.maps.MarkerImage(
                 static_url + 'img/marker-images/image.png',
                 new google.maps.Size(40, 50),
                 new google.maps.Point(0, 0),
@@ -182,12 +184,27 @@
                     5, 14, 4, 13, 4, 12, 4, 11, 4, 10, 3, 9, 3, 8, 3, 7, 2, 6, 6, 5, 15, 4, 35, 4],
                 type:'poly'
             };
+        } else if (type == 'Residential') {
+
+            image = new google.maps.MarkerImage(
+                static_url + 'img/marker-images/bighouse.png',
+                new google.maps.Size(40, 50),
+                new google.maps.Point(0, 0),
+                new google.maps.Point(20, 50)
+            );
+        } else {
+
+            image = new google.maps.MarkerImage(
+                static_url + 'img/marker-images/office-building.png',
+                new google.maps.Size(40, 50),
+                new google.maps.Point(0, 0),
+                new google.maps.Point(20, 50)
+                );
         }
 
-
         self.marker = new google.maps.Marker({
-            draggable:true,
-            raiseOnDrag:true,
+            draggable:self.drag,
+            raiseOnDrag:self.drag,
             icon:image,
             shadow:shadow,
             shape:shape,

@@ -61,7 +61,7 @@
                 </div>
 
                 <form class="form-inline well cart-info-edit-section"
-                      data-bind="submit: $root.profile.saveCartData">
+                      data-bind="submit: $root.profile.updateCartInfo">
                     <fieldset>
                         <div class="control-group">
                             <button id="cart-info-edit-submit" class="cart-info-btn btn btn-info btn-large"
@@ -158,6 +158,25 @@
 
         </table>
 
+    </div>
+
+
+    <div id="update_coordinates" style="display: none;" class="modal hide fade modal-font" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+
+            <h3>Confirm Update Coordinates</h3>
+        </div>
+        <div class="modal-body" id="update_coordinates_confirm">
+            Latitude   (Y): <i id="set_latitude"></i><br>
+            Longitude  (X): <i id="set_longitude"></i>
+        </div>
+        <div class="modal-footer">
+             <button data-bind="click: $root.profile.updateCoordinates" class="btn btn-success">Update</button>
+            <a href="#" class="btn" data-dismiss="modal">Close</a>
+        </div>
     </div>
 
 

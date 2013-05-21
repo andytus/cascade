@@ -421,7 +421,9 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
             #grabbing values to be updated or None
             cart_type_id = json_data.get('cart_type', None)
             current_status_id = json_data.get('current_status', None)
-            location_id = json_data.get('location', None)
+            location_id = json_data.get('location_id', None)
+            latitude = json_data.get('latitude', None)
+            longitude = json_data.get('longitude', None)
 
             #check for cart type and save to cart, if None then no value given skip it
             if cart_type_id:
@@ -431,11 +433,16 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
             if current_status_id:
                 cart.current_status = CartStatus.on_site.get(pk=current_status_id)
 
-            #check for location and update lat + long
+            #check for location and update latitude + longitude to collection address lat and long
             if location_id:
                 cart.location = CollectionAddress.on_site.get(pk=location_id)
                 cart.last_latitude = cart.location.latitude
                 cart.last_longitude = cart.location.longitude
+
+            #check for latitude and longitude (map moves)
+            if latitude and longitude:
+                cart.last_latitude = latitude
+                cart.last_longitude = longitude
 
             cart.save()
             #RestResponse({'details':{'message':'Success! New %s Ticket(s) created for %s' % (requested_service_type, location), 'message_type': 'Success'}}, status=django_rest_status.HTTP_201_CREATED)
@@ -860,7 +867,7 @@ class UploadFormView(TemplateView):
         process = request.POST.get('process', True)
         context = self.get_context_data(**kwargs)
        #TODO Remove upload_file = self.MODEL()
-        upload_file = self.MODEL
+        upload_file = self.MODEL()
         file = self.request.FILES['upload_file']
         #looks for csv type file
         if file.content_type == "application/vnd.ms-excel" or "text/csv":
@@ -874,17 +881,16 @@ class UploadFormView(TemplateView):
             upload_file.save()
             #Here the records are processed
             #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
-            #enqueue(process_upload_records, self.MODEL, upload_file.site, upload_file.id)
+            enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
             #total_count, good_count, error_count = (1,2,3)
-            total_count, good_count, error_count = upload_file.process(process)
+            total_count, good_count, error_count = (1,2,3) #upload_file.process(process)
             return HttpResponse(simplejson.dumps({'details':{'message': "Saved %s" % self.FILE,
                                                  "total_count": total_count, "good_count": good_count,
                                                   "error_count": error_count, 'message_type': 'Success'}}),
                                                   content_type="application/json")
-
 class CartUploadView(UploadFormView):
     #form_class = CartsUploadFileForm
-    MODEL = CartsUploadFile()
+    MODEL = CartsUploadFile
     FILE = 'cart_file'
     KIND = 'Cart'
     LINK = 'Cart File Upload'

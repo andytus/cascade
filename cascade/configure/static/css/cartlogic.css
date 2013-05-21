@@ -520,3 +520,8 @@ table.table-sorter thead tr .sort-up{
     padding-bottom: 1em;
 
 }
+
+.modal-font{
+    font-size: 1.3em;
+    text-align: center;
+}

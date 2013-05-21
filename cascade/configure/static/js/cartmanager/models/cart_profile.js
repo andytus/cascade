@@ -38,6 +38,7 @@ function CartProfile(data){
         }
         return address
     });
+
     self.location_latitude = ko.observable(data.location.latitude);
     self.location_longitude = ko.observable(data.location.longitude);
     self.location_type = ko.observable(data.location.type);

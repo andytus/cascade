@@ -111,7 +111,7 @@ class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = Cart
         depth = 1
-        exclude = ('site',)
+        exclude = ('site', 'updated_by', 'inventory_location')
 
 class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
     location = GetInfoRelatedField(source='location')

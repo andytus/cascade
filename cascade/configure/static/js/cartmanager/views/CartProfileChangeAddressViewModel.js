@@ -41,7 +41,7 @@
 
 
         self.saveCartAddress = function(){
-            var data = {"location": self.address_id()};
+            var data = {"location_id": self.address_id()};
             $.ajax(cart_api_profile + serial_number, {
                 data:ko.toJSON(data),
                 type:"post", contentType:"application/json",
