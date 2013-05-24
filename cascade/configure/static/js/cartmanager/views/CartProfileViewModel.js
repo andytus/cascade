@@ -84,17 +84,20 @@
         };
 
         self.saveCartData = function (data) {
+            console.log("data in:");
+            console.log(data);
             $.ajax(cart_api_profile + cart_serial_number, {
                 data:ko.toJSON(data),
                 type:"post", contentType:"application/json",
                 dataType:"jsonp",
                 success:function (data) {
+                    console.log(data);
                     self.cart().last_updated(new Date(data.details.time).toDateString());
                     //refresh cart info on page
                     self.setCartInfo();
                     $("#message-type").text(data.details.message_type + "! ");
                     $("#message-text").text(data.details.message);
-                    $('.close').click(function () {
+                    $('.close').click(function() {
                         $('#message').hide();
                     });
                     if (data.details.message_type == 'Success') {
@@ -107,6 +110,7 @@
                     // self.getCartData()
                 },
                 error:function (data) {
+                    console.log(data);
                     $("#message").addClass("alert-error").show();
                     $("#message-type").text("Error! ");
                     $("#message-text").text(data.statusText);
