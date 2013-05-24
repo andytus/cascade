@@ -19,7 +19,6 @@
         self.cart_status_options = ko.observableArray([]);
         self.cart_type_options = ko.observableArray([]);
 
-
         self.getCartData = function () {
             $.ajax({
                 url:cart_api_profile + cart_serial_number,

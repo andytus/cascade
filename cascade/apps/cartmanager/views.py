@@ -865,8 +865,7 @@ class UploadFormView(TemplateView):
         #TODO implement processing option
         #TODO for now it is just True
         process = request.POST.get('process', True)
-        context = self.get_context_data(**kwargs)
-       #TODO Remove upload_file = self.MODEL()
+        self.get_context_data(**kwargs)
         upload_file = self.MODEL()
         file = self.request.FILES['upload_file']
         #looks for csv type file
@@ -880,9 +879,10 @@ class UploadFormView(TemplateView):
             upload_file.uploaded_by = self.request.user
             upload_file.save()
             #Here the records are processed
-            #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
-            enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
-            #total_count, good_count, error_count = (1,2,3)
+            if process:
+                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
+                #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
+            #TODO send back file id and kind for a link to file processing view
             total_count, good_count, error_count = (1,2,3) #upload_file.process(process)
             return HttpResponse(simplejson.dumps({'details':{'message': "Saved %s" % self.FILE,
                                                  "total_count": total_count, "good_count": good_count,
@@ -892,21 +892,21 @@ class CartUploadView(UploadFormView):
     #form_class = CartsUploadFileForm
     MODEL = CartsUploadFile
     FILE = 'cart_file'
-    KIND = 'Cart'
+    KIND = 'Carts'
     LINK = 'Cart File Upload'
 
 
 class CustomerUploadView(UploadFormView):
     #form_class = CustomerUploadFileForm
-    MODEL = CustomersUploadFile()
+    MODEL = CustomersUploadFile
     FILE = 'customer_file' #is an attribute on CustomerUploadFileForm
-    KIND = 'Customer'
+    KIND = 'Customers'
     LINK = 'Customer File Upload'
 
 
 class TicketsCompletedUploadView(UploadFormView):
     form_class = TicketsCompletedUploadFileForm
-    MODEL = TicketsCompleteUploadFile()
+    MODEL = TicketsCompleteUploadFile
     FILE = 'ticket_file'
-    KIND = 'Ticket'
+    KIND = 'Tickets'
     LINK = 'Ticket Upload'

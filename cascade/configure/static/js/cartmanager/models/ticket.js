@@ -46,7 +46,7 @@ function Ticket(data) {
         self.success_attempts(data.success_attempts);
         self.date_created(new Date(data.date_created).toDateString());
         self.date_last_attempted(new Date(data.date_last_attempted).toDateString());
-        if (data.completed){
+        if (data.date_completed){
             self.date_completed(new Date(data.date_completed).toDateString());
         }
         self.house_number(data.house_number);
