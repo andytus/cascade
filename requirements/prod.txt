@@ -1,2 +1,3 @@
 #used for production  requirements/prod.txt
 -r common.txt
+newrelic
