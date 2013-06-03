@@ -166,8 +166,8 @@ def save_ticket_records(line, site, file_record):
 def save_customer_records(line, site, file_record):
     try:
         #Customer setup & save:
-        systemid, system_name, first_name, last_name, phone, email, house_number, street_name,unit,city,\
-        state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
+        systemid, system_name,first_name, last_name, phone, email, house_number, street_name,unit,city,\
+        state, zipcode, property_type, latitude, longitude, rfids, recycle, recycle_size, refuse, refuse_size, yard_organics,\
         yard_organics_size, other,  other_size, route, route_day = line.split(',')
 
         customer = CollectionCustomer(site=site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
@@ -177,6 +177,7 @@ def save_customer_records(line, site, file_record):
         customer.full_clean()
         customer.save()
 
+        # systemid should be zero as default
         if systemid:
             new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer, system_name=system_name, site=site)
             new_foreign_system_id.save()
@@ -192,6 +193,15 @@ def save_customer_records(line, site, file_record):
         collection_address.save()
         print customer
         print collection_address
+
+
+        #carts used to assign existing carts to customers should be zero by default
+        if rfids:
+            carts = rfids.strip().split(" ")
+            for x in carts:
+                cart = Cart.objects.get(site=site, rfid=x)
+                cart.location = collection_address
+                cart.save()
 
 
         # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
