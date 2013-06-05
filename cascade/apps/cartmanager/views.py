@@ -880,10 +880,10 @@ class UploadFormView(TemplateView):
             upload_file.save()
             #Here the records are processed
             if process:
-                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
-                #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
+                #enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
+                process_upload_records(self.MODEL, upload_file.site, upload_file.id)
             #TODO send back file id and kind for a link to file processing view
-            total_count, good_count, error_count = (1,2,3) #upload_file.process(process)
+            total_count, good_count, error_count = (1,2,3)
             return HttpResponse(simplejson.dumps({'details':{'message': "Saved %s" % self.FILE,
                                                  "total_count": total_count, "good_count": good_count,
                                                   "error_count": error_count, 'message_type': 'Success'}}),

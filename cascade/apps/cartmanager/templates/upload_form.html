@@ -103,9 +103,7 @@
                 done:function (e, data) {
                     data.context.text('Upload finished');
                     console.log(data.result)
-                    $("#fileupload-message").html("<p> TOTAL RECORDS PROCESSED: "+data.result.details.total_count
-                    +"</p><p class='text-success'>SUCCESS: " + data.result.details.good_count +
-                            "<p class='text-error'> ERROR:  <a href='{% url upload_errors %}'>"+ data.result.details.error_count +"</a></p>  Retry: <a href=''> {{ link }} </a>");
+                    $("#fileupload-message").html("<p>Upload Complete <a href=''> {{ link }} </a></p>");
                     $("#message").addClass("alert-info").hide();
 
                 },

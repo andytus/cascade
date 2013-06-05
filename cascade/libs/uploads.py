@@ -26,13 +26,24 @@ def save_error(e, line):
 def save_cart_records(line, site, file_record):
 
     try:
-        status = CartStatus.objects.get(label = 'Inventory')
-        rfid, serial, size, cart_type, born_date = line.split(',')
+        rfid, serial, size, cart_type, born_date, status, house, street, unit = line.split(',')
         # get cart type by name
         cart_type = CartType.objects.get(name=cart_type, size=size)
+        cart_status = CartStatus.objects.get(label=status)
         cart = Cart(site=site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number = serial,
                     size=size, inventory_location = InventoryAddress.on_site.get(default=True), file_upload = file_record,
-                    cart_type=cart_type, current_status=status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+                    cart_type=cart_type, current_status=cart_status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+        try:
+            if status == 'Delivered':
+                location = CollectionAddress.objects.get(site=site, house_number=int(house.strip()), street_name=street.strip())
+                if location:
+                    cart.location = location
+                    cart.at_inventory = False
+            else:
+                cart.at_inventory = True
+        except Exception as e:
+            cart.at_inventory = True
+
         cart.full_clean()
         cart.save()
         file_record.num_good +=1
@@ -167,7 +178,7 @@ def save_customer_records(line, site, file_record):
     try:
         #Customer setup & save:
         systemid, system_name,first_name, last_name, phone, email, house_number, street_name,unit,city,\
-        state, zipcode, property_type, latitude, longitude, rfids, recycle, recycle_size, refuse, refuse_size, yard_organics,\
+        state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
         yard_organics_size, other,  other_size, route, route_day = line.split(',')
 
         customer = CollectionCustomer(site=site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
@@ -186,23 +197,21 @@ def save_customer_records(line, site, file_record):
 
         #TODO: for systemid, need to create ForeignSystemCustomerID, create then save to customer, will need extra fields
         # Collection_Address setup & save:
-        collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number,
-            street_name=street_name.upper(), unit=unit, city=city, zipcode=zipcode,
+        collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number.strip(),
+            street_name=street_name.strip().upper(), unit=unit.strip(), city=city, zipcode=zipcode,
             state=state,latitude=latitude, longitude=longitude, property_type=property_type)
         collection_address.full_clean()
         collection_address.save()
-        print customer
-        print collection_address
 
 
-        #carts used to assign existing carts to customers should be zero by default
-        if rfids:
-            carts = rfids.strip().split(" ")
-            for x in carts:
-                cart = Cart.objects.get(site=site, rfid=x)
-                cart.location = collection_address
-                cart.save()
-
+#        #carts used to assign existing carts to customers should be zero by default
+#        if rfids:
+#            carts = rfids.strip().split(" ")
+#            for x in carts:
+#                cart = Cart.objects.get(site=site, rfid=x)
+#                cart.location = collection_address
+#                cart.save()
+#
 
         # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
         # Refactor to dictionary for keys, then for values.
