@@ -35,7 +35,7 @@ def save_cart_records(line, site, file_record):
                     cart_type=cart_type, current_status=cart_status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
         try:
             if status == 'Delivered':
-                location = CollectionAddress.objects.get(site=site, house_number=int(house.strip()), street_name=street.strip())
+                location = CollectionAddress.objects.get(site=site, house_number=house.strip(), street_name=street)
                 if location:
                     cart.location = location
                     cart.at_inventory = False
