@@ -32,7 +32,7 @@ def save_cart_records(line, site, file_record):
         cart_status = CartStatus.objects.get(label=status)
         cart = Cart(site=site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number = serial,
                     size=size, inventory_location = InventoryAddress.objects.get(site=site, default=True), file_upload = file_record,
-                    cart_type=cart_type, current_status=cart_status, born_date=datetime.strpstime(born_date.strip(), "%m/%d/%Y"))
+                    cart_type=cart_type, current_status=cart_status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
         try:
             if status == 'Delivered':
                 location = CollectionAddress.objects.get(site=site, house_number=house.strip(), street_name=street)
