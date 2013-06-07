@@ -17,9 +17,6 @@ if os.environ.has_key('DATABASE_URL'):
         'PORT': url.port,
         }
 
-
-
-
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJYAYIRX5I4M2KBYQ'

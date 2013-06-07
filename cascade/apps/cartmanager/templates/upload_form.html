@@ -101,9 +101,9 @@
 
 
                 done:function (e, data) {
-                    data.context.text('Upload finished');
-                    console.log(data.result)
-                    $("#fileupload-message").html("<p>Upload Complete <a href=''> {{ link }} </a></p>");
+                    data.context.text('Upload finished')
+                    console.log(data)
+                    $("#fileupload-message").html("<p>Success...Upload Complete</p><p>View Details: "+data.result.details.file_id+"</p>");
                     $("#message").addClass("alert-info").hide();
 
                 },

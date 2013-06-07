@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.contrib.sites.models import Site
 #from django.db import transaction
+#note the import of the *UploadFile may not be needed, as they are passed through by the view
 from cascade.apps.cartmanager.models import CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, \
 Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, TicketStatus, TicketComments, CollectionCustomer, \
 CartServiceType, CollectionAddress, ForeignSystemCustomerID
@@ -66,7 +67,6 @@ def save_ticket_records(line, site, file_record):
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
-        print comment
         if ticket.status.service_status != 'Completed':
 
             if lat:
@@ -204,17 +204,7 @@ def save_customer_records(line, site, file_record):
         collection_address.save()
 
 
-#        #carts used to assign existing carts to customers should be zero by default
-#        if rfids:
-#            carts = rfids.strip().split(" ")
-#            for x in carts:
-#                cart = Cart.objects.get(site=site, rfid=x)
-#                cart.location = collection_address
-#                cart.save()
-#
-
         # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
-        # Refactor to dictionary for keys, then for values.
         delivery = CartServiceType.on_site.get(site=site, code="DEL")
         requested = TicketStatus.on_site.get(site=site, service_status="Requested")
         user = file_record.uploaded_by

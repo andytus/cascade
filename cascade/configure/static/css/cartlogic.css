@@ -506,7 +506,7 @@ table.table-sorter thead tr .sort-up{
 
 .modal-body {
     max-height: 800px;
-    overflow-y:visible;
+    overflow-y: auto;
 
 }
 

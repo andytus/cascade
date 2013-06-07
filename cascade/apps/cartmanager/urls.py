@@ -3,7 +3,7 @@ from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, Custo
       CartProfileAPI, CartSearchAPI, CustomerProfileAPI, LocationSearchAPI, CartSearch, CartProfile, \
       CartStatusAPI, CartTypeAPI, TicketSearchAPI, TicketReport, TicketNew, TicketProfile, CustomerReport, CartReport, TicketAPI,\
       CartProfileMap, LocationSearch, CartAddressChange, LocationAPI, CustomerProfile, CustomerNew, AdminDefaultLocation, \
-      TicketStatusAPI, TicketCommentAPI, TicketServiceTypeAPI
+      TicketStatusAPI, TicketCommentAPI, TicketServiceTypeAPI, CartFileUploadAPI
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -29,6 +29,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^app/location/search/$', LocationSearch.as_view(), name='location_app_search'),
     url(r'^api/status/options/$', CartStatusAPI.as_view(), name='cart_status_api' ),
     url(r'^upload/carts/$', CartUploadView.as_view(), name='cart_uploads'),
+    url(r'^api/upload/carts/files/', CartFileUploadAPI.as_view(), name='carts_api_upload_files'),
     url(r'^upload/errors/', DataErrorsView.as_view(), name='upload_errors'),
     url(r'^upload/customers/', CustomerUploadView.as_view(), name='customer_uploads'),
     url(r'^upload/tickets/completed/', TicketsCompletedUploadView.as_view(), name='tickets_completed_upload' ),
@@ -40,6 +41,6 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
     url(r'^app/tickets/report/$', TicketReport.as_view(), name='ticket_app_report'),
     url(r'^app/tickets/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketNew.as_view(), name='ticket_app_new'),
     url(r'^app/tickets/profile/(?P<ticket_id>[a-zA-Z0-9]+)?$', TicketProfile.as_view(), name='ticket_app_profile'),
+    )
 
- )
 urlpatterns = format_suffix_patterns(urlpatterns)

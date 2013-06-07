@@ -334,7 +334,7 @@ class LocationAPI(LoginSiteRequiredMixin, APIView):
             else:
                 location = self.get_object(location_id)
                 if operation == 'remove':
-                #Make sure the customer is current assigned to the address #TODO test else
+                #Make sure the customer is currently assigned to the address #TODO test else
                     if location.customer == customer:
                         location.customer = None
                         location.save()
@@ -724,22 +724,6 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
                                     status=django_rest_status.HTTP_200_OK)
 
 
-
-##TODO thinking about a change location update only
-#class UpdateCartLocationAPI(RetrieveModelMixin,UpdateModelMixin, SingleObjectAPIView ):
-#    model = Cart
-#    serializer_class = CartLocationUpdateSerializer
-#
-#    def get(self, request, *args, **kwargs):
-#        return self.retrieve(request, *args, **kwargs)
-#
-#    def put(self, request, *args, **kwargs):
-#        return self.update(request, *args, **kwargs)
-#
-#    def delete(self, request, *args, **kwargs):
-#        return self.destroy(request, *args, **kwargs)
-
-
 class CartStatusAPI(ListAPIView):
     model = CartStatus
     serializer_class = CartStatusSerializer
@@ -779,6 +763,12 @@ class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
             queryset = CartType.on_site.all()
             return queryset
 
+class CartFileUploadAPI(LoginSiteRequiredMixin, ListAPIView):
+    model = CartsUploadFile
+    serializer_class = CartsUploadFileSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    queryset =  CartsUploadFile.on_site.all()
+
 
 ########################################################################################################################
 #End of API Views
@@ -793,52 +783,6 @@ class DataErrorsView(ListView):
     def get_context_data(self, **kwargs):
         context = super(DataErrorsView, self).get_context_data(**kwargs)
         return context
-
-
-#class UploadFormView(FormView):
-#    """
-#     A base view for rendering upload forms.
-#
-#     Subclasses FormView from django.
-#     Expects process boolean and csv file type
-#
-#    """
-#    template_name = 'upload_form.html'
-#    form_class = None
-#    MODEL = None
-#    FILE = None
-#    KIND = None
-#    LINK = None
-#
-#
-#    def form_valid(self, form, **kwargs):
-#        if self.request.POST.get('process'):
-#            process = True
-#        else:
-#            process = False
-#        context = self.get_context_data(**kwargs)
-#        upload_file = self.MODEL
-#        file = self.request.FILES[self.FILE]
-#
-#        if file.content_type == "application/vnd.ms-excel" or "text/csv":
-#            upload_file.file_path =  file
-#            upload_file.size = file.size
-#            upload_file.records_processed = process
-#            upload_file.file_kind = self.KIND
-#            upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
-#            upload_file.uploaded_by = self.request.user
-#            upload_file.save()
-#            total_count, good_count, error_count = upload_file.process(process)
-##            context['total_count'] = total_count
-##            context['good_count'] = good_count
-##            context['error_count'] = error_count
-##            context['form'] = self.form_class
-##            context['link'] = self.LINK
-##            context['completed'] = True
-##            return self.render_to_response(context)
-#
-#            return self.render_to_response({'details':{'message': "Saved %s" % self.FILE, "total_count": total_count, "good_count": good_count, 'message_type': 'Success'}},
-#                status=django_rest_status.HTTP_200_OK)
 
 class UploadFormView(TemplateView):
     """
@@ -883,10 +827,8 @@ class UploadFormView(TemplateView):
                 enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
                 #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
             #TODO send back file id and kind for a link to file processing view
-            total_count, good_count, error_count = (1,2,3)
             return HttpResponse(simplejson.dumps({'details':{'message': "Saved %s" % self.FILE,
-                                                 "total_count": total_count, "good_count": good_count,
-                                                  "error_count": error_count, 'message_type': 'Success'}}),
+                                                  'file_id': upload_file.id, 'message_type': 'Success'}}),
                                                   content_type="application/json")
 class CartUploadView(UploadFormView):
     #form_class = CartsUploadFileForm
