@@ -54,10 +54,14 @@
 {% endblock %}
 
 {% block page_scripts %}
+ {% load compressed %}
+{% compressed_js 'vendor_jquery_uploads' %}
 
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.ui.widget.js"></script>
+  {% comment %}  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.ui.widget.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.fileupload.js"></script>
+  {% endcomment %}
+
     <script type="text/javascript">
 
 

@@ -90,9 +90,16 @@
 
 
 {% block page_scripts %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
+    {% load compressed %}
+    {% compressed_js 'models_ticket' %}
+    {% compressed_js 'views_tickets_list' %}
+    {% compressed_js 'views_tickets_report' %}
+
+{% comment %}<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsReportViewModel.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsReportViewModel.js"></script>{% endcomment %}
+
+
 <script type="text/javascript">
 
     var tickets_api_download = "{% url tickets_api_download %}";

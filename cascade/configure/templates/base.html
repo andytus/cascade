@@ -1,12 +1,19 @@
+
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
       lang="en">
 <head>
+    {% load compressed %}
 
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+    {% compressed_css 'vendor_bootstrap' %}
+    {% compressed_css 'fonts' %}
+    {% compressed_css 'cartlogic' %}
+
+   {% comment %} <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cartlogic.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/cartlogic.css">{% endcomment %}
 
     {% block styles %}
 
@@ -185,15 +192,21 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
 </script>
 
+{% load compressed %}
+{% compressed_js 'vendor_common' %}
+{% compressed_js 'views_cart_search' %}
+{% compressed_js 'models_cart_type' %}
+{% compressed_js 'ajax' %}
 
+{% comment %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/utilities/ajax.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap-tab.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.debug.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout.mapping.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartSearchViewModel.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_type.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_type.js"></script>{% endcomment %}
 
 
 <script type="text/javascript">

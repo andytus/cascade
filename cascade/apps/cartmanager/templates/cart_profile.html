@@ -191,15 +191,21 @@
 {% endblock %}
 
 {% block page_scripts %}
+    {% load compressed %}
+    {% compressed_js 'models_cart_profile' %}
+    {% compressed_js 'models_map' %}
+    {% compressed_js 'models_cart_status' %}
+    {% compressed_js 'views_cart_profile' %}
+    {% compressed_js 'models_ticket' %}
+    {% compressed_js 'views_tickets_list' %}
 
-
-
+  {% comment %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/map.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_status.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>{% endcomment %}
 
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->

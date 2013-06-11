@@ -157,11 +157,19 @@
     <p data-bind="text: $root.create.server_message"></p>
 
 </script>
+{% load compressed %}
+{% compressed_js 'views_ticket_create' %}
+{% compressed_js 'models_form_steps' %}
+{% compressed_js 'models_location' %}
 
 
+{% comment %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketCreateViewModel.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
+{% endcomment %}
+
+
 <script type="text/javascript">
     //Globals coming from incoming request
     var cart_serial_number = '{{ serial_number }}' || null;

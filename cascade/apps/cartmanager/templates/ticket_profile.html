@@ -121,11 +121,16 @@
 {% endblock %}
 
 {% block page_scripts %}
+    {% load compressed %}
+    {% compressed_js 'views_ticket_profile' %}
+    {% compressed_js 'models_ticket' %}
+    {% compressed_js 'models_comments' %}
+    {% compressed_js 'models_ticket_status' %}
 
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketProfileViewModel.js"></script>
+   {% comment %} <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketProfileViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/comments.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket_status.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket_status.js"></script>{% endcomment %}
 
     <script type="text/javascript">
         var user_name = '{{ user.username }}';

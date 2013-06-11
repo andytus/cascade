@@ -18,7 +18,7 @@ if os.environ.has_key('DATABASE_URL'):
         }
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+STATICFILES_STORAGE = 'libs.storage.S3PipelineStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJYAYIRX5I4M2KBYQ'
 AWS_SECRET_ACCESS_KEY = "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"
 AWS_STORAGE_BUCKET_NAME = "cartlogic"
@@ -55,3 +55,5 @@ RQ_QUEUES = {
         'DB': 0,
         }
 }
+
+PIPELINE_ENABLED = True

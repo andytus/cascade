@@ -69,13 +69,17 @@
     <p data-bind="css:{'text-success': $root.change_address.server_message_type() == 'Success', 'text-error':
       $root.change_address.server_message_type() == 'Failed'}, html:$root.change_address.server_message"></p>
 </script>
-
-
-
+{% load compressed %}
+{% compressed_js 'models_form_steps' %}
+{% compressed_js 'models_location' %}
+{% compressed_js 'views_location_search' %}
+{% compressed_js 'views_cart_profile_change_address' %}
+{% comment %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/LocationSearchViewModel.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileChangeAddressViewModel.js"></script>
+{% endcomment %}
 
 
 <script type="text/javascript">

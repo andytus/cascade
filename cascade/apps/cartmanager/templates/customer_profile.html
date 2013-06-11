@@ -221,12 +221,22 @@
 {% endblock %}
 
 {% block page_scripts %}
+    {% load compressed %}
+    {% compressed_js 'models_customer' %}
+    {% compressed_js 'models_ticket' %}
+    {% compressed_js 'models_location' %}
+    {% compressed_js 'views_customer_profile' %}
+    {% compressed_js 'views_tickets_list' %}
+    {% compressed_js 'validators' %}
+
+{% comment %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/customer.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CustomerProfileViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/utilities/validators.js"></script>
+{% endcomment %}
 
     <script type="text/javascript">
         //adding the validator library

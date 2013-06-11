@@ -103,8 +103,12 @@
 {% endblock %}
 
 {% block page_scripts %}
-    <script src="{{ STATIC_URL }}js/cartmanager/views/CartListViewModel.js" xmlns="http://www.w3.org/1999/html"></script>
-    <script src="{{ STATIC_URL }}js/cartmanager/models/cart.js" xmlns="http://www.w3.org/1999/html"></script>
+    {% load compressed %}
+    {% compressed_js 'views_cart_list' %}
+    {% compressed_js 'models_cart' %}
+
+   {% comment %} <script src="{{ STATIC_URL }}js/cartmanager/views/CartListViewModel.js" xmlns="http://www.w3.org/1999/html"></script>
+    <script src="{{ STATIC_URL }}js/cartmanager/models/cart.js" xmlns="http://www.w3.org/1999/html"></script>{% endcomment %}
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript">
         var search_parameters = {{ search_parameters|safe}};

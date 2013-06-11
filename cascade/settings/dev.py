@@ -18,3 +18,5 @@ RQ_QUEUES = {
         'DB': 0,
         }
 }
+
+PIPELINE_ENABLED = False

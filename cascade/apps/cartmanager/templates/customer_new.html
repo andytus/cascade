@@ -247,8 +247,17 @@
     <p>Click here to view customer:<a data-bind="attr:{href: customer_app_url + $root.create.customer().customer_id()}, text:
     $root.create.customer().customer_id"></a></p>
 </script>
+{% load compressed %}
+{% compressed_js 'common_data' %}
+{% compressed_js 'models_customer' %}
+{% compressed_js 'models_map' %}
+{% compressed_js 'models_location' %}
+{% compressed_js 'views_customer_new' %}
+{% compressed_js 'models_form_steps' %}
+{% compressed_js 'validators' %}
 
-
+{% comment %}
+#TODO check if typeahdead is still in use
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/koUtilities.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/map.js"></script>
@@ -257,7 +266,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/utilities/common_data.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CustomerNewViewModel.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/utilities/validators.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/utilities/validators.js"></script>{% endcomment %}
 
 <script type="text/javascript">
 

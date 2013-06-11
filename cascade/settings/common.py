@@ -141,6 +141,7 @@ INSTALLED_APPS = (
     'django_rq',
     'rest_framework',
     'south',
+    'pipeline',
     'storages',
     'cascade.apps.cartmanager',
     )
@@ -178,3 +179,232 @@ LOGIN_URL = '/accounts/login/'
 
 LOGIN_REDIRECT_URL = '/carts/app/tickets/report/'
 
+
+#Storage Compression:
+
+PIPELINE_CSS = {
+    'cartlogic':{
+        'source_filenames':(
+            'css/cartlogic.css',
+        ),
+        'output_filename': 'compress/cartlogic.css',
+    },
+    'vendor_bootstrap':{
+        'source_filenames':('css/bootstrap-responsive.min.css', 'css/bootstrap.min.css', ),
+        'output_filename': 'compress/bootstrap.css'
+    },
+
+    'vendor_jquery-ui':{
+        'source_filenames':('css/jquery.fileupload-ui.css', ),
+        'output_filename': 'compress/jquery-ui.css'
+    },
+
+
+    'fonts':{
+        'source_filenames':('css/font-awesome.min.css',),
+        'output_filename': 'compress/font.css'
+    }
+ }
+
+
+PIPELINE_JS = {
+    'vendor_common': {
+        'source_filenames': (
+            'js/vendor/jquery/jquery.min.js',
+            'js/vendor/bootstrap/bootstrap.js',
+            'js/vendor/bootstrap/bootstrap-tab.js',
+            'js/vendor/knockout/knockout-2.2.0.js',
+            'js/vendor/knockout/knockout-mappings.js',
+            'js/vendor/knockout/koUtilities.js'
+
+            ),
+        'output_filename': 'js/compress/vendor_common.js',
+    },
+
+    'vendor_jquery_uploads':{
+        'source_filenames':(
+            'js/vendor/jquery/jquery.ui.widget.js',
+            'js/vendor/jquery/jquery.iframe-transport.js',
+            'js/vendor/jquery/jquery.fileupload.js',
+
+
+        ),
+
+        'output_filename': 'js/compress/vendor_jquery_uploads.js',
+    },
+
+    'ajax':{
+        'source_filenames': (
+            'js/utilities/ajax.js',
+        ),
+        'output_filename': 'js/compress/ajax.js',
+    },
+
+    'common_data':{
+        'source_filenames': (
+            'js/utilities/common_data.js',
+            ),
+        'output_filename': 'js/compress/common_data.js',
+        },
+
+    'validators':{
+        'source_filenames': (
+            'js/utilities/validators.js',
+            ),
+        'output_filename': 'js/compress/validators.js',
+        },
+
+    'views_cart_list':{
+        'source_filenames': (
+            'js/cartmanager/views/CartListViewModel.js',
+            ),
+        'output_filename': 'js/compress/CartListViewModel.js',
+        },
+
+    'views_cart_profile_change_address':{
+        'source_filenames': (
+            'js/cartmanager/views/CartProfileChangeAddressViewModel.js',
+            ),
+        'output_filename': 'js/compress/CartProfileChangeAddressViewModel.js',
+        },
+
+    'views_cart_profile':{
+        'source_filenames': (
+            'js/cartmanager/views/CartProfileViewModel.js',
+            ),
+        'output_filename': 'js/compress/CartProfileViewModel.js',
+        },
+    'views_cart_search':{
+        'source_filenames': (
+            'js/cartmanager/views/CartSearchViewModel.js',
+            ),
+        'output_filename': 'js/compress/CartSearchViewModel.js',
+        },
+    'views_customer_new':{
+        'source_filenames': (
+            'js/cartmanager/views/CustomerNewViewModel.js',
+            ),
+        'output_filename': 'js/compress/CustomerNewViewModel.js',
+        },
+    'views_customer_profile':{
+        'source_filenames': (
+            'js/cartmanager/views/CustomerProfileViewModel.js',
+            ),
+        'output_filename': 'js/compress/CustomerProfileViewModel.js',
+        },
+    'views_location_search':{
+        'source_filenames': (
+            'js/cartmanager/views/LocationSearchViewModel.js',
+            ),
+        'output_filename': 'js/compress/LocationSearchViewModel.js',
+        },
+    'views_ticket_create':{
+        'source_filenames': (
+            'js/cartmanager/views/TicketCreateViewModel.js',
+            ),
+        'output_filename': 'js/compress/TicketCreateViewModel.js',
+        },
+    'views_ticket_profile':{
+        'source_filenames': (
+            'js/cartmanager/views/TicketProfileViewModel.js',
+            ),
+        'output_filename': 'js/compress/TicketProfileViewModel.js',
+        },
+    'views_tickets_list':{
+        'source_filenames': (
+            'js/cartmanager/views/TicketsListViewModel.js',
+            ),
+        'output_filename': 'js/compress/TicketsListViewModel.js',
+        },
+    'views_tickets_report':{
+        'source_filenames': (
+            'js/cartmanager/views/TicketsReportViewModel.js',
+            ),
+        'output_filename': 'js/compress/TicketsReportViewModel.js',
+        },
+
+    'models_cart':{
+        'source_filenames': (
+            'js/cartmanager/models/cart.js',
+            ),
+        'output_filename': 'js/compress/cart.js',
+        },
+
+    'models_cart_profile':{
+        'source_filenames': (
+            'js/cartmanager/models/cart_profile.js',
+            ),
+        'output_filename': 'js/compress/cart_profile.js',
+        },
+
+    'models_cart_status':{
+        'source_filenames': (
+            'js/cartmanager/models/cart_status.js',
+            ),
+        'output_filename': 'js/compress/cart_status.js',
+        },
+
+    'models_cart_type':{
+        'source_filenames': (
+            'js/cartmanager/models/cart_type.js',
+            ),
+        'output_filename': 'js/compress/cart_type.js',
+        },
+
+    'models_comments':{
+        'source_filenames': (
+            'js/cartmanager/models/comments.js',
+            ),
+        'output_filename': 'js/compress/comments.js',
+        },
+
+    'models_customer':{
+        'source_filenames': (
+            'js/cartmanager/models/customer.js',
+            ),
+        'output_filename': 'js/compress/customer.js',
+        },
+
+    'models_form_steps':{
+        'source_filenames': (
+            'js/cartmanager/models/form_steps.js',
+            ),
+        'output_filename': 'js/compress/form_steps.js',
+        },
+
+    'models_location':{
+        'source_filenames': (
+            'js/cartmanager/models/location.js',
+            ),
+        'output_filename': 'js/compress/location.js',
+        },
+
+    'models_map':{
+        'source_filenames': (
+            'js/cartmanager/models/map.js',
+            ),
+        'output_filename': 'js/compress/map.js',
+        },
+
+    'models_ticket':{
+        'source_filenames': (
+            'js/cartmanager/models/ticket.js',
+            ),
+        'output_filename': 'js/compress/ticket.js',
+        },
+
+    'models_ticket_services':{
+        'source_filenames': (
+            'js/cartmanager/models/ticket_services.js',
+            ),
+        'output_filename': 'js/compress/ticket_services.js',
+        },
+
+    'models_ticket_status':{
+        'source_filenames': (
+            'js/cartmanager/models/ticket_status.js',
+            ),
+        'output_filename': 'js/compress/ticket_status.js',
+        },
+
+    }
