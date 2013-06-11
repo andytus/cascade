@@ -56,4 +56,4 @@ RQ_QUEUES = {
         }
 }
 
-PIPELINE_ENABLED = True
+PIPELINE= True
