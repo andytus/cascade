@@ -21,3 +21,5 @@ times==0.6.1
 wsgiref==0.1.2
 newrelic
 django-pipeline
+jsmin==2.0.3
+cssmin==0.1.4

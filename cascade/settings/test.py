@@ -57,3 +57,5 @@ RQ_QUEUES = {
         }
 }
 
+PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.jsmin.JSMinCompressor'
+PIPELINE_CSS_COMPRESSOR = None
