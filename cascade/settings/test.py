@@ -36,8 +36,6 @@ SOUTH_DATABASE_ADAPTERS ={
 
 }
 
-import cssmin
-
 
 DEBUG = False
 
