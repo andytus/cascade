@@ -18,11 +18,11 @@ if os.environ.has_key('DATABASE_URL'):
         }
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+STATICFILES_STORAGE = 'cascade.libs.storage.S3PipelineStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJYAYIRX5I4M2KBYQ'
 AWS_SECRET_ACCESS_KEY = "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"
 AWS_STORAGE_BUCKET_NAME = "cartlogicproduction"
-
+AWS_QUERYSTRING_AUTH = False
 STATIC_URL = "http://cartlogicproduction.s3-website-us-east-1.amazonaws.com/"
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
@@ -33,8 +33,8 @@ SOUTH_DATABASE_ADAPTERS ={
 'default': "south.db.postgresql_psycopg2"
 }
 
-#DEBUG = False
-DEBUG = True
+DEBUG = False
+
 
 
 RQ_QUEUES = {
@@ -53,3 +53,6 @@ RQ_QUEUES = {
         'DB': 0,
         }
 }
+
+PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
+PIPELINE_CSS_COMPRESSOR = None
