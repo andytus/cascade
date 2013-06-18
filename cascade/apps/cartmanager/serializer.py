@@ -197,9 +197,17 @@ class AdminLocationDefaultSerializer(serializers.ModelSerializer, NullSerializer
         fields = ('info',)
 
 
-class CartsUploadFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CartsUploadFile
-        fields = ('size', 'status', 'uploaded_by', 'date_uploaded', 'file_path', 'records_processed')
-
-
+class UploadFileSerializer(serializers.Serializer):
+    id =  serializers.IntegerField()
+    file_kind = serializers.CharField()
+    status = serializers.CharField()
+    num_good = serializers.IntegerField()
+    num_error = serializers.IntegerField()
+    num_records = serializers.IntegerField()
+    uploaded_by = serializers.CharField()
+    date_start_processing = serializers.DateTimeField()
+    date_end_processing = serializers.DateTimeField()
+    total_process_time = serializers.IntegerField()
+    size = serializers.IntegerField()
+    records_processed = serializers.BooleanField()
+    message = serializers.CharField()

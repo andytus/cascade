@@ -145,7 +145,7 @@
 <div id="modal_window" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 
     <div class="modal-body">
-
+     Loading...
     </div>
 
 </div>
@@ -161,7 +161,9 @@
 
         <div class="row-fluid">
             <div id="left" class="span2">
+
                 {% block left %}
+
                 {% endblock %}
             </div>
 
@@ -171,6 +173,9 @@
             </div>
 
             <div id="right" class="span2">
+                <div id="loading-message" class="alert message">
+                <p id="loading-message-text"></p>
+                </div>
                 {% block right %}
                 {% endblock %}
             </div>
@@ -185,9 +190,11 @@
 </script>
 
 
+{% comment %}
 <script type="text/javascript"
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
 </script>
+{% endcomment %}
 
 {% load compressed %}
 {% compressed_js 'views_cart_search' %}

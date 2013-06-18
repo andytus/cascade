@@ -74,12 +74,6 @@
 {% compressed_js 'models_location' %}
 {% compressed_js 'views_location_search' %}
 {% compressed_js 'views_cart_profile_change_address' %}
-{% comment %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/LocationSearchViewModel.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileChangeAddressViewModel.js"></script>
-{% endcomment %}
 
 
 <script type="text/javascript">
@@ -97,6 +91,6 @@
     //Setting the tickets to refresh on modal close, #TODO put in custom binding
     $('#modal_window').on('hidden', function () {
         //just reloading the current page
-        window.location.reload();
+
     });
 </script>

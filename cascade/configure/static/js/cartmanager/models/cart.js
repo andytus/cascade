@@ -18,7 +18,7 @@ function Cart(data){
     self.current_status = ko.observable(data.cart.current_status);
     self.cart_id = ko.observable((data.cart.id));
     self.cart_url = ko.observable((cart_url + data.cart.serial));
-    self.cart_type = ko.observable((data.cart.cart_type) || "?");
+    self.cart_type = ko.observable((data.cart.cart_type));
     self.cart_size = ko.observable((data.cart.size) || "?");
     self.customer_id = ko.observable((data.customer.id) || "");
     self.customer_name = ko.observable((data.customer.name) || "Unknown or Not Assigned");

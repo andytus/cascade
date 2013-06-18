@@ -50,6 +50,18 @@ window.utilities = {};
             if (!utilities.csrfSafeMethod(settings.type)) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
+
+            //Doing this for first page load
+           $("#loading-message:hidden").show("fast").addClass("alert-info");
+            i = 0;
+            setInterval(function() {
+                i = ++i % 4;
+                $("#loading-message-text").text("Loading"+Array(i+1).join("."));
+            }, 300);
+          },
+        complete:function(){
+            // hide gif here, eg:
+            $("#loading-message").hide("fast");
         }
      })
     }

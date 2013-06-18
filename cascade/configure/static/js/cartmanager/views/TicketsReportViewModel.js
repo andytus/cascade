@@ -27,7 +27,7 @@
         self.getServiceTypeOptions = function(){
             $.getJSON(ticket_service_type_api, function(data){
                 var serviceTypeOptions = $.map(data, function(item){
-                    return item.service
+                     return item.service
                 });
                 self.ticket_type_options(serviceTypeOptions);
                 self.ticket_type_options.unshift('ALL');
@@ -59,13 +59,18 @@
        self.getCartTypeOptions = function () {
                url = cart_type_api + "?format=jsonp&callback=?";
                $.getJSON(url, data, function (data) {
-                   var cartTypeOptions = $.map(data, function (item) {
-                       return item.name
-                   });
-                   var cartSizeOptions = $.map(data, function (item) {
-                       return item.size
+                   var cartTypeOptions = [];
+                   var cartSizeOptions= [];
 
+                   $.each(data, function(index, item){
+                       if ($.inArray(item.name, cartTypeOptions) == -1) {
+                           cartTypeOptions.push(item.name);
+                       }
+                       if($.inArray(item.size, cartSizeOptions) == -1){
+                           cartSizeOptions.push(item.size);
+                       }
                    });
+
                    self.cart_type_options(cartTypeOptions);
                    self.cart_size_options(cartSizeOptions);
                    self.cart_type_options.unshift('ALL');

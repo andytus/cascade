@@ -22,7 +22,7 @@ from cascade.libs.uploads import process_upload_records
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
     CartStatusSerializer, CartTypeSerializer, CartServiceTicketSerializer, AdminLocationDefaultSerializer,  \
-    CustomerInfoSerializer, CartsUploadFileSerializer, TicketStatusSerializer, TicketCommentSerializer, \
+    CustomerInfoSerializer, UploadFileSerializer, TicketStatusSerializer, TicketCommentSerializer, \
     CartServiceTypeSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 
@@ -763,11 +763,21 @@ class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
             queryset = CartType.on_site.all()
             return queryset
 
-class CartFileUploadAPI(LoginSiteRequiredMixin, ListAPIView):
-    model = CartsUploadFile
-    serializer_class = CartsUploadFileSerializer
+class FileUploadAPI(LoginSiteRequiredMixin, ListAPIView):
+    serializer_class = UploadFileSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
-    queryset =  CartsUploadFile.on_site.all()
+
+
+    def get_queryset(self):
+        file_type = self.request.QUERY_PARAMS.get('file_type', None)
+        print file_type
+        if file_type == 'carts':
+            return  CartsUploadFile.on_site.all()
+        elif file_type == 'tickets':
+            return TicketsCompleteUploadFile.on_site.all()
+        elif file_type == 'customer':
+            return CustomersUploadFile.on_site.all()
+
 
 
 ########################################################################################################################

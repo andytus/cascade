@@ -128,11 +128,11 @@
 
                     },
                     error:function (jqXHR) {
-                         $("#message").addClass("alert-error").show();
-                        $("#message-type").text("Error! ");
+                        $("#message").addClass("alert-error").show();
+                        $("#message-type").text("Error!");
                         $("#message-text").text(jqXHR.statusText);
                         $('.close').click(function () {
-                            $('#message').hide();
+                        $('#message').hide();
                         });
 
 
@@ -171,7 +171,7 @@
         //#TODO call this on each page... refactor to accept more than just serial: SEE, http://stackoverflow.com/questions/6486307/default-argument-values-in-javascript-functions
         self.getTickets(1, null, 'json');
 
-        //Setting the tickets to refresh on modal close, #TODO put in custom binding
+        //Setting the tickets to refresh on modal close
         $('#modal_window').on('hidden', function () {
             //#TODO Fix returning all tickets after removal
             //checking for not null serial number because we don't want a refresh of the ticket if (typeof yourvar != 'undefined')
@@ -179,6 +179,7 @@
             self.getTickets(1, null, 'json')
 
         });
+
 
     }
 

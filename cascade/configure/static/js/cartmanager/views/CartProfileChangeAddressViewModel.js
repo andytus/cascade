@@ -48,14 +48,15 @@
                 dataType:"jsonp",
                 success:function (data) {
                     self.server_message_type(data.details.message_type);
-                    self.server_message(data.details.message);
+                    self.server_message(data.details.message + " <h4>Reloading Now</h4>");
                     //send message to last step
                     self.currentStep(self.stepModels()[self.stepModels().length-1]);
+                    window.location.reload();
                 },
                 error:function (data) {
                     //send error message to last step
                     self.currentStep(self.stepModels()[self.stepModels().length-1]);
-                    self.server_message_type("ERROR!");
+                    self.server_message_type("Error!");
                     self.server_message(jqXHR.statusText)
                 }
             })

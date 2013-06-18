@@ -1,6 +1,6 @@
 body{
     width: 100%;
-    background: url(../img/bg-body.gif);
+    background: url(../img/background.png);
     background-size: 100%;
     background-repeat: repeat-y;
 
@@ -504,8 +504,8 @@ table.table-sorter thead tr .sort-up{
     padding-right: 25px;
 }
 
-.modal-body {
-    max-height: 800px;
+.modal .modal-body {
+    max-height: 90%;
     overflow-y: auto;
 
 }
@@ -524,4 +524,9 @@ table.table-sorter thead tr .sort-up{
 .modal-font{
     font-size: 1.3em;
     text-align: center;
+}
+#loading-message{
+    display: none;
+    float: left;
+    width: 40%;
 }

@@ -69,16 +69,6 @@
 
         }
 
-       //Doing this for first page load
-        if (self.count() == 0) {
-        $("#result-header").hide();
-        $("#message").addClass("alert-info").show();
-        i = 0;
-        setInterval(function() {
-            i = ++i % 4;
-            $("#message-text").text("Loading"+Array(i+1).join("."));
-        }, 300);
-        }
 
         $.ajax({
 
@@ -101,7 +91,7 @@
                 self.search_for_value(params.value);
 
                 //hide message and show results header
-                $("#message").addClass("alert-info").hide();
+                $("#message").hide();
                 $("#result-header").show();
             },
 

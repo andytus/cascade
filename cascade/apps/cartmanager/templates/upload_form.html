@@ -13,16 +13,6 @@
 
 {% block main_content %}
 
-    {% comment %}{% if completed  %}
-    TOTAL RECORDS PROCESSED: {{ total_count }}
-    TOTAL GOOD:  {{ good_count }}
-    TOTAL ERROR: <a href="{% url upload_errors %}"> {{ error_count }}</a>
-   <a href=""> {{ link }} </a>
-{% else %}
-
-   {{ form.as_p }}
-{% endcomment %}
-
     <div id="fileupload-wrapper" class="box-info">
      <h1>{{ link }}</h1>
 
@@ -43,9 +33,12 @@
         </div>{% endcomment %}
     </div>
 
-    {% comment %}
-{% endif %}
-{% endcomment %}
+    <div id="file-process" class="box-info">
+
+
+    </div>
+
+
 
 {% endblock %}
 
@@ -56,6 +49,8 @@
 {% block page_scripts %}
  {% load compressed %}
 {% compressed_js 'vendor_jquery_uploads' %}
+{% compressed_js 'file.js' %}
+
 
   {% comment %}  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.ui.widget.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.iframe-transport.js"></script>
