@@ -192,14 +192,24 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         search_type = self.request.QUERY_PARAMS.get('type', None)
         value = self.request.QUERY_PARAMS.get('value', None)
 
+
         if search_type and value:
             query = Cart.on_site.filter()
             value = value.strip()
             if search_type == 'address':
-                house_number = value.split(' ')[0].strip().upper()
-                street_name = value.split(house_number)[1].strip().upper()
-                print house_number, street_name
-                query = query.filter(location__street_name=street_name, location__house_number=house_number)
+                address = value.split(' ')
+                if len(address) == 1:
+                    #address only contains street name
+                    street_name = address[0].strip().upper()
+                    query = Cart.on_site.filter(location__street_name__contains=street_name)
+                else:
+                    house_number = address[0].strip().upper()
+                    street_name = address[1].strip().upper()
+                    query = query.filter(location__street_name=street_name, location__house_number=house_number)
+                    if query.count() == 0:
+                        #look for non exact
+                        query = Cart.on_site.filter(location__street_name__contains=street_name, location__house_number__contains=house_number)
+
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
             elif search_type == 'type':
