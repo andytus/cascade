@@ -22,7 +22,7 @@
 
         <!-- Cart search information -->
 
-        <div id="result-header" class="alert alert-info">
+        <div id="result-header" class="alert alert-info" style="display: none">
             Search for cart <span data-bind="text:search_for_type().replace('_', ' ')"></span>
             <i><span data-bind="text:search_for_value"></span></i>
             returned <b data-bind="text: count() || 'No'"></b> result<span
@@ -46,7 +46,7 @@
 
         <!-- Iterate the results -->
 
-        <div id="cart-list" data-bind="foreach: {data:carts, afterRender: Decorator}, visible: carts().length > 0">
+        <div id="cart-list" data-bind="foreach: {data:carts, afterRender: Decorator}">
 
             <div class="cart-info box-info">
                 <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
