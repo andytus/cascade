@@ -17,12 +17,12 @@
         </button>
     </p>
 
-    <div id="results">
+    <div id="results" style="display: none">
         <!--knockout: view for carts-->
 
         <!-- Cart search information -->
 
-        <div id="result-header" class="alert alert-info" style="display: none">
+        <div id="result-header" class="alert alert-info" >
             Search for cart <span data-bind="text:search_for_type().replace('_', ' ')"></span>
             <i><span data-bind="text:search_for_value"></span></i>
             returned <b data-bind="text: count() || 'No'"></b> result<span

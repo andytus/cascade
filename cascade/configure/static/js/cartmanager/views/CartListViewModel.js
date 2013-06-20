@@ -91,7 +91,7 @@
 
                 //hide message and show results header
                 $("#message").hide();
-                $("#result-header").show();
+                $("#results").show();
             },
 
             error: function(data){
