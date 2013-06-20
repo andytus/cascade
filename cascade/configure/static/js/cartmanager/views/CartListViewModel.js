@@ -62,9 +62,7 @@
         if (typeof page !== "undefined") {
             //get the page number if not undefined and add to the url (i.e. going to next page)
             //add through click event to  a knockoutjs template the page links.
-
-           self.page(page);
-          //  url = url + "&page=" + page;
+            //  url = url + "&page=" + page;
            params.page = page;
 
         }
@@ -89,6 +87,7 @@
                 //just fill in the search type and search value for header
                 self.search_for_type(params.type);
                 self.search_for_value(params.value);
+                self.page(page);
 
                 //hide message and show results header
                 $("#message").hide();

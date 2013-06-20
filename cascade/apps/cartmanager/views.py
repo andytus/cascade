@@ -161,8 +161,6 @@ class TicketProfile(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
-
-
 ######################################################################################################################
 #API VIEWS: Used to render, create and update content to applications                                                #
 ######################################################################################################################
@@ -173,7 +171,6 @@ class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
     def get(self, request):
-        print get_current_site(request).id
         default_location = AdminDefaults.on_site.get(site=get_current_site(request).id)
         serializer = self.serializer(default_location)
         return RestResponse(serializer.data)
@@ -201,11 +198,11 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 if len(address) == 1:
                     #address only contains street name
                     street_name = address[0].strip().upper()
-                    query = Cart.on_site.filter(location__street_name__contains=street_name)
+                    query = Cart.on_site.filter(location__street_name__startswith=street_name)
                 else:
                     house_number = address[0].strip().upper()
                     street_name = address[1].strip().upper()
-                    query = query.filter(location__street_name=street_name, location__house_number=house_number)
+                    query = query.filter(location__street_name__startswith=street_name, location__house_number=house_number)
                     if query.count() == 0:
                         #look for non exact
                         query = Cart.on_site.filter(location__street_name__contains=street_name, location__house_number__contains=house_number)
