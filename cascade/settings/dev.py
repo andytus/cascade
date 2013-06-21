@@ -20,3 +20,9 @@ RQ_QUEUES = {
 }
 
 PIPELINE_ENABLED = False
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 9999
+SERVER_EMAIL = "cartlogic@dev.com"

@@ -13,6 +13,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
+    ('Joe', 'joe.bennett@cascadeng.com')
 )
 
 MANAGERS = ADMINS
@@ -406,3 +407,5 @@ PIPELINE_JS = {
         },
 
     }
+
+EMAIL_SUBJECT_PREFIX = '[CartLogic]'
