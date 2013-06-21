@@ -12,23 +12,19 @@
 
 {% block main_content %}
 {% block content %}
-    <div id="login_form" class="box-info">
+    <div id="login_form" class="box-info middlebox">
     {% if form.errors %}
         <p class="text-error">Your username and password didn't match. Please try again.</p>
     {% endif %}
     <h4>Welcome to CartLogic for {{ site_name }}</h4>
     <form method="post" action="{% url django.contrib.auth.views.login %}">
         {% csrf_token %}
-        <table>
-            <tr>
-                <td>{{ form.username.label_tag }}</td>
-                <td>{{ form.username }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.password.label_tag }}</td>
-                <td>{{ form.password }}</td>
-            </tr>
-        </table>
+
+        {% for field in form %}
+
+            {{ field.label_tag }} {% if field.errors %}{{ field.errors }}{% endif %}{{ field }}<br>
+
+        {% endfor %}
         <input type='hidden' name="next" value="{{ next }}" />
         <input class="btn btn-large btn-primary" type="submit" value="login" />
 

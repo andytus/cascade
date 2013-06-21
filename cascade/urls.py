@@ -22,8 +22,13 @@ urlpatterns = patterns('',
 
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
 
+    url(r'^accounts/register/$', 'cascade.libs.views.register_user'),
+
+    url(r'^accounts/register/success/$', 'cascade.libs.views.register_success'),
+
 )
 
 urlpatterns += patterns('',
     (r'^django-rq/', include('django_rq.urls')),
+
 )

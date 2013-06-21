@@ -17,7 +17,6 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -124,7 +123,7 @@ ROOT_URLCONF = 'cascade.urls'
 WSGI_APPLICATION = 'cascade.wsgi.application'
 
 #
-TEMPLATE_DIRS = (os.path.abspath(os.path.join(ROOT_DIR , '..', 'configure/templates')), )
+TEMPLATE_DIRS = (os.path.abspath(os.path.join(ROOT_DIR , '..', 'configure/templates')),)
 
 
 INSTALLED_APPS = (
@@ -178,7 +177,6 @@ LOGGING = {
 LOGIN_URL = '/accounts/login/'
 
 LOGIN_REDIRECT_URL = '/carts/app/tickets/report/'
-
 
 #Storage Compression:
 

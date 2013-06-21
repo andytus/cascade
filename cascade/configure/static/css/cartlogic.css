@@ -213,8 +213,8 @@ body { height: 100%; margin: 0; padding: 0 }
 
  }
 
-/****login page****/
-#login_form{
+/****login page, register page****/
+.middlebox{
     text-align: center;
     margin: auto;
     margin-top: 100px;
@@ -222,14 +222,15 @@ body { height: 100%; margin: 0; padding: 0 }
     padding: 20px;
 }
 
-#login_form{
+#login_form, #register_form{
     font-weight: bolder;
 }
 
 
-#login_form table{
+#login_form table, #register_form table{
     margin-left:auto;
     margin-right:auto;
+
 }
 
 /****Cart Profile Page****/
@@ -529,4 +530,8 @@ table.table-sorter thead tr .sort-up{
     display: none;
     float: left;
     width: 40%;
+}
+
+.errorlist{
+    color: #8b0000;
 }

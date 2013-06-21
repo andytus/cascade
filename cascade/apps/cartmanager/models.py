@@ -513,5 +513,3 @@ class CustomerUploadFileForm(forms.Form):
 
 
 
-
-
