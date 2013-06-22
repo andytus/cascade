@@ -60,6 +60,8 @@ RQ_QUEUES = {
 PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
+
+EMAIL_SUBJECT_PREFIX = '[CartLogic] %s'
 DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USER']
 EMAIL_BACKEND = 'djrill.mail.backends.djrill.DjrillBackend'
 EMAIL_HOST = os.environ['SMTP_HOST']
@@ -68,3 +70,4 @@ EMAIL_HOST_PASSWORD = os.environ['MANDRILL_API_KEY']
 SERVER_EMAIL = os.environ['MANDRILL_USER']
 EMAIL_USE_TLS = True
 MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']
+

@@ -6,13 +6,15 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
 from django.core.mail import mail_admins, send_mail
+from django.contrib.sites.models import get_current_site
 
 def register_user(request):
     args = {}
     if request.method == 'POST':
         form = RegisterUsersForm(request.POST)
+        site = get_current_site(request)
         username = request.POST.get('username', 'unknown')
-        mail_admins('New user: %s needs activation!' % username, "Activate %s please!" % username, fail_silently=False)
+        mail_admins('%s, New user: %s needs activation!' % (site.upper, username), "Activate %s please!" % username, fail_silently=False)
 
         if form.is_valid():
             form.save()
