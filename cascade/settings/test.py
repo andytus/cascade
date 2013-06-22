@@ -62,7 +62,7 @@ PIPELINE_CSS_COMPRESSOR = None
 
 
 EMAIL_SUBJECT_PREFIX = '[CartLogic-Staging]'
-DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USER']
+DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USERNAME']
 EMAIL_BACKEND = 'djrill.mail.backends.djrill.DjrillBackend'
 EMAIL_HOST = os.environ['SMTP_HOST']
 EMAIL_HOST_PASSWORD = os.environ['MANDRILL_API_KEY']
