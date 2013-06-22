@@ -61,5 +61,5 @@ PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
 
-EMAIL_SUBJECT_PREFIX = '[CartLogic-Staging]'
+EMAIL_SUBJECT_PREFIX = '[Staging]'
 
