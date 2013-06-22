@@ -14,7 +14,7 @@ def register_user(request):
         form = RegisterUsersForm(request.POST)
         site = get_current_site(request)
         username = request.POST.get('username', 'unknown')
-        mail_admins('%s, New user: %s needs activation!' % (site.upper, username), "Activate %s please!" % username, fail_silently=False)
+        mail_admins('%s, New user: %s needs activation!' % (site.name.upper, username), "Activate %s please!" % username, fail_silently=False)
 
         if form.is_valid():
             form.save()
