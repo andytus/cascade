@@ -61,7 +61,7 @@ PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
 
-EMAIL_SUBJECT_PREFIX = '[CartLogic] %s'
+EMAIL_SUBJECT_PREFIX = '[CartLogic]'
 DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USER']
 EMAIL_BACKEND = 'djrill.mail.backends.djrill.DjrillBackend'
 EMAIL_HOST = os.environ['SMTP_HOST']
