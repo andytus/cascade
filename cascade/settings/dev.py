@@ -22,14 +22,13 @@ RQ_QUEUES = {
 PIPELINE_ENABLED = False
 
 
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_HOST = 'localhost'
-#EMAIL_PORT = 9999
-#SERVER_EMAIL = "cartlogic@dev.com"
+DEFAULT_FROM_EMAIL = 'app15581190@heroku.com'
 
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
 EMAIL_HOST = 'smtp.mandrillapp.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'app15581190@heroku.com'
-EMAIL_HOST_PASSWORD = 'acBTdIlNFLJ4wR-KWHhxsw'
+EMAIL_USE_TLS = True
+SERVER_EMAIL =  'app15581190@heroku.com'
+
+MANDRILL_API_KEY = "acBTdIlNFLJ4wR-KWHhxsw"

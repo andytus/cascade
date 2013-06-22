@@ -60,8 +60,11 @@ RQ_QUEUES = {
 PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
-DEFAULT_FROM_EMAIL = 'My Domain <noreply@mydomain.com>'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USER']
+EMAIL_BACKEND = 'djrill.mail.backends.djrill.DjrillBackend'
 EMAIL_HOST = os.environ['SMTP_HOST']
 EMAIL_HOST_USER = os.environ['MANDRILL_USER']
-EMAIL_HOST_PASSWORD = os.environ['MANDRILL_APIKEY']
+EMAIL_HOST_PASSWORD = os.environ['MANDRILL_API_KEY']
+SERVER_EMAIL = os.environ['MANDRILL_USER']
+EMAIL_USE_TLS = True
+MANDRILL_API_KEY = os.environ['MANDRILL_API_KEY']

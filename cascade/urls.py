@@ -3,6 +3,10 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 
+from djrill import DjrillAdminSite
+
+admin.site = DjrillAdminSite()
+
 admin.autodiscover()
 
 urlpatterns = patterns('',

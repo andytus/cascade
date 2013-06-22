@@ -13,7 +13,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
-    ('Joe', 'joe.bennett@cascadeng.com')
+    ('Joe', 'joe.bennett@cascadeng.com'),
 )
 
 MANAGERS = ADMINS
@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'south',
     'pipeline',
     'storages',
+    'djrill',
     'cascade.apps.cartmanager',
     )
 
@@ -408,4 +409,4 @@ PIPELINE_JS = {
 
     }
 
-EMAIL_SUBJECT_PREFIX = '[CartLogic]'
+
