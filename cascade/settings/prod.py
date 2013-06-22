@@ -60,6 +60,8 @@ PIPELINE_CSS_COMPRESSOR = None
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ['SMTP_HOST']
-EMAIL_HOST_USER = os.environ['SMTP_USER']
-EMAIL_HOST_PASSWORD = os.environ['SMTP_API_KEY']
-EMAIL_USE_TLS = True
+EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_HOST_USER = os.environ['MANDRILL_USER']
+EMAIL_HOST_PASSWORD = os.environ['MANDRILL_APIKEY']
+#EMAIL_USE_TLS = True
+

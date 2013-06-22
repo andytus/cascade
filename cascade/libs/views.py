@@ -12,7 +12,7 @@ def register_user(request):
     if request.method == 'POST':
         form = RegisterUsersForm(request.POST)
         username = request.POST.get('username', 'unknown')
-        test=  mail_admins('New user: %s needs activation!' % username, "Activate %s please!" % username, fail_silently=False)
+        mail_admins('New user: %s needs activation!' % username, "Activate %s please!" % username, fail_silently=False)
 
         if form.is_valid():
             form.save()
