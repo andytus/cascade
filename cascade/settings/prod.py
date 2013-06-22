@@ -57,7 +57,7 @@ RQ_QUEUES = {
 PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
-
+EMAIL_SUBJECT_PREFIX = '[CartLogic-Live]'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ['SMTP_HOST']
 EMAIL_PORT = os.environ['EMAIL_PORT']

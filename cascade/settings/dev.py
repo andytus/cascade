@@ -21,7 +21,7 @@ RQ_QUEUES = {
 
 PIPELINE_ENABLED = False
 
-
+EMAIL_SUBJECT_PREFIX = '[CartLogic-Dev]'
 DEFAULT_FROM_EMAIL = 'app15581190@heroku.com'
 
 EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
