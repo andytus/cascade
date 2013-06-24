@@ -410,7 +410,6 @@ PIPELINE_JS = {
 
     }
 
-EMAIL_SUBJECT_PREFIX = '[Dev]'
 
 DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USERNAME']
 EMAIL_BACKEND = 'djrill.mail.backends.djrill.DjrillBackend'

@@ -52,8 +52,17 @@
 
        self.getTicket = function(){
            $.getJSON(ticket_api + ticket_id, function(data){
+               if (data.details){
+                   $("#message-text").text(data.details.message);
+                   $("#message").removeClass("alert-success").addClass('alert-error').show();
+                   $('.close').click(function () {
+                       $('#message').hide();
+                   });
+
+               } else{
                self.ticket(new cartlogic.Ticket(data));
                self.getServiceStatusOptions();
+               }
            });
 
        };
@@ -140,7 +149,7 @@
 
      };
 
-       self.completeTicket = function(status){
+       self.updateTicket = function(status){
           cart_serial_number =  $("[name=add-serial-number]").val();
           $.ajax(ticket_api + ticket_id, {
               data: ko.toJSON({serial_number: cart_serial_number, status: status}),
@@ -183,6 +192,48 @@
            });
 
        };
+
+
+          self.deleteTicket = function(status){
+              $.ajax(ticket_api + ticket_id, {
+                  data: ko.toJSON({status: status}),
+                  type:"DELETE", contentType:"application/json",
+                  dataType:"jsonp",
+                  success:function (data) {
+                      $("#message-type").text(data.details.message_type +"! ");
+                      $("#message-text").text(data.details.message);
+                      $('.close').click(function () {
+                          $('#message').hide();
+                      });
+
+                      if(data.details.message_type == 'Success') {
+                          $("#ticket-profile").html('');
+                          $("#message").removeClass("alert-error").addClass('alert-success').show();
+                      } else{
+                          $("#message").removeClass("alert-success").addClass('alert-error').show();
+                      }
+
+                  },
+                  error:function (data, jqXHR) {
+                      //send error message to last step
+                      $("#message").addClass("alert-error").show();
+                      $("#message-type").text("Error! ");
+                      $("#message-text").text(data.statusText);
+                      $('.close').click(function () {
+                          $('#message').hide();
+                      });
+
+                  }
+
+
+              });
+
+          };
+
+
+
+
+
 
       self.getTicket();
       self.getTicketComments();

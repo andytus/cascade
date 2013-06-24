@@ -60,9 +60,9 @@
                         <input id="add-serial-number" name="add-serial-number"
                                data-bind="value: $root.profile.add_serial_number" type="text" placeholder="Type Serial Number"
                                class="input-xlarge search-query" style="height: 2.1em; padding-right: 10%">
-                        <button class="btn btn-primary" data-bind="click:function(){$root.profile.completeTicket('Completed')}">Complete</button>
-                        <button class="btn  btn-info" data-bind="click:function(){$root.profile.completeTicket('Unsuccessful')}"><i class="icon-plus"></i>Attempt</button>
-                        <button class="btn  btn-danger">Delete</button>
+                        <button class="btn btn-primary" data-bind="click:function(){$root.profile.updateTicket('Completed')}">Complete</button>
+                        <button class="btn  btn-info" data-bind="click:function(){$root.profile.updateTicket('Unsuccessful')}"><i class="icon-plus"></i>Attempt</button>
+                        <button class="btn  btn-danger" data-bind="click:function(){$root.profile.deleteTicket()}">Delete</button>
 
                    </div>
                     <br>

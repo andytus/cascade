@@ -480,13 +480,13 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 return RestResponse(serializer.data)
             else:
                 return RestResponse({
-                "detail": {"Sorry! can not find ticket with id: '%s'" % (ticket_id)},
-                "time": datetime.now()})
+                "details": { 'message': "Sorry! can not find ticket with id: '%s'" % (ticket_id), 'message_type': 'Failed'},
+                "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
         except ValueError:
             #except ValueError if ticket_id is not an number
-            return RestResponse({
-            "detail": {"Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id)},
-            "time": datetime.now()})
+            RestResponse({
+                "details": { 'message': "Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id), 'message_type': 'Failed'},
+                "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
 
     def post(self, request, ticket_id, format=None):
         json_data = simplejson.loads(request.body)
@@ -517,9 +517,8 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
 
                 else:
                     return RestResponse({
-                        "detail": {"No address information given"},
-                        "time": datetime.now()})
-
+                        "details": { 'message': "No address information given", 'message_type': 'Failed'},
+                        "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
 
                 #Get the current service type and a cart service status object of requested
                 requested_service_type = json_data.get('service_type', None)
@@ -629,6 +628,15 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
 
                 return RestResponse({'details':{'message': "Sorry! ticket could not be updated: %s" % e, 'message_type': 'Failed'}},
                     status=django_rest_status.HTTP_200_OK)
+
+    def delete(self, request, ticket_id, format=None):
+        ticket = self.get_object(ticket_id)
+        ticket.delete()
+        return RestResponse({'details':{'message': "Ticket %s Deleted" % ticket_id, 'message_type': 'Success'}},
+            status=django_rest_status.HTTP_200_OK)
+
+
+
 
 
 
