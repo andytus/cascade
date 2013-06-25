@@ -480,7 +480,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 return RestResponse(serializer.data)
             else:
                 return RestResponse({
-                "details": { 'message': "Sorry! can not find ticket with id: '%s'" % (ticket_id), 'message_type': 'Failed'},
+                "details": { 'message': "Sorry! did not find ticket with id: '%s. Did it get deleted?'" % (ticket_id), 'message_type': 'Failed'},
                 "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
         except ValueError:
             #except ValueError if ticket_id is not an number
