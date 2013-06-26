@@ -283,6 +283,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         else:
             raise Http404
 
+
     #over ride list method to provide csv download
     def list(self, request, *args, **kwargs):
         if self.request.accepted_renderer.format == "csv":
@@ -292,7 +293,6 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             t = loader.get_template('ticket.csv')
             c = Context({'data': self.get_queryset()}, )
             #enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
-
             response.write(enqueue(func=t.render(c)))
             return response
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)

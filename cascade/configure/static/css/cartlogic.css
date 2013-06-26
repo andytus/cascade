@@ -475,6 +475,25 @@ body { height: 100%; margin: 0; padding: 0 }
    font-size: 1.2em;
 }
 
+.new-ticket-selected{
+    padding-top: .5em;
+    font-size: 3em;
+}
+
+.new-ticket-radio{
+    margin-right: 3em;
+}
+
+.new-ticket-radio label{
+    z-index: -1;
+    font-size: 1.4em;
+}
+
+.new-ticket-radio input{
+    width: 2em;
+    height: 2em;
+
+}
 
 
 table.table-sorter thead tr .sort-header{
@@ -508,7 +527,6 @@ table.table-sorter thead tr .sort-up{
 .modal .modal-body {
     max-height: 90%;
     overflow-y: auto;
-    text-align: center;
 
 }
 
@@ -525,7 +543,6 @@ table.table-sorter thead tr .sort-up{
 
 .modal-font{
     font-size: 1.3em;
-    text-align: center;
 }
 #loading-message{
     display: none;

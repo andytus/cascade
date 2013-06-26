@@ -35,13 +35,13 @@
 <script id="SelectServiceType" type="text/html">
     <p data-bind="text: message"></p>
 
-    <p data-bind="text: $root.create.service_type"></p>
+    <p data-bind="text: $root.create.service_type" class="pull-left new-ticket-selected"></p>
 
-    <div data-bind="foreach: $root.create.service_type_options">
-        <label data-bind="for: $data, text: $data"></label>
+    <div data-bind="foreach: $root.create.service_type_options" class="pull-right new-ticket-radio">
+        <label>
         <input type="radio" name="service_type" data-bind="id: $data, value: $data, checked: $root.create.service_type">
-
-
+        <span data-bind="text: $data" ></span>
+        </label>
     </div>
 
 </script>
@@ -110,9 +110,9 @@
 <script id="SelectCartSize" type="text/html">
     <p data-bind="html: message"></p>
 
-    <p data-bind="text: $root.create.cart_size"></p>
+    <p data-bind="text: $root.create.cart_size" class="pull-left new-ticket-selected"></p>
 
-    <div data-bind="foreach: $root.create.cart_type_unique_sizes">
+    <div data-bind="foreach: $root.create.cart_type_unique_sizes" class="pull-right new-ticket-radio">
         <label data-bind="for: $data, text: $data"></label>
         <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
     </div>
@@ -122,11 +122,11 @@
 
 <script id="SelectCartType" type="text/html">
     <p data-bind="html: message"></p>
-    <p data-bind="text: $root.create.cart_type"></p>
-    <p data-bind="foreach: $root.create.cart_type_unique_type">
+    <p data-bind="text: $root.create.cart_type" class="pull-left new-ticket-selected"></p>
+    <div data-bind="foreach: $root.create.cart_type_unique_type" class="pull-right new-ticket-radio">
         <label data-bind="for: $data, text: $data"></label>
         <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
-    </p>
+    </div>
 </script>
 
 

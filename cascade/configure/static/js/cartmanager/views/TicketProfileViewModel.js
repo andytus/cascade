@@ -231,22 +231,10 @@
           };
 
 
-
-
-
-
       self.getTicket();
       self.getTicketComments();
 
-
-
       }
-
-
-
-
-
-
 
 
     cartlogic.TicketsProfileViewModel = TicketsProfileViewModel;
