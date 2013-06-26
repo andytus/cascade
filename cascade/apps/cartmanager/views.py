@@ -291,7 +291,9 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             t = loader.get_template('ticket.csv')
             c = Context({'data': self.get_queryset()}, )
-            response.write(t.render(c))
+            #enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
+
+            response.write(enqueue(func=t.render(c)))
             return response
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
@@ -637,10 +639,6 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
 
 
 
-
-
-
-
 class TicketCommentAPI(APIView):
     model = TicketComments
     serializer_class = TicketCommentSerializer
@@ -785,7 +783,6 @@ class FileUploadAPI(LoginSiteRequiredMixin, ListAPIView):
 
     def get_queryset(self):
         file_type = self.request.QUERY_PARAMS.get('file_type', None)
-        print file_type
         if file_type == 'carts':
             return  CartsUploadFile.on_site.all()
         elif file_type == 'tickets':
