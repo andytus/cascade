@@ -28,12 +28,15 @@ def save_cart_records(line, site, file_record):
 
     try:
         rfid, serial, size, cart_type, born_date, status, house, street, unit = line.split(',')
+        print rfid, serial, size, cart_type, born_date, status, house, street, unit
         # get cart type by name
         cart_type = CartType.objects.get(name=cart_type, size=size)
         cart_status = CartStatus.objects.get(label=status)
         cart = Cart(site=site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number = serial,
                     size=size, inventory_location = InventoryAddress.objects.get(site=site, default=True), file_upload = file_record,
                     cart_type=cart_type, current_status=cart_status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
+
+        #TODO work on getting unit logic
         try:
             if status == 'Delivered':
                 location = CollectionAddress.objects.get(site=site, house_number=house.strip(), street_name=street)
@@ -43,6 +46,8 @@ def save_cart_records(line, site, file_record):
             else:
                 cart.at_inventory = True
         except Exception as e:
+            print e
+            #cant find put the cart in inventory
             cart.at_inventory = True
 
         cart.full_clean()
@@ -50,6 +55,7 @@ def save_cart_records(line, site, file_record):
         file_record.num_good +=1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
+        print e
         file_record.status = "FAILED"
         file_record.num_error +=1
         save_error(e, line)
@@ -108,10 +114,13 @@ def save_ticket_records(line, site, file_record):
                 #goes into  cart processing here
                 #grab cart from the serviced cart
                 cart = ticket.serviced_cart
+                cart_type_update = CartType.on_site.get(site=site, name=container_type, size=container_size)
+                cart.cart_type = cart_type_update
                 ticket.status = TicketStatus.on_site.get(site=site, service_status='Completed')
                 ticket.processed = True
                 #updating current cart status
                 cart.current_status = ticket.service_type.complete_cart_status_change
+
 
                 if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
                     cart.location = ticket.location
