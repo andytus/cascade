@@ -163,12 +163,6 @@
 {% compressed_js 'models_location' %}
 
 
-{% comment %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketCreateViewModel.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/form_steps.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
-{% endcomment %}
-
 
 <script type="text/javascript">
     //Globals coming from incoming request
@@ -177,7 +171,9 @@
     var location_id = '{{ location_id }}' || null;
     var cart_address = '{{ cart_address }}' || null;
     var cart_address_unit ='{{ cart_address_unit }}' || null;
-    var cart_address_street_name = '{{ cart_address_street_name }}' || null;
+
+    var cart_address_street_name = '{{ cart_address_street_name }}'.replace('&#39;', "'") || null;
+
     var cart_address_house_number = '{{ cart_address_house_number }}' || null;
     var ticket_id = '{{ticket_id }}' || null;
     var ticket_api = '{% url ticket_api %}';
@@ -191,3 +187,4 @@
 
 
 </script>
+
