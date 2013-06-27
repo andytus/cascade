@@ -301,13 +301,12 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         return csvfile.getvalue()
 
 
-
     def stream_response_generator(self, data):
         index = 0
         for row in data:
              index +=1
              yield self.csv_out(row, index)
-             time.sleep(0.09)
+             #time.sleep(0.09)
 
 
     def list(self, request, *args, **kwargs):
