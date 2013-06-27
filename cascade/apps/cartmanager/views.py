@@ -293,7 +293,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         csv_writer.writerow(['SystemID', 'StreetName', 'HouseNumber', 'UnitNumber', 'ServiceType', 'RFID', 'CartSize', 'CartType'])
         for row in data:
             print row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, row.expected_cart, row.cart_type.size, row.cart_type
-            csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, getattr(row.expected_cart, 'rfid', ''), row.cart_type.size, row.cart_type])
+            csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, str(getattr(row.expected_cart, 'rfid', '')) + '"', row.cart_type.size, row.cart_type])
             #time.sleep(1)
         yield csvfile.getvalue()
 
