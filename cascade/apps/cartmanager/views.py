@@ -10,14 +10,15 @@ from django.http import Http404
 from django.http import HttpResponse
 from rest_framework import status as django_rest_status
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, MultipleObjectAPIView
-from rest_framework.mixins import  RetrieveModelMixin, UpdateModelMixin, ListModelMixin
+from rest_framework.generics import ListAPIView
+#from rest_framework_csv import renderers as csv_render
 from rest_framework.response import Response as RestResponse
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
 from cascade.libs.renderers import CSVRenderer
 from django.db.models import Q
 from django_rq import enqueue
 from cascade.libs.uploads import process_upload_records
+from django.views.decorators.http import condition
 
 from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSearchSerializer, CartProfileSerializer,\
     CustomerProfileSerializer, AddressCartProfileSerializer,\
@@ -25,6 +26,9 @@ from cascade.apps.cartmanager.serializer import LocationInfoSerializer, CartSear
     CustomerInfoSerializer, UploadFileSerializer, TicketStatusSerializer, TicketCommentSerializer, \
     CartServiceTypeSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
+import csv, time
+import cStringIO as StringIO
+
 
 
 class CartSearch(LoginSiteRequiredMixin, TemplateView):
@@ -236,7 +240,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket
     serializer_class = CartServiceTicketSerializer
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, JSONPRenderer, BrowsableAPIRenderer, CSVRenderer )
     paginate_by = 100
 
 
@@ -283,17 +287,28 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         else:
             raise Http404
 
+    def csv_out(self, data):
+        csvfile = StringIO.StringIO()
+        csv_writer = csv.writer(csvfile)
+        csv_writer.writerow(['SystemID', 'StreetName', 'HouseNumber', 'UnitNumber', 'ServiceType', 'RFID', 'CartSize', 'CartType'])
+        for row in data:
+            print row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, row.expected_cart, row.cart_type.size, row.cart_type
+            csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, getattr(row.expected_cart, 'rfid', ''), row.cart_type.size, row.cart_type])
+            #time.sleep(1)
+        yield csvfile.getvalue()
 
-    #over ride list method to provide csv download
     def list(self, request, *args, **kwargs):
         if self.request.accepted_renderer.format == "csv":
             file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
-            response = HttpResponse(mimetype='text/csv')
+            data = self.get_queryset() #TODO only return what columns are needed
+            response = HttpResponse(self.csv_out(data), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
-            t = loader.get_template('ticket.csv')
-            c = Context({'data': self.get_queryset()}, )
+
+            #SystemID, StreetName, HouseNumber, UnitNumber, ServiceType, RFID, CartSize, CartType
+            #t = loader.get_template('ticket.csv')
+            #c = Context({'data': self.get_queryset()}, )
             #enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
-            response.write(enqueue(func=t.render(c)))
+            #response.write(enqueue(func=t.render(c)))
             return response
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
