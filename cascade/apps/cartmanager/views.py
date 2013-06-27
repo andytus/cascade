@@ -244,6 +244,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     paginate_by = 100
 
 
+
     def get_queryset(self):
         search_by = simplejson.loads(self.request.QUERY_PARAMS.get('search_by', None))
         if search_by:
@@ -287,21 +288,33 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         else:
             raise Http404
 
-    def csv_out(self, data):
+
+
+    def csv_out(self, row, index):
         csvfile = StringIO.StringIO()
         csv_writer = csv.writer(csvfile)
-        csv_writer.writerow(['SystemID', 'StreetName', 'HouseNumber', 'UnitNumber', 'ServiceType', 'RFID', 'CartSize', 'CartType'])
+        if index == 1:
+            csv_writer.writerow(['SystemID', 'StreetName', 'HouseNumber', 'UnitNumber', 'ServiceType', 'RFID', 'CartSize', 'CartType'])
+
+           # print row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, row.expected_cart, row.cart_type.size, row.cart_type
+        csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, str(getattr(row.expected_cart, 'rfid', '')) + '"', row.cart_type.size, row.cart_type])
+        return csvfile.getvalue()
+
+
+
+    def stream_response_generator(self, data):
+        index = 0
         for row in data:
-            print row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, row.expected_cart, row.cart_type.size, row.cart_type
-            csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, str(getattr(row.expected_cart, 'rfid', '')) + '"', row.cart_type.size, row.cart_type])
-            #time.sleep(1)
-        yield csvfile.getvalue()
+             index +=1
+             yield self.csv_out(row, index)
+             time.sleep(0.09)
+
 
     def list(self, request, *args, **kwargs):
         if self.request.accepted_renderer.format == "csv":
             file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
             data = self.get_queryset() #TODO only return what columns are needed
-            response = HttpResponse(self.csv_out(data), mimetype='text/csv')
+            response = HttpResponse(self.stream_response_generator(data), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
 
             #SystemID, StreetName, HouseNumber, UnitNumber, ServiceType, RFID, CartSize, CartType
