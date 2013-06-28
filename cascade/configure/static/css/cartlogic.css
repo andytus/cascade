@@ -22,12 +22,12 @@ body { height: 100%; margin: 0; padding: 0 }
 #left {
     /*border: green solid;*/
     word-wrap: break-word;
-    margin-left: 1.5%;
     margin-top: .9%;
 }
 
 #main {
     /*border: blue solid;*/
+    padding: 0;
 }
 
 #right{

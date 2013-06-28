@@ -162,7 +162,7 @@
         <div class="row-fluid">
 
             <div id="left" class="span2">
-                <img class="logo" src="{{ STATIC_URL }}img/logos/{{ current_site.name }}.png" />
+                <img class="logo pull-right" src="{{ STATIC_URL }}img/logos/{{ current_site.name }}.png" />
                 {% block left %}
 
 
@@ -181,6 +181,7 @@
                 {% block right %}
                 {% endblock %}
             </div>
+
         </div>
     </div>
 {% endblock %}
