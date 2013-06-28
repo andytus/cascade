@@ -22,6 +22,8 @@ body { height: 100%; margin: 0; padding: 0 }
 #left {
     /*border: green solid;*/
     word-wrap: break-word;
+    margin-left: 1.5%;
+    margin-top: .9%;
 }
 
 #main {
@@ -552,4 +554,11 @@ table.table-sorter thead tr .sort-up{
 
 .errorlist{
     color: #8b0000;
+}
+
+.logo{
+    margin-top: 2%;
+    margin-right: auto;
+    margin-left:  auto;
+
 }

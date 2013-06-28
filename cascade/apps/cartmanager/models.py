@@ -105,7 +105,6 @@ class AdminDefaults(models.Model):
     city = models.CharField(max_length=200, blank=True, null=True)
     state = models.CharField(max_length=2, blank=True, null=True)
     account_admin = models.CharField(max_length=40, blank=True, null=True)
-
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
