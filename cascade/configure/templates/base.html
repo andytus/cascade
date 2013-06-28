@@ -16,7 +16,7 @@
 
     {% endblock %}
 
-    <title>  {% block title %} {% endblock %} </title>
+    <title>  {% block title %}{% endblock %} </title>
 </head>
 <body>
 <div id="top" class="row">
@@ -160,9 +160,11 @@
         </div>
 
         <div class="row-fluid">
-            <div id="left" class="span2">
 
+            <div id="left" class="span2">
+                <img class="logo" src="{{ STATIC_URL }}img/logos/{{ current_site.name }}.png" />
                 {% block left %}
+
 
                 {% endblock %}
             </div>
@@ -207,12 +209,6 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/bootstrap-tab.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout-2.2.0.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/knockout.mapping.js"></script>
-
-{% comment %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/utilities/ajax.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartSearchViewModel.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_type.js"></script>
-{% endcomment %}
 
 
 <script type="text/javascript">
