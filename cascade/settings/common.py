@@ -4,7 +4,7 @@ __author__ = 'jbennett'
 # Django settings for cascade project.
 import os
 
-from django.conf import global_settings
+from django.conf import settings
 
 ROOT_DIR = os.path.dirname(__file__)
 
@@ -109,7 +109,9 @@ TEMPLATE_LOADERS = (
     #     'django.template.loaders.eggs.Loader',
     )
 
-#TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + ( 'cascade.libs.context_processor.current_site',)
+
+
+TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + ( 'cascade.libs.context_processor.current_site',)
 
 
 MIDDLEWARE_CLASSES = (
