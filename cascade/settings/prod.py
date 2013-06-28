@@ -58,4 +58,5 @@ PIPELINE_CSS_COMPRESSOR = None
 
 EMAIL_SUBJECT_PREFIX = '[CartLogic]'
 
+#enable pipeline
 PIPELINE = True
