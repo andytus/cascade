@@ -106,6 +106,16 @@ TEMPLATE_LOADERS = (
     #     'django.template.loaders.eggs.Loader',
     )
 
+TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
+                               "django.core.context_processors.debug",
+                               "django.core.context_processors.i18n",
+                               "django.core.context_processors.media",
+                               "django.core.context_processors.static",
+                               "django.core.context_processors.tz",
+                               "django.contrib.messages.context_processors.messages",
+                               'cascade.libs.context_processor.current_site',)
+
+
 MIDDLEWARE_CLASSES = (
     'cascade.libs.middleware.MultiSiteMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -418,12 +428,3 @@ EMAIL_HOST_PASSWORD = os.environ['MANDRILL_APIKEY']
 SERVER_EMAIL = os.environ['MANDRILL_USERNAME']
 EMAIL_USE_TLS = True
 MANDRILL_API_KEY = os.environ['MANDRILL_APIKEY']
-
-TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-                               "django.core.context_processors.debug",
-                               "django.core.context_processors.i18n",
-                               "django.core.context_processors.media",
-                               "django.core.context_processors.static",
-                               "django.core.context_processors.tz",
-                               "django.contrib.messages.context_processors.messages",
-                               'cascade.libs.context_processor.current_site',)
