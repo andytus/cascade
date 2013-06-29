@@ -35,7 +35,7 @@ SOUTH_DATABASE_ADAPTERS ={
 
 DEBUG = False
 
-
+#test
 RQ_QUEUES = {
     'default': {
         'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
