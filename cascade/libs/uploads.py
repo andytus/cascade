@@ -66,7 +66,7 @@ def save_ticket_records(line, site, file_record):
         # Get imported files data
         # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType,RFID,ContainerSize,ContainerType,TicketStatus,DateTime,UserName,Latitude,Longitude,BrokenComponent,Comments
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
-        complete_datetime, device_name, lat, lon, broken_component, broken_comments, comment = line.split(',')
+        complete_datetime, device_name, lat, lon, broken_component,comment = line.split(',')
 
         ticket = Ticket.on_site.get(site=site, id=system_id)
 
@@ -104,7 +104,6 @@ def save_ticket_records(line, site, file_record):
                 ticket.updated_by = file_record.uploaded_by
                 file_record.success_count += 1
                 ticket.success_attempts += 1
-                ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 print ticket.date_completed
                 #get cart by rfid and assign to serviced cart on ticket
                 ticket.serviced_cart = Cart.objects.get(rfid__exact=rfid)
@@ -117,6 +116,7 @@ def save_ticket_records(line, site, file_record):
                 cart_type_update = CartType.on_site.get(site=site, name=container_type, size=container_size)
                 cart.cart_type = cart_type_update
                 ticket.status = TicketStatus.on_site.get(site=site, service_status='Completed')
+                ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.processed = True
                 #updating current cart status
                 cart.current_status = ticket.service_type.complete_cart_status_change
@@ -124,7 +124,6 @@ def save_ticket_records(line, site, file_record):
 
                 if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
                     cart.location = ticket.location
-                    #cart.current_status = ticket.service_type.complete_cart_status_change
                     #set to not at inventory
                     cart.at_inventory = False
                     #check if latitude was updated
@@ -147,8 +146,8 @@ def save_ticket_records(line, site, file_record):
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
-                            #updating to inventory status here
-                           # cart.current_status = ticket.service_type.complete_cart_status_change
+
+
                     else:
                     # else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
                     # Check if last update is greater than or equal to 2 days and update location to None
