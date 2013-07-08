@@ -66,7 +66,7 @@ def save_ticket_records(line, site, file_record):
         # Get imported files data
         # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType, RFID, ContainerSize, ContainerType, TicketStatus,DateTime,UserName,Latitude,Longitude,BrokenComponent,Comments
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
-        complete_datetime, device_name, lat, lon, broken_component,comment = line.split(',')
+        complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
 
         ticket = Ticket.on_site.get(site=site, id=system_id)
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
