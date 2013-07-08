@@ -88,7 +88,7 @@ def save_ticket_records(line, site, file_record):
                 ticket.serviced_cart = Cart.objects.get(rfid__exact=rfid)
 
             elif upload_ticket_status == "UNSUCCESSFUL":
-                file_record.unsucessful += 1
+                file_record.unsuccessful += 1
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.status = TicketStatus.on_site.get(site=site, service_status='Unsuccessful')
