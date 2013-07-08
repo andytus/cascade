@@ -873,8 +873,6 @@ class UploadFormView(TemplateView):
             upload_file.save()
             #Here the records are processed
             if process:
-                print upload_file.site
-                print get_current_site(self.request).id
                 enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
                 #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
             #TODO send back file id and kind for a link to file processing view
