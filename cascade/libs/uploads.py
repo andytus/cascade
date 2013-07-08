@@ -69,7 +69,7 @@ def save_ticket_records(line, site, file_record):
         complete_datetime, device_name, lat, lon, broken_component,comment = line.split(',')
 
         ticket = Ticket.on_site.get(site=site, id=int(system_id))
-
+        print system_id
 
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
