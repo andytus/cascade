@@ -106,7 +106,7 @@ def save_ticket_records(line, site, file_record):
                 ticket.success_attempts += 1
                 print ticket.date_completed
                 #get cart by rfid and assign to serviced cart on ticket
-                ticket.serviced_cart = Cart.objects.get(rfid__exact=rfid)
+                ticket.serviced_cart = Cart.objects.get(rfid__exact=rfid.strip('=').strip('"'))
                 print "in COMPLETED"
 
 
