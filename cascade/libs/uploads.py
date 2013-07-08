@@ -70,7 +70,7 @@ def save_ticket_records(line, site, file_record):
 
         ticket = Ticket.on_site.get(site=site, id=int(system_id))
         print system_id
-
+        print site
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
