@@ -111,7 +111,7 @@ TEMPLATE_LOADERS = (
 
 
 
-#TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + ( 'cascade.libs.context_processor.current_site',)
+TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + ( 'cascade.libs.context_processor.current_site',)
 
 
 MIDDLEWARE_CLASSES = (

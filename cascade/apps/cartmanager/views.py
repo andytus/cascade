@@ -896,7 +896,7 @@ class CustomerUploadView(UploadFormView):
 
 
 class TicketsCompletedUploadView(UploadFormView):
-    form_class = TicketsCompletedUploadFileForm
+    #form_class = TicketsCompletedUploadFileForm
     MODEL = TicketsCompleteUploadFile
     FILE = 'ticket_file'
     KIND = 'Tickets'
