@@ -68,7 +68,7 @@ def save_ticket_records(line, site, file_record):
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
         complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
 
-        ticket = Ticket.objects.get(site_id=site.id, id=system_id)
+        ticket = Ticket.objects.get(id=system_id)
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
@@ -78,7 +78,7 @@ def save_ticket_records(line, site, file_record):
                 ticket.latitude = lat
                 ticket.longitude = lon
             if comment and type(comment) is str:
-                ticket_comment = TicketComments(site_id=site.id, text=comment + " -Imported from reader device: %s" % device_name, ticket=ticket, created_by=file_record.uploaded_by)
+                ticket_comment = TicketComments(site=site, text=comment + " -Imported from reader device: %s" % device_name, ticket=ticket, created_by=file_record.uploaded_by)
                 ticket_comment.save()
                 #status from the uploaded file
             if ticket.service_type.code == 'REPAIR':
@@ -91,7 +91,7 @@ def save_ticket_records(line, site, file_record):
                 file_record.unsuccessful += 1
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
-                ticket.status = TicketStatus.objects.get(site_id=site.id, service_status='Unsuccessful')
+                ticket.status = TicketStatus.objects.get(site=site, service_status='Unsuccessful')
                 print "in UNSUCCESSFUL"
 
             elif upload_ticket_status == "ADD":
@@ -112,9 +112,9 @@ def save_ticket_records(line, site, file_record):
                 #goes into  cart processing here
                 #grab cart from the serviced cart
                 cart = ticket.serviced_cart
-                cart_type_update = CartType.objects.get(site_id=site.id, name=container_type, size=container_size)
+                cart_type_update = CartType.objects.get(site=site, name=container_type, size=container_size)
                 cart.cart_type = cart_type_update
-                ticket.status = TicketStatus.objects.get(site_id=site.id, service_status='Completed')
+                ticket.status = TicketStatus.objects.get(site=site, service_status='Completed')
                 ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.processed = True
                 #updating current cart status
@@ -141,7 +141,7 @@ def save_ticket_records(line, site, file_record):
                             #remove location from serviced cart and put in inventory
                             cart.location = None
                             #set inventory location
-                            cart.inventory_location = InventoryAddress.objects.get(site_id=site.id, default=True)
+                            cart.inventory_location = InventoryAddress.objects.get(site=site, default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
@@ -155,7 +155,7 @@ def save_ticket_records(line, site, file_record):
                         days_last_updated = (datetime.today() - cart.last_updated).days
                         if days_last_updated >= 2:
                             cart.location = None
-                            cart.inventory_location = InventoryAddress.objects.get(site_id=site.id, default=True)
+                            cart.inventory_location = InventoryAddress.objects.get(site=site, default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
