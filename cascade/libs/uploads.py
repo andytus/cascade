@@ -155,7 +155,7 @@ def save_ticket_records(line, site, file_record):
                         days_last_updated = (datetime.today() - cart.last_updated).days
                         if days_last_updated >= 2:
                             cart.location = None
-                            cart.inventory_location = InventoryAddress.objects.get(site=site, default=True)
+                            cart.inventory_location = InventoryAddress.objects.get(site_id=site, default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
