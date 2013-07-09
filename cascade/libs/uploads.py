@@ -91,7 +91,7 @@ def save_ticket_records(line, site, file_record):
                 file_record.unsuccessful += 1
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
-                ticket.status = TicketStatus.objects.get(service_status='Unsuccessful')
+                ticket.status = TicketStatus.objects.get(site=file_record.site, service_status='Unsuccessful')
                 print "in UNSUCCESSFUL"
 
             elif upload_ticket_status == "ADD":
