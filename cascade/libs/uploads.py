@@ -68,7 +68,7 @@ def save_ticket_records(line, site, file_record):
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
         complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
 
-        ticket = Ticket.objects.get(site=site, id=system_id)
+        ticket = Ticket.on_site.get(site=site,id=system_id)
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
