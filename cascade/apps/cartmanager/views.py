@@ -102,8 +102,6 @@ class CustomerNew(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_new.html'
 
 
-
-
 class CustomerReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_report.html'
 
