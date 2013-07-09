@@ -141,7 +141,7 @@ def save_ticket_records(line, site, file_record):
                             #remove location from serviced cart and put in inventory
                             cart.location = None
                             #set inventory location
-                            cart.inventory_location = InventoryAddress.objects.get(site=site, default=True)
+                            cart.inventory_location = InventoryAddress.objects.get(site_id=site, default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
