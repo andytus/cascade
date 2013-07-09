@@ -114,7 +114,7 @@ def save_ticket_records(line, site, file_record):
                 cart = ticket.serviced_cart
                 cart_type_update = CartType.objects.get(site_id=site, name=container_type, size=container_size)
                 cart.cart_type = cart_type_update
-                ticket.status = TicketStatus.objects.get(site=site, service_status='Completed')
+                ticket.status = TicketStatus.objects.get(site_id=site, service_status='Completed')
                 ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.processed = True
                 #updating current cart status
