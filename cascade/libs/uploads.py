@@ -179,7 +179,6 @@ def save_ticket_records(line, site, file_record):
 
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
-        transaction.rollback()
         file_record.status = "FAILED"
         file_record.num_error +=1
         error_message = e.message
@@ -187,7 +186,10 @@ def save_ticket_records(line, site, file_record):
             for key, value in e.message_dict.iteritems():
                 error_message += "%s: %s " % (str(key).upper(), ','.join(value))
         error = DataErrors(site=file_record.site, error_message=error_message, error_type = type(e), failed_data=line)
-        error.save()
+        try:
+            error.save()
+        except IntegrityError:
+            transaction.rollback()
 
 
 def save_customer_records(line, site, file_record):
