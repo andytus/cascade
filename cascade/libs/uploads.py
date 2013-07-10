@@ -77,6 +77,7 @@ def save_ticket_records(line, site, file_record):
             cart = Cart.objects.get(site=file_record.site, rfid__exact=rfid.strip('=').strip('"'))
         except Cart.DoesNotExist:
             cart = Cart(site=file_record.site, rfid=rfid.strip('=').strip('"'), serial_number=rfid.strip('=').strip('"')[-8:], size=container_size, updated_by = file_record.uploaded_by)
+            cart.save()
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
@@ -182,7 +183,7 @@ def save_ticket_records(line, site, file_record):
             for key, value in e.message_dict.iteritems():
                 error_message += "%s: %s " % (str(key).upper(), ','.join(value))
         error = DataErrors(site=file_record.site, error_message=error_message, error_type = type(e), failed_data=line)
-        error.save()
+        #error.save()
 
 def save_customer_records(line, site, file_record):
     try:
