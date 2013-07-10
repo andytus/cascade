@@ -275,6 +275,6 @@ def process_upload_records(file_model, site, file_id):
     file_record.num_records = file_record.num_good + file_record.num_error
     file_record.date_end_processing = datetime.now()
     file_record.total_process_time = (file_record.date_end_processing - file_record.date_start_processing).seconds
-    file_record.save()
+    #file_record.save()
     file_record.file_path.close()
-    file_record.save()
+    #file_record.save()
