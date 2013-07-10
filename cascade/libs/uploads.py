@@ -183,7 +183,7 @@ def save_ticket_records(line, site, file_record):
             for key, value in e.message_dict.iteritems():
                 error_message += "%s: %s " % (str(key).upper(), ','.join(value))
         error = DataErrors(site=file_record.site, error_message=error_message, error_type = type(e), failed_data=line)
-        #error.save()
+        error.save()
 
 def save_customer_records(line, site, file_record):
     try:
