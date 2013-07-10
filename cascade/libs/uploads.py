@@ -167,12 +167,8 @@ def save_ticket_records(line, site, file_record):
                             cart.last_longitude = cart.inventory_location.longitude
                             #cart.current_status = ticket.service_type.complete_cart_status_change
                 cart.save()
-            print ticket
-            try:
-                ticket.save()
-            except Exception as e:
-                print e
-            print ticket
+
+            ticket.save()
             file_record.num_good += 1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
@@ -192,7 +188,7 @@ def save_customer_records(line, site, file_record):
         state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
         yard_organics_size, other,  other_size, route, route_day = line.split(',')
 
-        customer = CollectionCustomer(site=site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
+        customer = CollectionCustomer(site=file_record.site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
             phone_number = phone)
 
         #.full_clean checks for the correct data
@@ -201,14 +197,14 @@ def save_customer_records(line, site, file_record):
 
         # systemid should be zero as default
         if systemid:
-            new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer, system_name=system_name, site=site)
+            new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer, system_name=system_name, site=file_record.site)
             new_foreign_system_id.save()
 
 
 
         #TODO: for systemid, need to create ForeignSystemCustomerID, create then save to customer, will need extra fields
         # Collection_Address setup & save:
-        collection_address = CollectionAddress(site=site, customer=customer, house_number=house_number.strip(),
+        collection_address = CollectionAddress(site=file_record.site, customer=customer, house_number=house_number.strip(),
             street_name=street_name.strip().upper(), unit=unit.strip(), city=city, zipcode=zipcode,
             state=state,latitude=latitude, longitude=longitude, property_type=property_type)
         collection_address.full_clean()
@@ -216,23 +212,23 @@ def save_customer_records(line, site, file_record):
 
 
         # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
-        delivery = CartServiceType.on_site.get(site=site, code="DEL")
-        requested = TicketStatus.on_site.get(site=site, service_status="Requested")
+        delivery = CartServiceType.on_site.get(site=file_record.site, code="DEL")
+        requested = TicketStatus.on_site.get(site=file_record.site, service_status="Requested")
         user = file_record.uploaded_by
 
 
         if refuse.isdigit():
             for x in range(int(refuse)):
-                Ticket(cart_type=CartType.on_site.get(site=site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
         if recycle.isdigit():
             for x in range(int(recycle)):
-                Ticket(cart_type=CartType.on_site.get(site=site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
         if yard_organics.isdigit():
             for x in range(int(yard_organics)):
-                Ticket(cart_type=CartType.on_site.get(site=site, name="Yard", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
         if other.isdigit():
             for x in range(int(other)):
-                Ticket(cart_type=CartType.on_site.get(site=site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
 
         file_record.num_good += 1
 
@@ -242,7 +238,7 @@ def save_customer_records(line, site, file_record):
         #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket
         file_record.status = "FAILED"
         file_record.num_error +=1
-        error = DataErrors(site=site, error_message=e, error_type = type(e), failed_data=line)
+        error = DataErrors(site=file_record.site, error_message=e, error_type = type(e), failed_data=line)
         error.save()
 
 
@@ -275,6 +271,6 @@ def process_upload_records(file_model, site, file_id):
     file_record.num_records = file_record.num_good + file_record.num_error
     file_record.date_end_processing = datetime.now()
     file_record.total_process_time = (file_record.date_end_processing - file_record.date_start_processing).seconds
-    #file_record.save()
+    file_record.save()
     file_record.file_path.close()
-    #file_record.save()
+    file_record.save()
