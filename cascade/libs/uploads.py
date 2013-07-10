@@ -77,12 +77,14 @@ def save_ticket_records(line, site, file_record):
             cart = Cart.objects.get(site=file_record.site, rfid__exact=rfid.strip('=').strip('"'))
         except Cart.DoesNotExist:
             cart = Cart(site=file_record.site, rfid=rfid, serial_number=rfid[-8:], size=container_size, updated_by = file_record.uploaded_by)
-            cart.save()
+            try:
+                cart.save()
+            except:
+                transaction.rollback()
 
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
-
             if lat:
                 ticket.latitude = lat
                 ticket.longitude = lon
