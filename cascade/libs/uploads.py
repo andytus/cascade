@@ -3,6 +3,7 @@ __author__ = 'jbennett'
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.contrib.sites.models import Site
+from django.db import transaction
 #from django.db import transaction
 #note the import of the *UploadFile may not be needed, as they are passed through by the view
 from cascade.apps.cartmanager.models import CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, \
@@ -178,6 +179,7 @@ def save_ticket_records(line, site, file_record):
 
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
+        transaction.rollback()
         file_record.status = "FAILED"
         file_record.num_error +=1
         error_message = e.message
