@@ -188,7 +188,8 @@ def save_ticket_records(line, site, file_record):
         error = DataErrors(site=file_record.site, error_message=error_message, error_type = type(e), failed_data=line)
         try:
             error.save()
-        except IntegrityError:
+        except IntegrityError as e:
+            print e
             transaction.rollback()
 
 
