@@ -219,16 +219,16 @@ def save_customer_records(line, site, file_record):
 
         if refuse.isdigit():
             for x in range(int(refuse)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
         if recycle.isdigit():
             for x in range(int(recycle)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size = int(recycle_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size = int(recycle_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
         if yard_organics.isdigit():
             for x in range(int(yard_organics)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard", size = int(yard_organics_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard", size = int(yard_organics_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
         if other.isdigit():
             for x in range(int(other)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Other", size=int(other_size)), site=site, service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Other", size=int(other_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
 
         file_record.num_good += 1
 
