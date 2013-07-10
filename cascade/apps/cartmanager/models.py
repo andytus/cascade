@@ -369,7 +369,7 @@ class Cart(models.Model):
     current_status = models.ForeignKey(CartStatus, null=True, blank=True)
     cart_type = models.ForeignKey(CartType, null=True, blank=True, default=1)
     last_updated = models.DateTimeField(auto_now=datetime.now)
-    born_date = models.DateTimeField()
+    born_date = models.DateTimeField(null=True, blank=True)
     updated_by = models.ForeignKey(User, related_name="cart_updated_by_user" )
     file_upload = models.ForeignKey(CartsUploadFile, null=True, blank=True, related_name="cart_upload_file")
 

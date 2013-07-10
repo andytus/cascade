@@ -22,8 +22,15 @@ function CartProfile(data){
     self.size = ko.observable(data.cart_type.size);
     self.cart_type = ko.observable(data.cart_type.name);
     self.cart_type_id = ko.observable(data.cart_type.id);
+
     self.last_updated = ko.observable(new Date(data.last_updated).toDateString());
-    self.born_date = ko.observable(new Date(data.born_date).toDateString());
+
+    if(data.born_date != null){
+        self.born_date = ko.observable(new Date(data.born_date).toDateString());
+    } else{
+        self.born_date = ko.observable("Unknown")
+    }
+
 
     //location information
     if(data.location != null){

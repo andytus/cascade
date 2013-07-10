@@ -71,6 +71,14 @@ def save_ticket_records(line, site, file_record):
         ticket = Ticket.objects.get(id=system_id)
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
+        #get or create cart
+        try:
+            cart = Cart.objects.get(site=file_record.site, rfid__exact=rfid.strip('=').strip('"'))
+        except Cart.DoesNotExist:
+            cart = Cart(site=file_record.site, rfid=rfid, serial_number=rfid[-8:], size=container_size, updated_by = file_record.uploaded_by)
+            cart.save()
+
+
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
 
@@ -85,7 +93,7 @@ def save_ticket_records(line, site, file_record):
                 file_record.repair_count += 1
                 ticket.success_attempts += 1
                 ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
-                ticket.serviced_cart = Cart.objects.get(site=file_record.site, rfid__exact=rfid.strip('=').strip('"'))
+                ticket.serviced_cart = cart
 
             elif upload_ticket_status == "UNSUCCESSFUL":
                 file_record.unsuccessful += 1
@@ -103,9 +111,8 @@ def save_ticket_records(line, site, file_record):
                 ticket.updated_by = file_record.uploaded_by
                 file_record.success_count += 1
                 ticket.success_attempts += 1
-                print ticket.date_completed
                 #get cart by rfid and assign to serviced cart on ticket
-                ticket.serviced_cart = Cart.objects.get(site=file_record.site, rfid__exact=rfid.strip('=').strip('"'))
+                ticket.serviced_cart = cart
                 print "in COMPLETED"
 
 
