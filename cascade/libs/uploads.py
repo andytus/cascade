@@ -79,7 +79,7 @@ def save_ticket_records(line, site, file_record):
             cart = Cart(site=file_record.site, rfid=rfid, serial_number=rfid[-8:], size=container_size, updated_by = file_record.uploaded_by)
             try:
                 cart.save()
-            except:
+            except IntegrityError:
                 transaction.rollback()
 
 
