@@ -25,7 +25,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'cartlogictest',                      # Or path to database file if using sqlite3.
+        'NAME': 'bkupprod',                      # Or path to database file if using sqlite3.
         'USER': 'admin_cartlogic',                      # Not used with sqlite3.
         'PASSWORD': 'charlize20',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -48,8 +48,6 @@ TIME_ZONE = 'America/Detroit'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
-
-SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -426,3 +424,5 @@ EMAIL_HOST_PASSWORD = os.environ['MANDRILL_APIKEY']
 SERVER_EMAIL = os.environ['MANDRILL_USERNAME']
 EMAIL_USE_TLS = True
 MANDRILL_API_KEY = os.environ['MANDRILL_APIKEY']
+
+SITE_ID = 2

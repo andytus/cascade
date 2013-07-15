@@ -434,12 +434,6 @@ class Ticket(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
-
-    #TODO created and completed by.... hook to user.
-    #TODO going to need reason code for incomplete
-
-    #TODO def get_absolute_url
-
     class Meta:
         ordering = ["-date_created"]
 
