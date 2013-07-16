@@ -7,15 +7,12 @@ from django.db import transaction
 from cascade.apps.cartmanager.models import CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, \
 Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, TicketStatus, TicketComments, CollectionCustomer, \
 CartServiceType, CollectionAddress, ForeignSystemCustomerID
-from django.contrib.sites.models import get_current_site
+
 
 from datetime import datetime
 
-#TODO Refactor to Class (no need to call database for file each time in save_cart_records)
-
 def save_error(e, line):
     error_message = e.message
-    print error_message
     if hasattr(e, 'message_dict'):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), ','.join(value))
@@ -27,7 +24,6 @@ def save_error(e, line):
 def save_cart_records(line, file_record):
     try:
         rfid, serial, size, cart_type, born_date, status, house, street, unit = line.split(',')
-        print rfid, serial, size, cart_type, born_date, status, house, street, unit
         # get cart type by name
         cart_type = CartType.objects.get(name=cart_type, size=size)
         cart_status = CartStatus.objects.get(label=status)
@@ -45,7 +41,6 @@ def save_cart_records(line, file_record):
             else:
                 cart.at_inventory = True
         except Exception as e:
-            print e
             #cant find put the cart in inventory
             cart.at_inventory = True
 
@@ -54,7 +49,6 @@ def save_cart_records(line, file_record):
         file_record.num_good +=1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
-        print e
         file_record.status = "FAILED"
         file_record.num_error +=1
         save_error(e, line)
@@ -67,7 +61,6 @@ def save_ticket_records(line, file_record):
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
         complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
         ticket = Ticket.objects.get(site=file_record.site, pk=system_id)
-        print "Current ticket site: ", ticket.site.id
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
 
         #get or create cart
@@ -136,7 +129,7 @@ def save_ticket_records(line, file_record):
                         if ticket.location == cart.location:
                             #remove location from serviced cart and put in inventory
                             cart.location = None
-                            #set inventory locatione
+                            #set inventory location
                             cart.inventory_location = InventoryAddress.objects.get(site=file_record.site, default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
@@ -146,7 +139,6 @@ def save_ticket_records(line, file_record):
                     # else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
                     # Check if last update is greater than or equal to 2 days and update location to None
                     # else it has been updated, and most likely it has been processed as a delivery today, leave it alone.
-                    #TODO WORK ON THIS LOGIC!
                         days_last_updated = (datetime.today() - cart.last_updated).days
                         if days_last_updated >= 2:
                             cart.location = None
@@ -157,11 +149,9 @@ def save_ticket_records(line, file_record):
                             #cart.current_status = ticket.service_type.complete_cart_status_change
                 cart.save()
             ticket.save()
-            print "ticket site after save: ", ticket.site.id
             file_record.num_good += 1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
-        print e
         file_record.status = "FAILED"
         file_record.num_error +=1
         error_message = e.message
@@ -181,7 +171,7 @@ def save_customer_records(line, file_record):
         customer = CollectionCustomer(site=file_record.site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
             phone_number = phone)
 
-        #.full_clean checks for the correct data
+        #full_clean checks for the correct data
         customer.full_clean()
         customer.save()
 
@@ -223,7 +213,6 @@ def save_customer_records(line, file_record):
         file_record.num_good += 1
 
     except Exception as e:
-        print e
         #transaction.rollback()
         #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket
         file_record.status = "FAILED"
@@ -237,7 +226,7 @@ def process_upload_records(file_model, site, file_id):
     #hmm... not sure how clean it is to pas the model instance (i.e. file_model)
     file_record = file_model.objects.get(site=site, id=file_id)
     file = file_record.file_path
-    print file_record.file_path, "File site_id: ", file_record.site.id
+
 
     #Read use the first header row:
     file.readline()
