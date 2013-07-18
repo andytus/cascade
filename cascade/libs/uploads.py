@@ -6,9 +6,8 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from cascade.apps.cartmanager.models import CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, \
 Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, TicketStatus, TicketComments, CollectionCustomer, \
-CartServiceType, CollectionAddress, ForeignSystemCustomerID
-
-
+CartServiceType, CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes
+from django.utils import timezone
 from datetime import datetime
 
 def save_error(e, line):
@@ -60,23 +59,24 @@ def save_ticket_records(line, file_record):
         # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType, RFID, ContainerSize, ContainerType, TicketStatus,DateTime,UserName,Latitude,Longitude,BrokenComponent,Comments
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
         complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
-        ticket = Ticket.objects.get(site=file_record.site, pk=system_id)
+        ticket = Ticket.on_site.get(pk=system_id)
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
+        print comment, type(comment), "comment here"
 
         #get or create cart
         try:
-
-            cart = Cart.objects.get(site=file_record.site, rfid__exact=rfid.strip('=').strip('"'))
+            cart = Cart.on_site.get(rfid__exact=rfid.strip('=').strip('"'))
         except Cart.DoesNotExist:
+            print "in Cart Does Not Exist"
             cart = Cart(site=file_record.site, rfid=rfid.strip('=').strip('"'), serial_number=rfid.strip('=').strip('"')[-8:], size=container_size, updated_by = file_record.uploaded_by)
             cart.save()
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
-            if lat:
+            if lat and type(lat) == float:
                 ticket.latitude = lat
                 ticket.longitude = lon
-            if comment and type(comment) is str:
+            if comment.strip() and type(comment) is str:
                 ticket_comment = TicketComments(site=file_record.site, text=comment + " -Imported from reader device: %s" % device_name, ticket=ticket, created_by=file_record.uploaded_by)
                 ticket_comment.save()
                 #status from the uploaded file
@@ -86,14 +86,17 @@ def save_ticket_records(line, file_record):
                 ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.serviced_cart = cart
 
-            elif upload_ticket_status == "UNSUCCESSFUL":
+            elif upload_ticket_status.split("-")[0] == "UNSUCCESSFUL":
+                ticket.reason_codes = ServiceReasonCodes.objects.get(description=upload_ticket_status.split("-")[1])
                 file_record.unsuccessful += 1
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
-                ticket.status = TicketStatus.objects.get(site=file_record.site, service_status='Unsuccessful')
+                ticket.status = TicketStatus.on_site.get(site=file_record.site, service_status='Unsuccessful')
+                print "end of unsuccessful"
 
 
             elif upload_ticket_status == 'COMPLETED':
+                print "in completed"
                 ticket.updated_by = file_record.uploaded_by
                 file_record.success_count += 1
                 ticket.success_attempts += 1
@@ -101,9 +104,10 @@ def save_ticket_records(line, file_record):
 
                 #goes into  cart processing here
                 #grab cart from the serviced cart
-                cart_type_update = CartType.objects.get(site=file_record.site, name=container_type, size=container_size)
+                cart_type_update = CartType.on_site.get(name=container_type, size=container_size)
                 cart.cart_type = cart_type_update
-                ticket.status = TicketStatus.objects.get(site=file_record.site, service_status='Completed')
+                ticket.status = TicketStatus.on_site.get(service_status='Completed')
+                print ticket.status
                 ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.processed = True
                 #updating current cart status
@@ -130,7 +134,7 @@ def save_ticket_records(line, file_record):
                             #remove location from serviced cart and put in inventory
                             cart.location = None
                             #set inventory location
-                            cart.inventory_location = InventoryAddress.objects.get(site=file_record.site, default=True)
+                            cart.inventory_location = InventoryAddress.on_site.get(default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
@@ -139,10 +143,11 @@ def save_ticket_records(line, file_record):
                     # else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
                     # Check if last update is greater than or equal to 2 days and update location to None
                     # else it has been updated, and most likely it has been processed as a delivery today, leave it alone.
-                        days_last_updated = (datetime.today() - cart.last_updated).days
+                        print "in day check wrong Cart"
+                        days_last_updated = (timezone.now() - cart.last_updated).days
                         if days_last_updated >= 2:
                             cart.location = None
-                            cart.inventory_location = InventoryAddress.objects.get(site=file_record.site, default=True)
+                            cart.inventory_location = InventoryAddress.on_site.get(default=True)
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
@@ -152,6 +157,7 @@ def save_ticket_records(line, file_record):
             file_record.num_good += 1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
+        print e
         file_record.status = "FAILED"
         file_record.num_error +=1
         error_message = e.message
@@ -224,7 +230,7 @@ def save_customer_records(line, file_record):
 
 def process_upload_records(file_model, site, file_id):
     #hmm... not sure how clean it is to pas the model instance (i.e. file_model)
-    file_record = file_model.objects.get(site=site, id=file_id)
+    file_record = file_model.on_site.get(id=file_id)
     file = file_record.file_path
 
 
