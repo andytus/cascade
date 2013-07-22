@@ -61,14 +61,16 @@ def save_ticket_records(line, file_record):
         complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
         ticket = Ticket.on_site.get(pk=system_id)
         time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
-        print comment, type(comment), "comment here"
 
         #get or create cart
-        try:
-            cart = Cart.on_site.get(rfid__exact=rfid.strip('=').strip('"'))
-        except Cart.DoesNotExist:
-            print "in Cart Does Not Exist"
-            cart = Cart(site=file_record.site, rfid=rfid.strip('=').strip('"'), serial_number=rfid.strip('=').strip('"')[-8:], size=container_size, updated_by = file_record.uploaded_by)
+        if len(rfid) > 4:
+            print "in rfid check"
+            try:
+                clean_rifd = rfid.strip('=').strip('"')
+                cart = Cart.on_site.get(rfid__exact=clean_rifd)
+            except Cart.DoesNotExist:
+                cart = Cart(site=file_record.site, rfid=clean_rifd,
+                            serial_number=rfid.strip('=').strip('"')[-8:], size=container_size, updated_by = file_record.uploaded_by)
             cart.save()
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
@@ -87,7 +89,8 @@ def save_ticket_records(line, file_record):
                 ticket.serviced_cart = cart
 
             elif upload_ticket_status.split("-")[0] == "UNSUCCESSFUL":
-                ticket.reason_codes = ServiceReasonCodes.objects.get(description=upload_ticket_status.split("-")[1])
+                if "-" in upload_ticket_status:
+                    ticket.reason_codes = ServiceReasonCodes.objects.get(description=upload_ticket_status.split("-")[1])
                 file_record.unsuccessful += 1
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
