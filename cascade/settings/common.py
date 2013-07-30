@@ -17,7 +17,6 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
 # ('Your Name', 'your_email@example.com'),
     ('Joe', 'joe.bennett@cascadeng.com'),
-    ('Joe', 'jbennett@webrapids.com'),
 )
 
 MANAGERS = ADMINS
@@ -25,7 +24,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'bkupprod',                      # Or path to database file if using sqlite3.
+        'NAME': 'cartlogictest',                      # Or path to database file if using sqlite3.
         'USER': 'admin_cartlogic',                      # Not used with sqlite3.
         'PASSWORD': 'charlize20',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
