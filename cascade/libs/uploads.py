@@ -233,7 +233,7 @@ def save_customer_records(line, file_record):
 
 def process_upload_records(file_model, site, file_id):
     #hmm... not sure how clean it is to pas the model instance (i.e. file_model)
-    file_record = file_model.on_site.get(id=file_id)
+    file_record = file_model.objects.get(id=file_id)
     file = file_record.file_path
 
 
