@@ -177,7 +177,7 @@ def save_customer_records(line, file_record):
         state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
         yard_organics_size, unassigned, unassigned_size, route, route_day = line.split(',')
 
-        customer = CollectionCustomer(site=file_record.site,first_name=first_name.upper(), last_name=last_name.upper(), email=email,
+        customer = CollectionCustomer(site=file_record.site,first_name=first_name[:25].upper(), last_name=last_name[:50].upper(), email=email,
             phone_number = phone)
 
         #full_clean checks for the correct data
@@ -215,7 +215,7 @@ def save_customer_records(line, file_record):
         if yard_organics.isdigit():
             for x in range(int(yard_organics)):
                 Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard", size = int(yard_organics_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
-        if other.isdigit():
+        if unassigned.isdigit():
             for x in range(int(unassigned)):
                 Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Unassigned", size=int(other_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
 
