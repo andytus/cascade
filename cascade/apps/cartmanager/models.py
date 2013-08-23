@@ -296,6 +296,9 @@ class CollectionCustomer(models.Model):
     def get_absolute_url(self):
         return reverse('customer_api_profile', args=[str(self.id)])
 
+    def get_app_url(self):
+        return reverse('customer_app_profile', args=[str(self.id)])
+
     def get_info(self):
         info = {"id":self.id, "name":self.full_name, "url": self.get_absolute_url()}
         return info

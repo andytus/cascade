@@ -23,6 +23,7 @@ function Ticket(data) {
     self.house_number = ko.observable();
     self.street_name = ko.observable();
     self.unit = ko.observable();
+    self.customer_app_url = ko.observable();
     self.serviced_cart = ko.observable();
     self.serviced_cart_id = ko.observable();
     self.serviced_cart_size = ko.observable();
@@ -52,6 +53,7 @@ function Ticket(data) {
         self.house_number(data.house_number);
         self.street_name(data.street_name);
         self.unit(data.unit);
+        self.customer_app_url(data.customer_app_url);
 
         self.location_address = ko.computed(function () {
             address = self.house_number() + " " + self.street_name();

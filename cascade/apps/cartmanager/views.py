@@ -30,8 +30,30 @@ import csv, time
 import cStringIO as StringIO
 
 
+class FileUploadListView(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering a list of uploaded files page.
+    Catches the JSON search parameters from the url, loads into
+    a dictionary and returns to context variable.
+
+    """
+    template_name = 'uploaded_files.html'
+    def get_context_data(self, **kwargs):
+        context = super(FileUploadListView, self).get_context_data(**kwargs)
+        search_parameters = simplejson.loads(self.request.GET.get('search_query', None))
+        if search_parameters:
+            context['search_parameters'] = search_parameters
+        return context
+
+
 
 class CartSearch(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering the cart search page.
+    Catches the search parameters from the url and places
+    them into a returned context variable.
+
+    """
     template_name = 'cart_search.html'
     search_query = None
 
@@ -191,7 +213,6 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         search_type = self.request.QUERY_PARAMS.get('type', None)
         value = self.request.QUERY_PARAMS.get('value', None)
 
-
         if search_type and value:
             query = Cart.on_site.filter()
             value = value.strip()
@@ -239,7 +260,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, JSONPRenderer, BrowsableAPIRenderer, CSVRenderer )
-    paginate_by = 100
+    paginate_by = 25
 
 
 
@@ -293,8 +314,6 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         csv_writer = csv.writer(csvfile)
         if index == 1:
             csv_writer.writerow(['SystemID', 'StreetName', 'HouseNumber', 'UnitNumber', 'ServiceType', 'RFID', 'CartSize', 'CartType'])
-
-           # print row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, row.expected_cart, row.cart_type.size, row.cart_type
         csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code, str(getattr(row.expected_cart, 'rfid', '')) + '"', row.cart_type.size, row.cart_type])
         return csvfile.getvalue()
 
@@ -313,12 +332,6 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             data = self.get_queryset() #TODO only return what columns are needed
             response = HttpResponse(self.stream_response_generator(data), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
-
-            #SystemID, StreetName, HouseNumber, UnitNumber, ServiceType, RFID, CartSize, CartType
-            #t = loader.get_template('ticket.csv')
-            #c = Context({'data': self.get_queryset()}, )
-            #enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
-            #response.write(enqueue(func=t.render(c)))
             return response
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
@@ -801,23 +814,42 @@ class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
             queryset = CartType.on_site.all()
             return queryset
 
-class FileUploadAPI(LoginSiteRequiredMixin, ListAPIView):
+class FileUploadListAPI(LoginSiteRequiredMixin, ListAPIView):
     serializer_class = UploadFileSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    paginate_by = 100
 
 
     def get_queryset(self):
         file_type = self.request.QUERY_PARAMS.get('file_type', None)
+        status = self.request.QUERY_PARAMS.get('file_status', None)
+        file_id = self.request.QUERY_PARAMS.get('file_id', None)
+        file_query = None
+        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+
         if file_type == 'carts':
-            return  CartsUploadFile.on_site.all()
+            file_query = CartsUploadFile.on_site.all()
         elif file_type == 'tickets':
-            return TicketsCompleteUploadFile.on_site.all()
+            file_query = TicketsCompleteUploadFile.on_site.all()
         elif file_type == 'customer':
-            return CustomersUploadFile.on_site.all()
+            file_query = CustomersUploadFile.on_site.all()
+        if file_query and status:
+            if status != 'ALL':
+                file_query = file_query.filter(status=status)
+        if file_query and sort_by:
+            file_query = file_query.order_by(sort_by)
+        if file_id:
+            file_query = file_query.filter(pk=file_id)
+        if file_query:
+            return file_query
+        else:
+            raise Http404
 
 
 
-########################################################################################################################
+
+
+#################### #####################################################################################################
 #End of API Views
 ########################################################################################################################
 

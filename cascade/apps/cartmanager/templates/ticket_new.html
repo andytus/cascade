@@ -58,14 +58,16 @@
         <input type="text" data-bind="value: cart_address_search, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
 
 
-        <div data-bind="foreach: addressList">
+        <div data-bind="foreach: addressList" style="overflow-y:scroll; max-height: 250px;">
 
-            <label data-bind="for: id, text: house_number() +' '+ street_name()+' '+ unit()"></label>
+            <label>
 
-            <input type="radio" name="address"
-                   data-bind="id: id, value: house_number() +' '+ street_name(), checked: $root.create.cart_address_search,
-                    click: $root.create.set_address_cart_list"><br>
-        </div>
+            <input type="radio" data-bind="attr:{id: id, value: full_address, name: 'address' }, checked: $root.create.cart_address_search,
+                   click: function(data, event){$root.create.set_address_cart_list(data, event); return true}, clickBubble: false"/>
+                <span data-bind="text: full_address"></span>
+
+           </label>
+            <br>
 
     </div>
 </script>
@@ -80,24 +82,19 @@
 
 <script id="SelectSerial" type="text/html">
     <p data-bind="html: message"></p>
-
-
-
-    <div data-bind="visible: $root.create.cartSerialList().length == 0" class="text-error">
+   <div data-bind="visible: $root.create.cartSerialList().length == 0" class="text-error">
         <p> <i>No carts at this Address.</i> <br> Are you sure you want to create a Service Type of
             <u><b><span data-bind=" text: $root.create.service_type"></span></b></u>  </span> <br>
             <b>Please click Cancel and Start Over</b></p>
     </div>
 
-
-
     <div data-bind="foreach: $root.create.cartSerialList, visible: $root.create.cartSerialList().length > 0">
-         <label data-bind="for: serial_number, text: 'Cart Serial: ' + serial_number"></label>
+         <label>
         <input type="radio" name="address"
-               data-bind="id: serial_number, value: serial_number, checked: $root.create.cart_serial_number">
+               data-bind="id: serial_number, value: serial_number, checked: $root.create.cart_serial_number" />
+        <span data-bind="text: 'Cart Serial: ' + serial_number" "></span>
+        </label>
     </div>
-
-
 </script>
 
 <script id="ConfirmSerial" type="text/html"><b>Please click Cancel and Start Over</b>
@@ -113,8 +110,10 @@
     <p data-bind="text: $root.create.cart_size" class="pull-left new-ticket-selected"></p>
 
     <div data-bind="foreach: $root.create.cart_type_unique_sizes" class="pull-right new-ticket-radio">
-        <label data-bind="for: $data, text: $data"></label>
+        <label>
         <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
+        <span data-bind="text: $data"></span>
+        </label>
     </div>
 
 
@@ -124,8 +123,10 @@
     <p data-bind="html: message"></p>
     <p data-bind="text: $root.create.cart_type" class="pull-left new-ticket-selected"></p>
     <div data-bind="foreach: $root.create.cart_type_unique_type" class="pull-right new-ticket-radio">
-        <label data-bind="for: $data, text: $data"></label>
+        <label>
         <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
+         <span data-bind="text: $data"></span>
+        </label>
     </div>
 </script>
 

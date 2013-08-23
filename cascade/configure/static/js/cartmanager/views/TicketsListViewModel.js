@@ -22,8 +22,6 @@
 
         });
         self.sort_default = ko.observable('status__service_status');
-        //cart tickets
-        self.tickets = ko.observableArray();
         self.ticket_table_headers = ko.observableArray(
             //# Ugly but works
             [
@@ -42,9 +40,12 @@
             ]
         );
 
+        //cart tickets
+        self.tickets = ko.observableArray();
+
         self.getTickets = function (page, sort_by, format, status, service, cart_type, size) {
             self.page(page); //update page
-            //sort logic only used when click on header
+            //sort logic only used when clicking on header
             if (typeof sort_by != 'undefined' && sort_by != null) {
                 for (var i = 0; i < self.ticket_table_headers().length; i++) {
                     if (self.ticket_table_headers()[i].field != sort_by.field)
@@ -74,7 +75,6 @@
             //TODO ugly way to test for search options, which are global
 
             var search_by = {};
-
 
             //Check if status is not undefined
             if (typeof status != 'undefined') {

@@ -81,15 +81,6 @@
                         $("#progress").show();
                     });
                 },
-               {% comment %} //TODO Progress bar
-               progress: function (e, data) {
-                   var progress = parseInt(data.loaded / data.total * 100, 10);
-                    $("#progress .bar").css(
-                            'width',
-                            progress + '%'
-                    )
-
-                },{% endcomment %}
 
                 change:function (e, data) {
                     //TODO add upload file name and size here
@@ -97,7 +88,6 @@
                     $("#upload_button").show();
 
                 },
-
 
                 done:function (e, data) {
                     data.context.text('Upload finished')
@@ -117,7 +107,6 @@
 
             });
         });
-
 
     </script>
 

@@ -266,6 +266,12 @@ PIPELINE_JS = {
             ),
         'output_filename': 'js/compress/CartListViewModel.js',
         },
+    'views_uploaded_file_report':{
+        'source_filenames': (
+            'js/cartmanager/views/UploadedFileReportViewModel.js',
+        ),
+        'output_filename': 'js/compress/UploadedFileReportViewModel.js',
+    },
 
     'views_cart_profile_change_address':{
         'source_filenames': (
@@ -327,6 +333,13 @@ PIPELINE_JS = {
             'js/cartmanager/views/TicketsReportViewModel.js',
             ),
         'output_filename': 'js/compress/TicketsReportViewModel.js',
+        },
+
+     'models_file':{
+        'source_filenames': (
+            'js/cartmanager/models/file.js',
+            ),
+        'output_filename': 'js/compress/file.js',
         },
 
     'models_cart':{

@@ -23,7 +23,6 @@
         self.cart_type_options = ko.observableArray([]);
         self.cart_size_options = ko.observableArray([]);
 
-
         self.getServiceTypeOptions = function(){
             $.getJSON(ticket_service_type_api, function(data){
                 var serviceTypeOptions = $.map(data, function(item){

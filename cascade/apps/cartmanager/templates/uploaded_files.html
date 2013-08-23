@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Uploaded Files{% endblock %}
+
+{% block main_content %}
+
+    <div class="box-info" data-bind="with: files">
+     <div id="file-query" class="well search-queries">
+         Show <select id="file-query-type" data-bind="options: file_status_options, value: file_status"></select> status types
+         for <span data-bind="text: file_type" class="input-large"></span> files.
+         <button class="btn-primary" data-bind="click: function(data, event){getUploadedFiles(1, null, 'json')}">
+          Go <i class="icon-arrow-right"></i></button>
+     </div>
+
+    </div>
+
+    <div id="uploaded_files" data-bind="with: files">
+
+        <table id="table_file_uploads" class="table table-sorter table-striped table-hover table-condensed  box-info">
+            <thead>
+            <tr role="row" data-bind="foreach: file_table_headers">
+                <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
+                click:function(data, event){$parent.getUploadedFiles(1, data, 'jsonp') }">
+                </th>
+            </tr>
+            </thead>
+
+            <tbody role="alert" data-bind="foreach: file_list">
+            <tr>
+                <td data-bind="text:uploaded_by"></td>
+                <td data-bind="text:size"></td>
+                <td data-bind="text:date_uploaded"></td>
+                <td data-bind="text:status"></td>
+                <td data-bind="text:num_records"></td>
+                <td data-bind="text:num_good"></td>
+                <td data-bind="text:num_error"></td>
+                <td data-bind="text:file_kind"></td>
+            </tr>
+
+            </tbody>
+
+
+            <tfoot data-bind="visible: count() == 0 ">
+
+            <tr>
+                <td class="text-warning">NO FILES FOUND!</td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    {% for key, value in search_parameters.items %}
+        {{ key }}: {{ value }}
+    {% endfor %}
+    {{ search_parameters.value }}
+
+{% endblock %}
+
+{% block page_scripts %}
+    {% load compressed %}
+    {% compressed_js 'views_uploaded_file_report' %}
+    {% compressed_js 'models_file' %}
+
+
+    <script type="text/javascript">
+        var upload_file_list_api_url = '{% url upload_file_list_api  %}'
+        var file_type = '{{ search_parameters.file_type }}' || null
+        var file_status = '{{ search_parameters.file_status }}' || null
+        var file_id = '{{ search_parameters.file_id }}' || null
+
+        var UploadedFileReport = {
+            files: new cartlogic.UploadedFileReportViewModel,
+        }
+
+        ko.applyBindings(UploadedFileReport, document.getElementById('main'));
+
+    </script>
+
+{% endblock %}

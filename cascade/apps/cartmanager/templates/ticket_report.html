@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
-
+{% block title %}Ticket Reports (Download){% endblock %}
 {% block main_content %}
+
     <div class="box-info">
-    <div id="ticket-query" class="well" data-bind="with: $root.report">
+    <div id="ticket-query" class="well search-queries" data-bind="with: $root.report">
          Show <select id="ticket-query-select-status" data-bind="options: ticket_status_options,
          value:selected_status"  class="input-medium"></select> tickets for
         <select id="ticket-query-select-type" data-bind="options: $root.report.ticket_type_options,

@@ -16,13 +16,13 @@
         self.house_number = ko.observable().extend({ validate: {required: true,  requiredMessage: "Missing house number"} });
         self.street_name = ko.observable().extend({ validate: {required: true,  requiredMessage: "Need a street"} });
         self.street_suffix = ko.observable("");
-        self.unit = ko.observable(null);
+        self.unit = ko.observable();
         self.full_address = ko.computed(function(){
-            var full_address = self.house_number() + " "+ self.street_name();
-            if (self.unit()){
+            var full_address = self.house_number() +" "+ self.street_name();
+            if (self.unit() != null || self.unit(),length > 0){
                 full_address = full_address + " " + self.unit();
-            }
-            return full_address;
+             }
+            return full_address.trim();
         });
         self.zipcode = ko.observable("");
         self.city = ko.observable("");
@@ -45,7 +45,7 @@
             self.property_type(data.info.properties.property_type);
             self.house_number(data.info.properties.house_number);
             self.street_name(data.info.properties.street_name);
-            self.unit(data.info.properties.unit || " ");
+            self.unit(data.info.properties.unit);
             self.zipcode(data.info.properties.zipcode);
             self.city(data.info.properties.city);
             self.state(data.info.properties.state);

@@ -315,7 +315,7 @@ body { height: 100%; margin: 0; padding: 0 }
 
 }
 
-#ticket-query{
+.search-queries{
     color: #696969;
     font-size: 1.3em;
 

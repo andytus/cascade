@@ -146,6 +146,8 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
     house_number =CleanRelatedField(source='location.house_number')
     street_name = CleanRelatedField(source='location.street_name')
     unit = serializers.RelatedField(source='location.unit')
+    customer_api_url = CleanRelatedField(source='location.customer.get_absolute_url')
+    customer_app_url = CleanRelatedField(source='location.customer.get_app_url')
     #############################################################
 
     created_by = CleanRelatedField(source='created_by.username')
@@ -159,7 +161,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
                   'expected_cart', 'status', 'status_level', 'processed', 'date_completed', 'date_created',
                   'date_processed', 'date_last_attempted', 'latitude',
                   'longitude', 'device_name', 'audit_status', 'house_number',
-                  'street_name', 'unit', 'cart_type','cart_type_size', 'created_by', 'updated_by')
+                  'street_name', 'unit', 'customer_api_url', 'customer_app_url', 'cart_type','cart_type_size', 'created_by', 'updated_by')
 
 
 class TicketCommentSerializer(serializers.ModelSerializer, NullSerializerPatch):
@@ -205,9 +207,7 @@ class UploadFileSerializer(serializers.Serializer):
     num_error = serializers.IntegerField()
     num_records = serializers.IntegerField()
     uploaded_by = serializers.CharField()
+    date_uploaded = serializers.DateTimeField()
     date_start_processing = serializers.DateTimeField()
-    date_end_processing = serializers.DateTimeField()
-    total_process_time = serializers.IntegerField()
     size = serializers.IntegerField()
-    records_processed = serializers.BooleanField()
     message = serializers.CharField()

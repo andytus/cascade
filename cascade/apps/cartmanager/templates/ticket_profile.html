@@ -19,7 +19,7 @@
         <div id="ticket-info-display" class="well">
             <div id="ticket-info-status" class="label info-status ticket-info-status "
                  data-bind="text: status , css: status_level"></div>
-            <div class="ticket-info-address" data-bind="text: 'Location: ' + location_address()"></div>
+            <div class="ticket-info-address">Location: <a data-bind="text: location_address(), attr:{href: customer_app_url()}"></a></div>
             <div class="ticket-info-service-type"
                  data-bind="html: '<u>' + service_type() + ' of ' +  + cart_type_size() + ' ' + cart_type() + '</u>'"></div>
             <!-- ko if: serviced_cart -->
