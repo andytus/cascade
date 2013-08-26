@@ -59,7 +59,7 @@
 
     <script type="text/javascript">
 
-
+        var upload_file_list_url = '{% url upload_file_list %}';
 
         $(function () {
             $('#fileupload').fileupload({
@@ -91,8 +91,9 @@
 
                 done:function (e, data) {
                     data.context.text('Upload finished')
-                    console.log(data)
-                    $("#fileupload-message").html("<p>Success...Upload Complete</p><p>View Details: "+data.result.details.file_id+"</p>");
+                    search_query = JSON.stringify({file_type: 'tickets', file_id: data.result.details.file_id});
+                    $("#fileupload-message").html("<p>Upload Complete</p><p>Check Status: <a href="+ upload_file_list_url
+                          +"?search_query="+ search_query + ">"+ data.result.details.file_id +"</a></p>");
                     $("#message").addClass("alert-info").hide();
 
                 },

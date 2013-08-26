@@ -8,7 +8,7 @@
      <div id="file-query" class="well search-queries">
          Show <select id="file-query-type" data-bind="options: file_status_options, value: file_status"></select> status types
          for <span data-bind="text: file_type" class="input-large"></span> files.
-         <button class="btn-primary" data-bind="click: function(data, event){getUploadedFiles(1, null, 'json')}">
+         <button class="btn-primary" data-bind="click: function(data, event){getUploadedFiles(1, null, 'json', 0)}">
           Go <i class="icon-arrow-right"></i></button>
      </div>
 
@@ -20,7 +20,7 @@
             <thead>
             <tr role="row" data-bind="foreach: file_table_headers">
                 <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
-                click:function(data, event){$parent.getUploadedFiles(1, data, 'jsonp') }">
+                click:function(data, event){$parent.getUploadedFiles(1, data, 'jsonp', 0) }">
                 </th>
             </tr>
             </thead>
@@ -48,11 +48,6 @@
             </tfoot>
         </table>
     </div>
-
-    {% for key, value in search_parameters.items %}
-        {{ key }}: {{ value }}
-    {% endfor %}
-    {{ search_parameters.value }}
 
 {% endblock %}
 

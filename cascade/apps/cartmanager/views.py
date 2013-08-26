@@ -260,7 +260,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, JSONPRenderer, BrowsableAPIRenderer, CSVRenderer )
-    paginate_by = 20000
+    paginate_by = 50
 
 
 

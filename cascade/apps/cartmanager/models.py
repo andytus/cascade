@@ -366,7 +366,7 @@ class Cart(models.Model):
     last_latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
-    serial_number = models.CharField(max_length=30, null=True, blank=True)
+    serial_number = models.CharField(max_length=30, null=False, blank=False, unique=True)
     #TODO remove size
     size = models.IntegerField(choices=CART_SIZE)
     current_status = models.ForeignKey(CartStatus, null=True, blank=True)

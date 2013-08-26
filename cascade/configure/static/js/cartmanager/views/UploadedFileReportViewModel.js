@@ -33,7 +33,7 @@
         );
 
 
-        self.getUploadedFiles = function(page, sort_by, format) {
+        self.getUploadedFiles = function(page, sort_by, format, file_id) {
            var data = {sort_by:self.sort_default()};
            self.page(page);
 
@@ -70,7 +70,8 @@
                 data.file_status = self.file_status();
             }
 
-            if (self.file_id() != null){
+            if (file_id != 0){
+                console.log(file_id);
                 data.file_id = self.file_id();
             }
 
