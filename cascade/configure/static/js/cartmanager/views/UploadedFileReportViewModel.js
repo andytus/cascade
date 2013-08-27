@@ -70,9 +70,8 @@
                 data.file_status = self.file_status();
             }
 
-            if (file_id != 0){
-                console.log(file_id);
-                data.file_id = self.file_id();
+            if (file_id != 0 && self.file_id() != null){
+              data.file_id = self.file_id();
             }
 
            $.ajax({
