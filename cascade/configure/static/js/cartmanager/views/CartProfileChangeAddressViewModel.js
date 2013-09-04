@@ -21,6 +21,7 @@
 
         self.setAddressId = function(){
             self.address_id(this.id());
+            return true;
         };
 
 

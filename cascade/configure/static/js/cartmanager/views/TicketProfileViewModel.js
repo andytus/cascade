@@ -43,7 +43,7 @@
 
                self.ticket_status_options(ticketStatusOptions);
                var match = ko.utils.arrayFirst(self.ticket_status_options(), function(item) {
-                   return self.ticket().status() === item.service_status();
+                   return self.ticket().status__service_status() === item.service_status();
                });
                self.selected_status(match);
 

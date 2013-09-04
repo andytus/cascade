@@ -32,7 +32,7 @@
                  $root.report.selected_type(), $root.report.selected_cart_type(), $root.report.selected_cart_size())}"> << Previous</a>
             </li>
             <li class="pager" data-bind="visible: $root.tickets.page() <  total_pages()">
-                <a href="#" data-bind="click: function(){ getTickets(page()+1, null, 'json', $root.report.selected_status(),
+                <a href="#" data-bind="click: function(){getTickets(page()+1, null, 'json', $root.report.selected_status(),
                  $root.report.selected_type(), $root.report.selected_cart_type(), $root.report.selected_cart_size() )}">Next >></a>
             </li>
         </ul>
@@ -51,19 +51,19 @@
             </thead>
             <tbody role="alert" data-bind="foreach: $root.tickets.tickets()">
             <tr>
-                <td data-bind="text: status"></td>
-                <td data-bind="text: service_type"></td>
-                <td data-bind="text: cart_type_size"></td>
-                <td data-bind="text: cart_type"></td>
+                <td data-bind="text: status__service_status"></td>
+                <td data-bind="text: service_type__code"></td>
+                <td data-bind="text: cart_type__size"></td>
+                <td data-bind="text: cart_type__name"></td>
                 <td data-bind="text: success_attempts"></td>
                 <td data-bind="text: date_created"></td>
                 <td data-bind="text: date_last_attempted"></td>
-                <td data-bind="text: house_number"></td>
-                <td data-bind="text: street_name"></td>
-                <td data-bind="text: unit"></td>
-                <td><a data-bind="text: serviced_cart, attr: {href:'{% url cart_app_profile %}' + serviced_cart()}"></a>
+                <td data-bind="text: location__house_number"></td>
+                <td data-bind="text: location__street_name"></td>
+                <td data-bind="text: location__unit"></td>
+                <td><a data-bind="text: serviced_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + serviced_cart__serial_number()}"></a>
                 </td>
-                 <td><a data-bind="text: expected_cart, attr: {href:'{% url cart_app_profile %}' + expected_cart()}"></a>
+                 <td><a data-bind="text: expected_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + expected_cart__serial_number()}"></a>
                 </td>
                 <td>
                     <a class=" btn btn-small, btn-info"

@@ -15,7 +15,7 @@ TEMPLATE_DEBUG = DEBUG
 
 
 ADMINS = (
-# ('Your Name', 'your_email@example.com'),
+    # ('Your Name', 'your_email@example.com'),
     ('Joe', 'joe.bennett@cascadeng.com'),
 )
 
@@ -150,6 +150,7 @@ INSTALLED_APPS = (
     'pipeline',
     'storages',
     'djrill',
+    'cascade.apps.api',
     'cascade.apps.cartmanager',
     )
 
@@ -184,7 +185,7 @@ LOGGING = {
 
 LOGIN_URL = '/accounts/login/'
 
-LOGIN_REDIRECT_URL = '/carts/app/tickets/report/'
+LOGIN_REDIRECT_URL = '/carts/tickets/report/'
 
 #Storage Compression:
 

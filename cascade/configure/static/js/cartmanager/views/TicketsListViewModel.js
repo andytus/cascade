@@ -27,8 +27,8 @@
             [
                 {field:'status__service_status', displayName:'Status', sort:ko.observable(0)},
                 {field:'service_type__code', displayName:'Type', sort:ko.observable(0)},
-                {field:'cart_type__size', displayName:'Size', sort:ko.observable(0)},
                 {field:'cart_type__name', displayName:'Cart Type', sort:ko.observable(0)},
+                {field:'cart_type__size', displayName:'Size', sort:ko.observable(0)},
                 {field:'success_attempts', displayName:'Attempts', sort:ko.observable(0)},
                 {field:'date_created', displayName:'Created', sort:ko.observable(0)},
                 {field:'date_last_attempted', displayName:'Last Attempt', sort:ko.observable(0)},
@@ -45,6 +45,12 @@
 
         self.getTickets = function (page, sort_by, format, status, service, cart_type, size) {
             self.page(page); //update page
+
+            //TODO Refactor to accept more data for searching tickets (i.e. Open, Type, ect...)
+            //TODO ugly way to test for search options, which are global
+
+            var search_by = {};
+
             //sort logic only used when clicking on header
             if (typeof sort_by != 'undefined' && sort_by != null) {
                 for (var i = 0; i < self.ticket_table_headers().length; i++) {
@@ -69,12 +75,10 @@
                     sort_by.sort(0);
                 }
 
+                search_by.sort_by = self.sort_default()
+
             }
 
-            //TODO Refactor to accept more data for searching tickets (i.e. Open, Type, ect...)
-            //TODO ugly way to test for search options, which are global
-
-            var search_by = {};
 
             //Check if status is not undefined
             if (typeof status != 'undefined') {
@@ -82,7 +86,7 @@
             }
 
             if (typeof service != 'undefined') {
-                search_by.service = service
+               search_by.service = service
             }
 
             if (typeof cart_type != 'undefined') {
@@ -106,7 +110,7 @@
             //making sure the search_by is not empty
             if (!jQuery.isEmptyObject(search_by)) {
 
-                var data = {page:self.page(), sort_by:self.sort_default(), format: format};
+                var data = {page:self.page(),format: format};
                 //adding search_by to data
                 data.search_by = ko.toJSON(search_by);
 

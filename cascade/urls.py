@@ -11,8 +11,9 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-
     (r'^carts/', include('cascade.apps.cartmanager.urls')),
+
+    (r'^api/', include('cascade.apps.api.urls')),
 
     url(r'^about/', TemplateView.as_view(template_name="about.html") ),
 

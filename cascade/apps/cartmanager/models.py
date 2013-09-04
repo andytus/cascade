@@ -1,11 +1,8 @@
-from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
-from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
-from django.db.utils import DatabaseError, IntegrityError
 from django.utils.timezone import datetime
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django import forms
@@ -39,9 +36,9 @@ class UploadFile(models.Model):
         ("FAILURES", "FAILURES"),
         )
     FILE_KIND = (
-        ("CollectionCustomer","Customers"),
-        ("Cart","Carts"),
-        ("CartTicket","Tickets"),
+        ("CollectionCustomer", "Customers"),
+        ("Cart", "Carts"),
+        ("CartTicket", "Tickets"),
         )
     file_path = models.FileField(upload_to=get_upload_path, max_length=300)
     uploaded_by = models.ForeignKey(User)
@@ -89,7 +86,6 @@ class CustomersUploadFile(UploadFile):
     pass
 
 
-
 def save_error(e, line):
     error_message = e.message
     print error_message
@@ -97,7 +93,8 @@ def save_error(e, line):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), ','.join(value))
     Site.objects.clear_cache()
-    error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line, site=Site.objects.get_current())
+    error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line,
+                       site=Site.objects.get_current())
     error.save()
 
 
@@ -110,12 +107,11 @@ class AdminDefaults(models.Model):
     on_site = CurrentSiteManager()
 
     def get_info(self):
-        return {'city':self.city, 'state': self.state, "account_admin":self.account_admin,
-                 'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
+        return {'city': self.city, 'state': self.state, "account_admin": self.account_admin,
+                     'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
 
     def get_location_info(self):
-        return {'city':self.city, 'state': self.state, 'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
-
+        return {'city': self.city, 'state': self.state, 'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
 
     def __unicode__(self):
         return "%s, %s" % (self.city, self.state)

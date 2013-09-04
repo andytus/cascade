@@ -18,17 +18,19 @@
 
         <div id="ticket-info-display" class="well">
             <div id="ticket-info-status" class="label info-status ticket-info-status "
-                 data-bind="text: status , css: status_level"></div>
-            <div class="ticket-info-address">Location: <a data-bind="text: location_address(), attr:{href: customer_app_url()}"></a></div>
+                 data-bind="text: status__service_status , css: status__level"></div>
+            <div class="ticket-info-address">Location: <a data-bind="text: location_address(), attr:{href: location__customer__get_app_url()}"></a></div>
             <div class="ticket-info-service-type"
-                 data-bind="html: '<u>' + service_type() + ' of ' +  + cart_type_size() + ' ' + cart_type() + '</u>'"></div>
-            <!-- ko if: serviced_cart -->
-            <div>Serviced Cart: <a data-bind=" text: serviced_cart() ,attr:{href:'{% url cart_app_profile%}' + serviced_cart()}"> </a>,
-                <span data-bind="text: 'Size: ' + serviced_cart_size() + ', Type: ' + serviced_cart_type()"></span>
+                 data-bind="html: '<u>' + service_type__service() + ' of ' +  + cart_type__size() + ' ' + cart_type__name() + '</u>'"></div>
+            <!-- ko if: serviced_cart__serial_number() != "---" -->
+            <div>Serviced Cart: <a data-bind=" text: serviced_cart__serial_number() ,attr:{href:'{% url cart_app_profile%}' + serviced_cart__serial_number()}"> </a>,
+                <span data-bind="text: 'Size: ' + serviced_cart__cart_type__size() + ', Type: ' + serviced_cart__cart_type__name()"></span>
             </div>
             <!-- /ko -->
-            <!-- ko if: expected_cart -->
-            <div data-bind="text: 'Expected Cart: ' +  expected_cart() + ', Size: ' + cart_type_size() + ', Type: ' + cart_type()"></div>
+            <!-- ko if: expected_cart__serial_number() != "---" -->
+            <div>Expected Cart: <a data-bind=" text: expected_cart__serial_number() ,attr:{href:'{% url cart_app_profile%}' + expected_cart__serial_number()}"> </a>,
+                <span data-bind="text: 'Size: ' + cart_type__size() + ', Type: ' + cart_type__name()"></span>
+            </div>
             <!-- /ko -->
             <br>
             <div id="ticket-info-device-name" data-bind="html: '<b>Device Name</b> ' + device_name(), visible: device_name" ></div>
@@ -43,8 +45,8 @@
             <!-- /ko -->
             <br>
 
-            <div data-bind="html: '<b>Created by:</b> ' + created_by()"></div>
-            <div data-bind="html: '<b>Updated by:</b> ' + updated_by()"></div>
+            <div data-bind="html: '<b>Created by:</b> ' + created_by__username()"></div>
+            <div data-bind="html: '<b>Updated by:</b> ' + updated_by__username()"></div>
 
 
         </div>
@@ -52,7 +54,7 @@
         <div id="ticket-info-edit" class="well">
 
             <div id="ticket-info-edit-section">
-                <!-- ko if: $root.profile.ticket().status() != 'Completed' -->
+                <!-- ko if: $root.profile.ticket().status__service_status() != 'Completed' -->
                 <div class="control-group">
                     <label class="control-label">Add Serviced Cart:</label>
                    <br>

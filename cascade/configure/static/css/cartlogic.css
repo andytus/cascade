@@ -369,7 +369,7 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 .customer-cart-table-city-state{
-  cart-info-type  margin-top: .5%;
+    margin-top: .5%;
     font-size: 1.1em;
 
 }
@@ -561,4 +561,9 @@ table.table-sorter thead tr .sort-up{
     margin-right: auto;
     margin-left:  auto;
 
+}
+
+.address-list{
+    overflow-y:scroll;
+    max-height: 250px
 }

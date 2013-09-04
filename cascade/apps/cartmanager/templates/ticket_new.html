@@ -58,7 +58,7 @@
         <input type="text" data-bind="value: cart_address_search, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
 
 
-        <div data-bind="foreach: addressList" style="overflow-y:scroll; max-height: 250px;">
+        <div data-bind="foreach: addressList" class="address-list">
 
             <label>
 
@@ -92,7 +92,7 @@
          <label>
         <input type="radio" name="address"
                data-bind="id: serial_number, value: serial_number, checked: $root.create.cart_serial_number" />
-        <span data-bind="text: 'Cart Serial: ' + serial_number" "></span>
+        <span data-bind="text: 'Cart Serial: ' + serial_number"></span>
         </label>
     </div>
 </script>

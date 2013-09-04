@@ -13,7 +13,7 @@
         var self = this;
 
         self.selected_type = ko.observable();
-        self.selected_status = ko.observable();
+        self.selected_status = ko.observable('Requested');
         self.selected_cart_type = ko.observable();
         self.selected_cart_size = ko.observable();
 

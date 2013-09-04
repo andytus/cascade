@@ -107,6 +107,11 @@ class CustomerReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_report.html'
 
 
+#TODO REMOVE BELOW-testing koGrid
+class DevTicketReport(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'development_ticket_reports.html'
+
+
 class TicketReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'ticket_report.html'
 

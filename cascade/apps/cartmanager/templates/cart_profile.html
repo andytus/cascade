@@ -130,18 +130,18 @@
             </thead>
             <tbody role="alert" data-bind="foreach: tickets()">
             <tr>
-                <td data-bind="text: status"></td>
-                <td data-bind="text: service_type"></td>
-                <td data-bind="text: cart_type_size"></td>
-                <td data-bind="text: cart_type"></td>
+                <td data-bind="text: status__service_status"></td>
+                <td data-bind="text: service_type__service"></td>
+                <td data-bind="text: cart_type__size"></td>
+                <td data-bind="text: cart_type__name"></td>
                 <td data-bind="text: success_attempts"></td>
                 <td data-bind="text: date_created"></td>
                 <td data-bind="text: date_last_attempted"></td>
-                <td data-bind="text: house_number"></td>
-                <td data-bind="text: street_name"></td>
-                <td data-bind="text: unit"></td>
-                <td><a data-bind="text: serviced_cart, attr: {href:'{% url cart_app_profile %}' + serviced_cart()}"></a></td>
-                <td><a data-bind="text: expected_cart, attr: {href:'{% url cart_app_profile %}' + expected_cart()}"></a></td>
+                <td data-bind="text: location__house_number"></td>
+                <td data-bind="text: location__street_name"></td>
+                <td data-bind="text: location__unit"></td>
+                <td><a data-bind="text: serviced_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + serviced_cart__serial_number()}"></a></td>
+                <td><a data-bind="text: expected_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + expected_cart__serial_number()}"></a></td>
                 <td>
                     <a class=" btn btn-small, btn-info"
                        data-bind="attr: {href:'{% url ticket_app_profile %}' + id()}" >Open</a>
@@ -200,14 +200,6 @@
     {% compressed_js 'models_ticket' %}
     {% compressed_js 'views_tickets_list' %}
 
-  {% comment %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_profile.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/map.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/cart_status.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CartProfileViewModel.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>{% endcomment %}
-
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
@@ -219,7 +211,6 @@
         var customer_app_url = "{% url customer_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
-        var cart_app_profile_map = "{% url cart_app_profile_map %}";
 
 
         var cartProfile = {

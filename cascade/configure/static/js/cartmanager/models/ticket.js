@@ -1,8 +1,10 @@
 /**
  *
- * User: jbennett
+ * User: Joe Bennett
  * Date: 2/28/13
  * Time: 9:02 AM
+ *
+ * Ticket Model
  *
  */
 
@@ -11,71 +13,99 @@
 
 function Ticket(data) {
     var self = this;
+    //core ticket attributes
     self.id = ko.observable();
-    self.status = ko.observable();
+    self.latitude = ko.observable();
+    self.longitude = ko.observable();
     self.processed = ko.observable();
-    self.status_level = ko.observable();
-    self.service_type = ko.observable();
+    self.device_name = ko.observable();
     self.success_attempts = ko.observable();
     self.date_created = ko.observable();
     self.date_last_attempted = ko.observable();
     self.date_completed = ko.observable("none");
-    self.house_number = ko.observable();
-    self.street_name = ko.observable();
-    self.unit = ko.observable();
-    self.customer_app_url = ko.observable();
-    self.serviced_cart = ko.observable();
-    self.serviced_cart_id = ko.observable();
-    self.serviced_cart_size = ko.observable();
-    self.serviced_cart_type = ko.observable();
-    self.expected_cart = ko.observable();
-    self.cart_type = ko.observable();
-    self.cart_type_size = ko.observable();
-    self.latitude = ko.observable();
-    self.longitude = ko.observable();
-    self.device_name = ko.observable();
-    self.created_by = ko.observable();
-    self.updated_by = ko.observable();
-    self.comments = ko.observable();
 
+    //status attributes, level used for css style
+    self.status__service_status = ko.observable();
+    self.status__level = ko.observable();
+
+    //location of ticket
+    self.location__house_number = ko.observable();
+    self.location__street_name = ko.observable();
+    self.location__unit = ko.observable();
+    self.location__customer__get_app_url = ko.observable();
+
+    //serviced cart attributes
+    self.serviced_cart__serial_number = ko.observable();
+    self.serviced_cart__id = ko.observable();
+    self.serviced_cart__cart_type__size = ko.observable();
+    self.serviced_cart__cart_type__name = ko.observable();
+
+    //service_type code (also available from JSON is service type service (i.e. Exchange Remove, Delivery, etc..)
+    self.service_type__code = ko.observable();
+    self.service_type__service = ko.observable();
+
+    //expected cart serial number
+    self.expected_cart__serial_number = ko.observable();
+
+    //cart type for the ticket
+    self.cart_type__name = ko.observable();
+    self.cart_type__size = ko.observable();
+
+    //user who created and last updated by
+    self.created_by__username = ko.observable();
+    self.updated_by__username = ko.observable();
+
+    //one to many relationship
+    self.comments = ko.observable(); //Are we using this?
+
+    //loads data into attribute if available
     if (data){
         self.id(data.id);
-        self.status(data.status);
+        self.latitude(data.latitude);
+        self.longitude(data.longitude);
         self.processed(data.processed);
-        self.status_level(data.status_level);
-        self.service_type(data.service_type);
+        self.device_name(data.device_name);
         self.success_attempts(data.success_attempts);
         self.date_created(new Date(data.date_created).toDateString());
         self.date_last_attempted(new Date(data.date_last_attempted).toDateString());
+
         if (data.date_completed){
             self.date_completed(new Date(data.date_completed).toDateString());
         }
-        self.house_number(data.house_number);
-        self.street_name(data.street_name);
-        self.unit(data.unit);
-        self.customer_app_url(data.customer_app_url);
 
+        self.status__service_status(data.status__service_status);
+        self.status__level(data.status__level);
+
+        self.location__house_number(data.location__house_number);
+        self.location__street_name(data.location__street_name);
+        self.location__unit(data.location__unit);
         self.location_address = ko.computed(function () {
-            address = self.house_number() + " " + self.street_name();
-            if (self.unit()) {
-                address = address + " Unit: " + self.unit();
+            var address = self.location__house_number() + " " + self.location__street_name();
+            if (self.location__unit()) {
+                address = address + " Unit: " + self.location__unit();
             }
-            return address
+            return address;
         });
+        self.location__customer__get_app_url(data.location__customer__get_app_url);
+
+        self.serviced_cart__serial_number(data.serviced_cart__serial_number);
+        self.serviced_cart__id(data.serviced_cart__id);
+        self.serviced_cart__cart_type__size(data.serviced_cart__cart_type__size);
+        self.serviced_cart__cart_type__name(data.serviced_cart__cart_type__name);
 
 
-        self.serviced_cart(data.serviced_cart);
-        self.serviced_cart_id(data.serviced_cart_id);
-        self.serviced_cart_size(data.serviced_cart_size);
-        self.serviced_cart_type(data.serviced_cart_type);
-        self.expected_cart(data.expected_cart);
-        self.cart_type(data.cart_type);
-        self.cart_type_size(data.cart_type_size);
-        self.latitude(data.latitude);
-        self.longitude(data.longitude);
-        self.device_name(data.device_name);
-        self.created_by(data.created_by);
-        self.updated_by(data.updated_by);
+        self.service_type__code(data.service_type__code);
+        self.service_type__service(data.service_type__service);
+
+        self.expected_cart__serial_number(data.expected_cart__serial_number);
+
+
+        self.cart_type__name(data.cart_type__name);
+        self.cart_type__size(data.cart_type__size);
+
+        self.created_by__username(data.created_by__username);
+        self.updated_by__username(data.updated_by__username);
+
     }
 
 }

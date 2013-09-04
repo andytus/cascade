@@ -49,11 +49,13 @@
 
         <p data-bind="html: server_message"></p>
 
-        <div data-bind="foreach: addresses">
-            <label data-bind="for: id, text: house_number() +' '+ street_name()+' '+ unit()"> </label>
+        <div data-bind="foreach: addresses" class="address-list">
+            <label>
 
-            <input type="radio" name="address"
-                   data-bind="id: id, value: full_address, checked: $root.search_address.input_address, click: $root.change_address.setAddressId"><br>
+                <input type="radio" name="address"
+                       data-bind="id: id, value: full_address, checked: $root.search_address.input_address, click: $root.change_address.setAddressId">
+                <span data-bind="text: house_number() +' '+ street_name()+' '+ unit()"></span><br><br>
+            </label>
         </div>
     </div>
 </script>
@@ -61,11 +63,13 @@
 
 <script id="ConfirmAddressChange" type="text/html">
     <p data-bind="html: message"></p>
+
     <p data-bind="text: $root.search_address.input_address"></p>
 </script>
 
 <script id="Complete" type="text/html">
     <p data-bind="html: message"></p>
+
     <p data-bind="css:{'text-success': $root.change_address.server_message_type() == 'Success', 'text-error':
       $root.change_address.server_message_type() == 'Failed'}, html:$root.change_address.server_message"></p>
 </script>
@@ -81,8 +85,8 @@
     var cart_api_profile = '{% url cart_api_profile %}';
     var location_api_search = "{% url location_api_search  %}";
     var updateLocation = {
-        change_address:new cartlogic.CartProfileChangeAddressViewModel(),
-        search_address:new cartlogic.LocationSearchViewModel()
+        change_address: new cartlogic.CartProfileChangeAddressViewModel(),
+        search_address: new cartlogic.LocationSearchViewModel()
     };
 
     ko.applyBindings(updateLocation, document.getElementById('update_cart_address'))
