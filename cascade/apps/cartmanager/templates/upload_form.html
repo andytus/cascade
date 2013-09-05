@@ -93,7 +93,7 @@
                     data.context.text('Upload finished')
                     search_query = JSON.stringify({file_type: 'tickets', file_id: data.result.details.file_id});
                     $("#fileupload-message").html("<p>Upload Complete</p><p>Check Status: <a href="+ upload_file_list_url
-                          +"?search_query="+ search_query + ">"+ data.result.details.file_id +"</a></p>");
+                          +"?search_query="+ search_query + ">View</a></p>");
                     $("#message").addClass("alert-info").hide();
 
                 },
