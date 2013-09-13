@@ -5,8 +5,8 @@
       lang="en">
 <head>
     {% load compressed %}
-
     {% compressed_css 'cartlogic' %}
+
 
    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
@@ -205,6 +205,7 @@
 {% compressed_js 'views_cart_search' %}
 {% compressed_js 'models_cart_type' %}
 {% compressed_js 'ajax' %}
+{% compressed_js 'dateformat' %}
 
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.min.js"></script>
 

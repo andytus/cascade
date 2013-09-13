@@ -23,11 +23,10 @@
 
             <div class="well" id="cart-info-display">
 
-                <a class="cart-info-link pull-left" data-bind="attr: {href: cart_app_url + cart_serial_number}">
+                <a class="cart-info-link pull-left" data-bind="attr: {href: cart_app_profile_url + cart_serial_number}">
                     <span class="cart-info-serial" data-bind="text: serial_number"></span>
                     <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
                 </a>
-
 
                 <div class="cart-info-header"><span class="cart-info-size" data-bind="text: size"></span></div>
 
@@ -85,82 +84,17 @@
                         </div>
                     </fieldset>
                 </form>
-
                 <div id="cart-info-edit-rfid" data-bind="text: 'RFID Tag: ' + rfid()"></div>
-
             </div>
-
-
         </div>
 
-
-        {#        <button class="pull-left btn-small btn-info"><i class="icon-fullscreen icon"></i> Expand </button>#}
-
     </div>
 
+    <div id="ticket_panel" data-bind="with: tickets" style="height: 200px">
 
-
-    <div id="ticket_panel" data-bind="with: tickets">
-
-
-        <ul class="pager pull-left" data-bind="visible:count() > records_per_page()">
-            <li class="pager" data-bind="visible:page() > 1">
-                <a data-bind="click: function(){getTickets(page()-1)}"> << Previous</a>
-            </li>
-            <li class="pager" data-bind="visible:page() < total_pages()">
-                <a href="#" data-bind="click: function(){getTickets(page()+1)}">Next >></a>
-            </li>
-        </ul>
-
-        <ul class="pager pull-right">
-            <li><a class="btn btn-large btn-link"
-                   data-bind="attr: {href:'{% url ticket_app_new %}New?cart_id=' + $root.profile.cart_id()} "
-                   data-target="#modal_window" data-toggle="modal" role="dialog"><i class="icon-tag">New Ticket</i></a>
-            </li>
-        </ul>
-
-        <table id="ticket_table" class="table table-sorter table-striped table-hover table-condensed  box-info">
-            <thead>
-            <tr role="row" data-bind="foreach: ticket_table_headers">
-
-                <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
-                click:function(data, event){$parent.getTickets(1, data, 'jsonp')}"></th>
-
-            </tr>
-            </thead>
-            <tbody role="alert" data-bind="foreach: tickets()">
-            <tr>
-                <td data-bind="text: status__service_status"></td>
-                <td data-bind="text: service_type__service"></td>
-                <td data-bind="text: cart_type__size"></td>
-                <td data-bind="text: cart_type__name"></td>
-                <td data-bind="text: success_attempts"></td>
-                <td data-bind="text: date_created"></td>
-                <td data-bind="text: date_last_attempted"></td>
-                <td data-bind="text: location__house_number"></td>
-                <td data-bind="text: location__street_name"></td>
-                <td data-bind="text: location__unit"></td>
-                <td><a data-bind="text: serviced_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + serviced_cart__serial_number()}"></a></td>
-                <td><a data-bind="text: expected_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + expected_cart__serial_number()}"></a></td>
-                <td>
-                    <a class=" btn btn-small, btn-info"
-                       data-bind="attr: {href:'{% url ticket_app_profile %}' + id()}" >Open</a>
-                </td>
-            <tr>
-            </tbody>
-
-            <tfoot data-bind="visible: count() == 0 ">
-
-            <tr>
-                <td class="text-warning">NO TICKETS FOUND THIS CART!</td>
-            </tr>
-            </tfoot>
-
-
-        </table>
+     <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 100%; width: 100%"></div>
 
     </div>
-
 
     <div id="update_coordinates" style="display: none;" class="modal hide fade modal-font" role="dialog"
          aria-labelledby="myModalLabel" aria-hidden="true">
@@ -179,7 +113,6 @@
             <a href="#" class="btn" data-dismiss="modal">Close</a>
         </div>
     </div>
-
 
     <div id="cart-map-wrapper"  style="display:none;" class="box-info">
       <div id="cart-profile-map"></div>
@@ -200,25 +133,30 @@
     {% compressed_js 'models_ticket' %}
     {% compressed_js 'views_tickets_list' %}
 
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
-        var cart_serial_number = '{{ serial_number }}';
+        var cart_serial_number = '{{ serial_number }}' || null;
+        var customer_id = '{{ customer_id }}' || null;
         var cart_api_profile = "{% url cart_api_profile %}";
-        var cart_app_url = "{% url cart_app_profile %}";
         var tickets_api_download = "{% url tickets_api_download %}";
         var ticket_app_new = "{% url ticket_app_new %}";
         var customer_app_url = "{% url customer_app_profile %}";
+        var cart_app_profile_url = "{% url cart_app_profile %}";
+        var ticket_app_profile_url = "{% url ticket_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
 
 
         var cartProfile = {
-            tickets:new cartlogic.TicketsViewModel,
-            profile:new cartlogic.CartProfileViewModel
+            tickets: new cartlogic.TicketsListViewModel(cart_serial_number, null, tickets_api_download),
+            profile: new cartlogic.CartProfileViewModel
         };
 
         ko.applyBindings(cartProfile, document.getElementById('main'));
+        cartProfile.tickets.getPagedDataAsync();
 
     </script>
 

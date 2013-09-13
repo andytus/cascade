@@ -4,7 +4,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, CustomerUploadView, \
     TicketsCompletedUploadView, CartSearch, CartProfile, TicketReport, TicketNew, TicketProfile, \
     CustomerReport, CartReport, LocationSearch, CustomerProfile, CustomerNew,  FileUploadListView, \
-    CartAddressChange, DevTicketReport
+    CartAddressChange
 
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
 urlpatterns = patterns('cascade.apps.cartmanager.views',
@@ -28,8 +28,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
                        url(r'^upload/errors/', DataErrorsView.as_view(), name='upload_errors'),
                        url(r'^upload/customers/', CustomerUploadView.as_view(), name='customer_uploads'),
                        url(r'^upload/tickets/completed/', TicketsCompletedUploadView.as_view(),
-                           name='tickets_completed_upload'),
-                       url(r'^tickets/report/dev/$', DevTicketReport.as_view(), name="dev_reports"),
+                           name='tickets_completed_upload')
 
                        )
 

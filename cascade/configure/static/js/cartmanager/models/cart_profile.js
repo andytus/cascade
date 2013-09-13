@@ -23,10 +23,10 @@ function CartProfile(data){
     self.cart_type = ko.observable(data.cart_type.name);
     self.cart_type_id = ko.observable(data.cart_type.id);
 
-    self.last_updated = ko.observable(new Date(data.last_updated).toDateString());
+    self.last_updated = ko.observable(new cartlogic.DateFormat(data.last_updated).full_date);
 
     if(data.born_date != null){
-        self.born_date = ko.observable(new Date(data.born_date).toDateString());
+        self.born_date = ko.observable(new cartlogic.DateFormat(data.born_date).full_date);
     } else{
         self.born_date = ko.observable("Unknown")
     }

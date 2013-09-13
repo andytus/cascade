@@ -48,8 +48,8 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     def get_queryset(self, *args, **kwargs):
         """
         Performs search query for Carts
-        """
 
+        """
         search_type = self.request.QUERY_PARAMS.get('type', None)
         value = self.request.QUERY_PARAMS.get('value', None)
 
@@ -103,48 +103,46 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     paginate_by = 100
 
     def get_queryset(self):
-        print self.request.QUERY_PARAMS.get('search_by', None)
-        search_by = simplejson.loads(self.request.QUERY_PARAMS.get('search_by', None))
+        cart_serial = self.request.QUERY_PARAMS.get('serial_number', None)
+        customer_id = self.request.QUERY_PARAMS.get("customer_id", None)
+        cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
+        cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
+        service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
+        service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
+        processed = self.request.QUERY_PARAMS.get('processed', 'True')
 
-        if search_by:
-            cart_serial = search_by.get('serial_number', None)
-            customer_id = search_by.get("customer_id", None)
-            cart_size = search_by.get('cart_size', 'ALL')
-            cart_type = search_by.get('cart_type', 'ALL')
-            service_status = search_by.get('status', 'ALL')
-            service_type = search_by.get('service', 'ALL')
-            processed = search_by.get('processed', 'True')
+        sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        page_size = self.request.QUERY_PARAMS.get('page_size', None)
 
-            sort_by = search_by.get('sort_by', None)
+        try:
+            if page_size:
+                self.paginate_by = page_size
 
-            try:
-                if sort_by:
-                    query = Ticket.on_site.order_by(sort_by)
-                else:
-                    query = Ticket.on_site.filter()
+            if sort_by:
+                query = Ticket.on_site.order_by(sort_by)
+            else:
+                query = Ticket.on_site.filter()
 
-                if cart_serial:
-                    query = query.filter(
-                        Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
-                if customer_id:
-                    customer = CollectionCustomer.on_site.get(pk=customer_id)
-                    #get all tickets where the location is equal to a customers location
-                    locations = customer.customer_location.all()
-                    query = query.filter(location__in=locations)
-                if service_status != 'ALL':
-                    query = query.filter(status__service_status=service_status)
-                if cart_type != 'ALL':
-                    query = query.filter(cart_type__name=cart_type)
-                if cart_size != 'ALL':
-                    query = query.filter(cart_type__size=cart_size)
-                if service_type != 'ALL':
-                    query = query.filter(service_type__service=service_type)
-                if processed == 'False':
-                    query = query.filter(processed=False)
-                return query
-            except:
-                raise Http404
-        else:
+            if cart_serial:
+                query = query.filter(
+                    Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
+            if customer_id:
+                customer = CollectionCustomer.on_site.get(pk=customer_id)
+                #get all tickets where the location is equal to a customers location
+                locations = customer.customer_location.all()
+                query = query.filter(location__in=locations)
+            if service_status != 'ALL':
+                query = query.filter(status__service_status=service_status)
+            if cart_type != 'ALL':
+                query = query.filter(cart_type__name=cart_type)
+            if cart_size != 'ALL':
+                query = query.filter(cart_type__size=cart_size)
+            if service_type != 'ALL':
+                query = query.filter(service_type__service=service_type)
+            if processed == 'False':
+                query = query.filter(processed=False)
+            return query
+        except:
             raise Http404
 
     def csv_out(self, row, index):
@@ -386,7 +384,6 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('address_unit', None)
 
-
                 #excepts both location id and address for the Collection Address
                 #client built for address information, we want this flexibility as I may not know the address_id
                 if location_id:
@@ -399,8 +396,6 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                                                                  unit=unit)
                     else:
                         #ok no unit so just get the address using the house number and street name
-                        print house_number, street_name
-
                         location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
 
                 else:
@@ -600,9 +595,7 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
         return RestResponse(serializer.data)
 
     def post(self, request, customer_id, format=None):
-
         json_data = simplejson.loads(request.raw_post_data)
-
         first_name = json_data.get('first_name', None)
         last_name = json_data.get('last_name', None)
         phone_number = json_data.get('phone_number', None)
@@ -677,23 +670,27 @@ class FileUploadListAPI(LoginSiteRequiredMixin, ListAPIView):
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
     paginate_by = 100
 
-
     def get_queryset(self):
+
+        file_query = None
         file_type = self.request.QUERY_PARAMS.get('file_type', None)
         status = self.request.QUERY_PARAMS.get('file_status', None)
         file_id = self.request.QUERY_PARAMS.get('file_id', None)
-        file_query = None
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
+        page_size = self.request.QUERY_PARAMS.get('page_size', None)
 
-        if file_type == 'carts':
+        if page_size:
+            self.paginate_by = page_size
+        if file_type == 'Carts':
             file_query = CartsUploadFile.on_site.all()
-        elif file_type == 'tickets':
+        elif file_type == 'Tickets':
             file_query = TicketsCompleteUploadFile.on_site.all()
-        elif file_type == 'customer':
+        elif file_type == 'Customers':
             file_query = CustomersUploadFile.on_site.all()
         if file_query and status:
-            if status != 'ALL':
-                file_query = file_query.filter(status=status)
+            if status.upper() != 'ALL':
+                print status.upper()
+                file_query = file_query.filter(status=status.upper())
         if file_query and sort_by:
             file_query = file_query.order_by(sort_by)
         if file_id:

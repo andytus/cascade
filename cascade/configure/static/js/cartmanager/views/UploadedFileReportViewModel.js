@@ -1,107 +1,130 @@
+(function (cartlogic) {
 
+    function UploadedFileReportViewModel(file_type, file_status, file_id, upload_file_list_api_url) {
 
-
-
-(function (cartlogic){
-
-    function UploadedFileReportViewModel(){
         var self = this;
+
         self.file_type = ko.observable(file_type);
-        self.file_status_options = ko.observable(['ALL','PENDING', 'UPLOADED', 'FAILED'])
+        self.file_status_options = ko.observable(['ALL', 'PENDING', 'UPLOADED', 'FAILED']);
         self.file_status = ko.observable(file_status);
-        self.file_id = ko.observable(file_id)
-        self.count = ko.observable(0);
-        self.page = ko.observable(1);
-        //#TODO Implement records per page (hard coded in html for now)
-        self.records_per_page = ko.observable(25);
-        self.total_pages = ko.computed(function () {
-            return (Math.round(self.count() / self.records_per_page()));
-        });
-        self.sort_default = ko.observable('date_uploaded');
+        self.file_id = ko.observable(file_id);
         self.file_list = ko.observableArray([]);
-        self.file_table_headers = ko.observableArray(
-            [
-                {field:'uploaded_by', displayName:'Uploaded By', sort:ko.observable(0)},
-                {field:'size', displayName:'Size (MB)', sort:ko.observable(0)},
-                {field:'date_uploaded', displayName:'Date Uploaded', sort:ko.observable(0)},
-                {field:'status', displayName:'Status', sort:ko.observable(0)},
-                {field:'num_records', displayName:'Total Records', sort:ko.observable(0)},
-                {field:'num_good', displayName:'Good', sort:ko.observable(0)},
-                {field:'num_error', displayName:'Error', sort:ko.observable(0)},
-                {field:'file_kind', displayName:'File Type', sort:ko.observable(0)},
-             ]
-        );
+        self.sortOnServer = ko.observable(false);
+        self.sortInfo = ko.observable();
+        self.sort_by = ko.observable('status');
+
+        self.pagingOptions = {
+            pageSizes: ko.observableArray([100, 250, 500]),
+            pageSize: ko.observable(100),
+            totalServerItems: ko.observable(0),
+            currentPage: ko.observable(1)
+        };
 
 
-        self.getUploadedFiles = function(page, sort_by, format, file_id) {
-           var data = {sort_by:self.sort_default()};
-           self.page(page);
+        self.getPagedDataAsync = function () {
+            var data = {};
+            data.page = self.pagingOptions.currentPage();
+            data.page_size = self.pagingOptions.pageSize();
+            data.sort_by = self.sort_by();
 
 
-          if (typeof sort_by != 'undefined' && sort_by != null) {
-
-               for (var i = 0; i < self.file_table_headers().length; i++) {
-                    if (self.file_table_headers()[i].field != sort_by.field)
-                        self.file_table_headers()[i].sort(0);
-                }
-
-                if (sort_by.sort() == 0) {
-                    sort_by.sort(1);
-                    self.sort_default(sort_by.field);
-
-                }
-
-                else if (sort_by.sort() == 1) {
-                    sort_by.sort(2);
-                    self.sort_default("-" + sort_by.field);
-
-                }
-                else {
-                    //reset the current default to 0 sort
-                    sort_by.sort(0);
-                }
-
-            }
-
-            if (self.file_type() != null){
+            if (self.file_type() != null) {
                 data.file_type = self.file_type();
             }
-            if (self.file_status() != null){
+            if (self.file_status() != null) {
                 data.file_status = self.file_status();
             }
 
-            if (file_id != 0 && self.file_id() != null){
-              data.file_id = self.file_id();
+            if (self.file_id() != 0 && self.file_id() != null) {
+                data.file_id = self.file_id();
             }
 
-           $.ajax({
-               url: upload_file_list_api_url,
-               data: data,
-               dataType:"jsonp",
-               success: function(data){
-                   self.count(data.count)
-                   var files = $.map(data.results, function(item){
-                       return new cartlogic.File(item)
-                   });
-                   self.file_list(files);
+            $.ajax({
+                url: upload_file_list_api_url,
+                data: data,
+                dataType: "jsonp",
+                success: function (data) {
+                    self.pagingOptions.totalServerItems(data.count);
+                    var files = $.map(data.results, function (item) {
+                        return new cartlogic.File(item)
+                    });
+                    self.file_list(files);
 
-
-               },
-               error: function(jqXHR){
-                   $("#message").addClass("alert-error").show();
-                        $("#message-type").text("Error!");
-                        $("#message-text").text(jqXHR.statusText);
-                        $('.close').click(function () {
+                },
+                error: function (jqXHR) {
+                    $("#message").addClass("alert-error").show();
+                    $("#message-type").text("Error!");
+                    $("#message-text").text(jqXHR.statusText);
+                    $('.close').click(function () {
                         $('#message').hide();
-                        });
-               }
+                    });
+                }
             });
-        };
+        }
 
-     self.getUploadedFiles();
+
+        self.pagingOptions.currentPage.subscribe(function (page) {
+            //setter for currentPage
+            self.pagingOptions.currentPage(page);
+            self.getPagedDataAsync();
+        });
+
+        self.pagingOptions.pageSize.subscribe(function (pageSize) {
+            //setter for pageSize
+            self.pagingOptions.pageSize(pageSize);
+            self.getPagedDataAsync();
+
+        });
+
+        $('.run_query').click(function(){
+                self.file_id(null);
+                self.getPagedDataAsync();
+         });
+
+
+        self.sortInfo.subscribe(function (data) {
+             //work around because koGrid bug calls sort twice:
+            // See: http://stackoverflow.com/questions/15232644/kogrid-sorting-server-side-paging
+            self.sortOnServer(!self.sortOnServer());
+            if (!self.sortOnServer()) return;
+
+            self.sort_by(self.sortInfo().column.field);
+            if (self.sortInfo().direction == 'desc') {
+                self.sort_by( "-" + self.sort_by());
+            }
+           self.getPagedDataAsync();
+
+        });
+
+       self.columns = [
+
+            {field: 'id', displayName: 'id'},
+            {field: 'status', displayName: 'Status'},
+            {field: 'size', displayName: 'Size'},
+            {field: 'uploaded_by', displayName: 'Uploaded By'},
+            {field: 'date_uploaded', displayName: 'Uploaded On'},
+            {field: 'num_records', displayName: 'Records'},
+            {field: 'num_good', displayName: 'Good'},
+            {field: 'num_error', displayName: 'Error'},
+            {field: 'file_kind', displayName: 'File Type'}
+
+        ]
+        self.gridOptions = {
+            data: self.file_list,
+            enablePaging: true,
+            useExternalSorting: true,
+            pagingOptions: self.pagingOptions,
+            sortInfo: self.sortInfo,
+            columnDefs: self.columns,
+            canSelectRows: false,
+            footerRowHeight: 50,
+            selectWithCheckboxOnly: true,
+            showFilter: false
+        }
+
 
     }
 
-cartlogic.UploadedFileReportViewModel = UploadedFileReportViewModel;
+    cartlogic.UploadedFileReportViewModel = UploadedFileReportViewModel;
 
 })(window.cartlogic);

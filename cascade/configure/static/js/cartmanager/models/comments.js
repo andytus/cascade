@@ -19,7 +19,7 @@
        if (data){
        self.id(data.id);
        self.text(data.text);
-       self.date_created(new Date(data.date_created).toDateString());
+       self.date_created(new cartlogic.DateFormat(data.date_created).full_date);
        self.created_by(data.created_by);
 
        }

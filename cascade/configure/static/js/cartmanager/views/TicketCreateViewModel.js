@@ -137,26 +137,10 @@
 
         self.getTypeOptions();
 
-
         self.set_address_cart_list = function (data, event) {
-
-            console.log(self.cart_address_search().length)
-
-
-          var test = $("#3107");
-            console.log(data.id());
-
-
-            console.log(test.is(':checked'));
            self.cart_house_number(data.house_number());
            self.cart_street_name(data.street_name());
            self.cart_unit(data.unit());
-
-            if (data.full_address() == self.cart_address_search()){
-                console.log("yes")
-            }
-
-
            if (data.carts().length) {
                self.cartSerialList(data.carts());
             }
@@ -164,26 +148,6 @@
             return true
 
         };
-
-
-//        self.set_address_cart_list = self.cart_address_search.subscribe(function (address) {
-//
-//            console.log(address.length, address)
-//            var select_address = ko.utils.arrayFirst(self.addressList(), function (item) {
-//                // console.log(item.full_address(), item.full_address().length)
-//                if (item.full_address().trim() == address) {
-//                    return item
-//                }
-//            });
-//
-//            if (select_address.carts().length) {
-//                self.cartSerialList(item.carts());
-//                console.log(self.cartSerialList());
-//            }
-//            ;
-//
-//        });
-
 
         //subscribe to the service type selected and update the wizard as needed:
         self.update_wizard = self.service_type.subscribe(function (service_type) {
@@ -230,14 +194,9 @@
             if (self.cart_address_search() && self.cart_address_search().length == 5) {
 
                 data = {"address": self.cart_address_search()};
-
-
-                //getting the message object (ko observable)
                 message_index = ko.utils.arrayFirst(self.stepModels(), function (item) {
                     return item.id === 1
                 });
-
-
                 message_index.model().message('<span class="text-success">' + 'Loading...' + '</span>');
                 //call server to get a list of addresses to select
                 $.getJSON(location_api_search, data, function (data) {
@@ -246,8 +205,6 @@
                     });
 
                     self.addressList(addressList);
-
-
                     //checking address lengths and adding the appropriate message
                     if (addressList.length == 0) {
                         message_index.model().message('<span class="text-error"> No Address Found! </span><br>' +
@@ -278,7 +235,6 @@
             return self.currentIndex() == self.stepModels().length - 2;
 
         });
-
 
         self.isCompleteStep = ko.computed(function () {
             return self.currentIndex() == self.stepModels().length - 1;

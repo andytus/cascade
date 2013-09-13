@@ -153,63 +153,11 @@
     </div>
 
 
-    <div id="ticket_panel" data-bind="with: tickets">
 
+    <div id="ticket_panel" data-bind="with: tickets" style="height: 200px">
 
-        <ul class="pager pull-left" data-bind="visible:count() > records_per_page()">
-            <li class="pager" data-bind="visible:page() > 1">
-                <a data-bind="click: function(){getTickets(page()-1)}"> << Previous</a>
-            </li>
-            <li class="pager" data-bind="visible:page() < total_pages()">
-                <a href="#" data-bind="click: function(){getTickets(page()+1)}">Next >></a>
-            </li>
-        </ul>
+     <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 100%; width: 100%"></div>
 
-        {% comment %}        <ul class="pager pull-right">
-            <li><a class="btn btn-large btn-link"
-                   data-bind="attr: {href:'{% url ticket_app_new %}New?cart_id=' + $root.profile.cart_id()} "
-                   data-target="#modal_window" data-toggle="modal" role="dialog"><i class="icon-tag">New Ticket</i></a>
-            </li>
-        </ul>{% endcomment %}
-
-        <table id="ticket_table" class="table table-sorter table-striped table-hover table-condensed  box-info">
-            <thead>
-            <tr role="row" data-bind="foreach: ticket_table_headers">
-
-                <th class="sort-header" data-bind="css:{'sort-down': sort()  == 1, 'sort-up': sort() == 2 }, text: displayName, id: displayName,
-                click:function(data, event){$parent.getTickets(1, data, 'json')}"></th>
-
-            </tr>
-            </thead>
-            <tbody role="alert" data-bind="foreach: tickets()">
-            <tr>
-                <td data-bind="text: status__service_status"></td>
-                <td data-bind="text: service_type__service"></td>
-                <td data-bind="text: cart_type__name"></td>
-                <td data-bind="text: cart_type__size"></td>
-                <td data-bind="text: success_attempts"></td>
-                <td data-bind="text: date_created"></td>
-                <td data-bind="text: date_last_attempted"></td>
-                <td data-bind="text: location__house_number"></td>
-                <td data-bind="text: location__street_name"></td>
-                <td data-bind="text: location__unit"></td>
-                <td><a data-bind="text: serviced_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + serviced_cart__serial_number()}"></a>
-                </td>
-                <td><a data-bind="text: expected_cart__serial_number, attr: {href:'{% url cart_app_profile %}' + expected_cart__serial_number()}"></a>
-                </td>
-                <td>
-                    <a class=" btn btn-small, btn-info"
-                       data-bind="attr: {href:'{% url ticket_app_profile %}' + id()}">Open</a>
-                </td>
-                <!-- #TODO put ticket id here for button -->
-            </tbody>
-
-            <tfoot data-bind="visible: count() == 0 ">
-            <tr>
-                <td class="text-warning">NO TICKETS FOUND</td>
-            </tr>
-            </tfoot>
-        </table>
     </div>
 
 
@@ -229,32 +177,29 @@
     {% compressed_js 'views_tickets_list' %}
     {% compressed_js 'validators' %}
 
-{% comment %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/customer.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/ticket.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/models/location.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/CustomerProfileViewModel.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/cartmanager/views/TicketsListViewModel.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/utilities/validators.js"></script>
-{% endcomment %}
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
+
 
     <script type="text/javascript">
         //adding the validator library
         utilities.validateKo();
-
-        tickets_api_download = "{% url tickets_api_download %}";
-        customer_api_url = "{% url customer_api_profile %}";
-        location_api_search = "{% url location_api_search  %}";
-        location_api_profile = "{% url location_api_profile %}";
-        customer_id = "{{ customer_id }}";
+        var tickets_api_download = "{% url tickets_api_download %}";
+        var ticket_app_profile_url = "{% url ticket_app_profile %}";
+        var customer_api_url = "{% url customer_api_profile %}";
+        var location_api_search = "{% url location_api_search  %}";
+        var location_api_profile = "{% url location_api_profile %}";
+        var customer_id = "{{ customer_id }}";
+        var cart_app_profile_url = "{% url cart_app_profile %}";
         var customerProfile = {
             profile:new cartlogic.CustomerProfileViewModel,
-            tickets:new cartlogic.TicketsViewModel
+            tickets:new cartlogic.TicketsListViewModel(null, customer_id, tickets_api_download)
 
         };
 
         ko.applyBindings(customerProfile, document.getElementById('main'));
-
+        customerProfile.tickets.getPagedDataAsync();
 
     </script>
 

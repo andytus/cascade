@@ -8,6 +8,7 @@
         self.server_message_type = ko.observable();
 
         //creates a blank customer
+
         self.customer = ko.observable(new cartlogic.Customer);
         self.location = ko.observable(new cartlogic.Location);
         //location information
@@ -16,8 +17,8 @@
 
         };
 
-        // self.street_suffix = ko.observable();
-        self.suffix_defaults = new cartlogic.streetSuffix().get_abbreviated();
+       self.street_suffix = ko.observable();
+      // #Deprecitated  self.suffix_defaults = new cartlogic.streetSuffix().get_abbreviated();
 
 
         //state and city, can use a default
@@ -130,9 +131,6 @@
         };
 
        self.saveCustomer = function () {
-
-           //#TODO improve this ... quick and dirty validation:
-
 
            if (self.location().zipcode() == 'Select One'){
                alert("Please Select a Zipcode");

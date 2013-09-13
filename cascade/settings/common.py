@@ -247,12 +247,12 @@ PIPELINE_JS = {
         'output_filename': 'js/compress/ajax.js',
     },
 
-    'common_data':{
+    'dateformat': {
         'source_filenames': (
-            'js/utilities/common_data.js',
-            ),
-        'output_filename': 'js/compress/common_data.js',
-        },
+            'js/utilities/dateformat.js',
+        ),
+        'output_filename': 'js/compress/dateformat.js'
+    },
 
     'validators':{
         'source_filenames': (

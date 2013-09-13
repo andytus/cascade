@@ -24,9 +24,17 @@ class FileUploadListView(LoginSiteRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(FileUploadListView, self).get_context_data(**kwargs)
-        search_parameters = simplejson.loads(self.request.GET.get('search_query', None))
-        if search_parameters:
-            context['search_parameters'] = search_parameters
+        file_id = self.request.GET.get('file_id', None)
+        file_type = self.request.GET.get('file_type', None)
+        file_status = self.request.GET.get('file_status', None)
+
+        if file_id:
+            context['file_id'] = file_id
+        if file_type:
+            context['file_type'] = file_type
+        if file_status:
+            context['file_status'] = file_status
+
         return context
 
 
@@ -105,11 +113,6 @@ class CustomerNew(LoginSiteRequiredMixin, TemplateView):
 
 class CustomerReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'customer_report.html'
-
-
-#TODO REMOVE BELOW-testing koGrid
-class DevTicketReport(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'development_ticket_reports.html'
 
 
 class TicketReport(LoginSiteRequiredMixin, TemplateView):
@@ -196,6 +199,7 @@ class UploadFormView(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         context['link'] = self.LINK
+        context['file_type'] = self.KIND
         return self.render_to_response(context)
 
 

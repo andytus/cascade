@@ -14,9 +14,9 @@
 {% block main_content %}
 
     <div id="fileupload-wrapper" class="box-info">
+    <a href="{% url upload_file_list %}?file_status=UPLOADED&file_type={{ file_type }}">Show UPLOADED FILES</a>
      <h1>{{ link }}</h1>
-
-        <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+          <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
         <span id="add-file" class="btn btn-success btn-large fileinput-button">
          <i class="icon-plus icon-white"></i>
@@ -24,7 +24,7 @@
         <input id="upload_file" type="file" name="upload_file">
         </span>
             <button id="upload_button" class="btn btn-large btn-info" style="display: none"> Upload Now</button>
-            {% comment %} #TODO implement processing option Process: <input type="checkbox" value="true" name="process"/>{% endcomment %}
+             {% comment %} #TODO implement processing option Process: <input type="checkbox" value="true" name="process"/>{% endcomment %}
         </form>
         <div id="fileupload-message"></div>
 
@@ -34,7 +34,6 @@
     </div>
 
     <div id="file-process" class="box-info">
-
 
     </div>
 
@@ -60,6 +59,7 @@
     <script type="text/javascript">
 
         var upload_file_list_url = '{% url upload_file_list %}';
+        var file_type = "{{ file_type }}";
 
         $(function () {
             $('#fileupload').fileupload({
@@ -91,9 +91,9 @@
 
                 done:function (e, data) {
                     data.context.text('Upload finished')
-                    search_query = JSON.stringify({file_type: 'tickets', file_id: data.result.details.file_id});
+                   // search_query = JSON.stringify({file_type: '{{ file_type }}', file_id: data.result.details.file_id});
                     $("#fileupload-message").html("<p>Upload Complete</p><p>Check Status: <a href="+ upload_file_list_url
-                          +"?search_query="+ search_query + ">View</a></p>");
+                          +"?file_type="+ file_type  + "&file_id=" + data.result.details.file_id +">View</a></p>");
                     $("#message").addClass("alert-info").hide();
 
                 },

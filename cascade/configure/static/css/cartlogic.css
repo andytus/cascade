@@ -35,10 +35,10 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 .box-info{
--webkit-border-radius: 10px;
+-webkit-border-radius: 12px;
 -moz-border-radius: 10px;
 border-radius: 10px;
--webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .95);
+-webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, .95);
 -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .95);
 box-shadow: 0 1px 3px rgba(0, 0, 0, 1);
 background-color: white;
@@ -382,16 +382,21 @@ body { height: 100%; margin: 0; padding: 0 }
 .customer-cart-table-address-new-ticket{
     float: right;
     margin-right: 1%;
+
 }
 
 #ticket_panel {
+    margin-top: 1%;
     width: 100%;
-}
+    margin-bottom: 2%;
+ }
 
 
-#ticket_table {
+.gridStyle {
+
     width: 100%;
     margin-top: 1%;
+
 }
 
 
@@ -498,7 +503,7 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 
-table.table-sorter thead tr .sort-header{
+/*table.table-sorter thead tr .sort-header{
     background: url(../img/bg.gif) no-repeat;
     background-position: right;
     padding-right: 25px;
@@ -524,7 +529,7 @@ table.table-sorter thead tr .sort-up{
     background-color: #A8E3F9;
     background-position: right;
     padding-right: 25px;
-}
+}*/
 
 .modal .modal-body {
     max-height: 90%;

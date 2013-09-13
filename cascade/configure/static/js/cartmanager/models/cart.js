@@ -14,7 +14,7 @@ function Cart(data){
      var self = this;
     /** Creates a Cart object returns to the view array **/
     self.cart_serial = ko.observable((data.cart.serial) || "It's Missing");
-    self.born_date = ko.observable(new Date(data.cart.born_date).toDateString());
+    self.born_date = ko.observable(new cartlogic.DateFormat(data.cart.born_date).full_date);
     self.current_status = ko.observable(data.cart.current_status);
     self.cart_id = ko.observable((data.cart.id));
     self.cart_url = ko.observable((cart_url + data.cart.serial));
