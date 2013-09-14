@@ -77,7 +77,7 @@
         };
 
         //Listens for a click on a run ticket query and downloads a csv or calls ajax function
-        $('.run_ticket_query').click(function () {
+        $('.run_query').click(function () {
 
             var context = (ko.contextFor(this));
             self.cart_size(context.$data.selected_cart_size());
