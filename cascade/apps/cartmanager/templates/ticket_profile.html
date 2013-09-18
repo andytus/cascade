@@ -18,7 +18,13 @@
 
         <div id="ticket-info-display" class="well">
             <div id="ticket-info-status" class="label info-status ticket-info-status "
-                 data-bind="text: status__service_status , css: status__level"></div>
+                 data-bind="css: status__level">
+               <p id="ticket-info-service-status" data-bind="text: status__service_status"></p>
+           <!-- ko if: reason_code__description() != "---" -->
+                <br>
+               <p id="ticket-info-reason-code" data-bind="text: reason_code__description"></p>
+            <!-- /ko -->
+             </div>
             <div class="ticket-info-address">Location: <a data-bind="text: location_address(), attr:{href: location__customer__get_app_url()}"></a></div>
             <div class="ticket-info-service-type"
                  data-bind="html: '<u>' + service_type__service() + ' of ' +  + cart_type__size() + ' ' + cart_type__name() + '</u>'"></div>

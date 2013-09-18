@@ -27,6 +27,7 @@ function Ticket(data) {
     //status attributes, level used for css style
     self.status__service_status = ko.observable();
     self.status__level = ko.observable();
+    self.reason_code__description = ko.observable();
 
     //location of ticket
     self.location__house_number = ko.observable();
@@ -75,6 +76,8 @@ function Ticket(data) {
 
         self.status__service_status(data.status__service_status);
         self.status__level(data.status__level);
+        self.reason_code__description(data.reason_code__description);
+
 
         self.location__house_number(data.location__house_number);
         self.location__street_name(data.location__street_name);
