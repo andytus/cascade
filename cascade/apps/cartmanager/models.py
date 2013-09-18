@@ -147,23 +147,24 @@ class CartStatus(models.Model):
     def __unicode__(self):
         return "%s, %s" % (self.level, self.label)
 
+
 class CartType(models.Model):
-     name = models.CharField(max_length=20)
-     size = models.IntegerField()
-     #model managers:
-     site = models.ManyToManyField(Site)
-     objects = models.Manager()
-     on_site = CurrentSiteManager()
+    #TODO define a unique for size and name
+    name = models.CharField(max_length=20)
+    size = models.IntegerField()
+    #model managers:
+    site = models.ManyToManyField(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
 
+    class Meta:
+        ordering = ["-name", "-size"]
 
-     class Meta:
-         ordering = ["-name", "-size"]
+    def get_info(self):
+        return {'name':self.name, 'size': self.size}
 
-     def get_info(self):
-         return {'name':self.name, 'size': self.size}
-
-     def __unicode__(self):
-         return "%s" % (self.name)
+    def __unicode__(self):
+        return "%s" % self.name
 
 
 class TicketStatus(models.Model):
@@ -323,10 +324,12 @@ class CollectionAddress(Address):
     customer = models.ForeignKey(CollectionCustomer, null=True, blank=True, related_name="customer_location")
 
     def get_info(self):
-        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,  "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                              "city":self.city, "state":self.state, "zipcode":self.zipcode, "geocode_type":self.geocode_type, "geocode_status": self.geocode_status,
-                              "carts":self.location.values("id", "serial_number", "cart_type__size", "cart_type__name")},"type":"Feature", "geometry":
-                    {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
+        info = {"properties": {"url": self.get_absolute_url(), "id": self.id, "property_type": self.property_type,
+                "house_number": self.house_number, "unit" :self.unit, "street_name":self.street_name, "city": self.city,
+                "state": self.state, "zipcode": self.zipcode, "geocode_type": self.geocode_type,
+                "geocode_status": self.geocode_status,"carts": self.location.values("id", "serial_number",
+                "cart_type__size", "cart_type__name")},"type": "Feature", "geometry": {"type": "Point", "coordinates":
+                [float(self.latitude or 0), float(self.longitude or 0)]}, }
 
         return info
 
@@ -355,7 +358,6 @@ class Cart(models.Model):
     Location comes from Services Center, A & D or from customer delivery services.
 
     """
-    CART_SIZE = ((35, 35), (64, 64), (96, 96))
     location = models.ForeignKey(CollectionAddress, null=True, blank=True, related_name='location')
     inventory_location = models.ForeignKey(InventoryAddress, null=True, blank=True, related_name="inventory_location")
     at_inventory = models.BooleanField(default=True)
@@ -363,42 +365,39 @@ class Cart(models.Model):
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
     serial_number = models.CharField(max_length=30, null=False, blank=False, unique=True)
-    #TODO remove size
-    size = models.IntegerField(choices=CART_SIZE)
     current_status = models.ForeignKey(CartStatus, null=True, blank=True)
     cart_type = models.ForeignKey(CartType, null=True, blank=True, default=1)
     last_updated = models.DateTimeField(auto_now=datetime.now)
     born_date = models.DateTimeField(null=True, blank=True)
     updated_by = models.ForeignKey(User, related_name="cart_updated_by_user" )
     file_upload = models.ForeignKey(CartsUploadFile, null=True, blank=True, related_name="cart_upload_file")
-
-
     #model managers
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
-
     def __unicode__(self):
         return "rfid: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)
-
 
     def get_absolute_url(self):
         return reverse('cart_api_profile', args=[str(self.serial_number)])
 
     def get_info(self):
-        info =  {'rfid': self.rfid, "serial":self.serial_number, "id":self.id, "url": self.get_absolute_url(), "cart_type":self.cart_type.name,
-                 "size": self.size, "born_date": self.born_date, "current_status": self.current_status.label, "current_status_level": self.current_status.level }
+        info = {'rfid': self.rfid, "serial": self.serial_number, "id": self.id, "url": self.get_absolute_url(),
+                "cart_type__name": self.cart_type.name, "cart_type__size": self.cart_type.size,
+                "born_date": self.born_date, "current_status__label": self.current_status.label,
+                "current_status__level": self.current_status.level}
         return info
 
     def save(self, *args, **kwargs):
         current_site = Site.objects.get_current()
         self.site = current_site
-        super(Cart,self).save(*args, **kwargs)
+        super(Cart, self).save(*args, **kwargs)
+
 
 class Ticket(models.Model):
 
-    AUDIT_STATUS = (('No Change','No Change'), ('Changed','Changed'))
+    AUDIT_STATUS = (('No Change', 'No Change'), ('Changed', 'Changed'))
 
     serviced_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='serviced_cart')
     expected_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='expected_cart')

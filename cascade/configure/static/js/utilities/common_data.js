@@ -22,3 +22,20 @@
   cartlogic.streetSuffix = streetSuffix;
 }
    )(window.cartlogic);
+
+
+
+
+
+        self.getTypeOptions = function () {
+            url = cart_type_options_api_url + "?format=jsonp&callback=?";
+            data = {'size':self.cart().cart_type__size()};
+            $.getJSON(url, data, function (data) {
+                var cartTypeOptions = $.map(data, function (item) {
+                    return new cartlogic.TypeOption(item)
+                });
+                self.cart_type_options(cartTypeOptions);
+                //Set drop down to current cart type
+                $("#cart-info-edit-type option[value='" + self.cart().cart_type__id() + "']").attr("selected", "selected");
+            })
+        };

@@ -482,23 +482,25 @@ body { height: 100%; margin: 0; padding: 0 }
    font-size: 1.2em;
 }
 
-.new-ticket-selected{
+.new-selected {
     padding-top: .5em;
     font-size: 3em;
 }
 
-.new-ticket-radio{
+.new-radio {
     margin-right: 3em;
 }
 
-.new-ticket-radio label{
+.new-radio label{
+    padding-bottom: 1em;
     z-index: -1;
     font-size: 1.4em;
 }
 
-.new-ticket-radio input{
+.new-radio input{
+    padding-bottom: 1em;
     width: 2em;
-    height: 2em;
+    height: 1em;
 
 }
 
@@ -571,4 +573,9 @@ table.table-sorter thead tr .sort-up{
 .address-list{
     overflow-y:scroll;
     max-height: 250px
+}
+
+
+.datetimepicker{
+    z-index: 1051;
 }

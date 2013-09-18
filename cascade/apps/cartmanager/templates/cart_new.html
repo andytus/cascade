@@ -1,0 +1,137 @@
+<div id="create_cart">
+
+    <div id="new_ticket" data-bind="template: {name: 'CurrentTemplate', data: create.currentStep }">
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-large pull-left" data-dismiss="modal" aria-hidden="true"
+                data-bind="visible: !(create.isCompleteStep())">Cancel
+        </button>
+        <button class="btn btn-large" data-bind="click: create.goPrevious, visible: create.canGoPrevious"><i
+                class="icon-caret-left"> </i>Previous
+        </button>
+        <button class="btn btn-large"
+                data-bind="click: create.goNext, visible: create.canGoNext, enable: create.serial_good ">Next <i
+                class="icon-caret-right"></i>
+        </button>
+
+        <button class="btn btn-large" data-bind="visible: create.isCompleteStep" data-dismiss="modal"
+                aria-hidden="true">Close
+        </button>
+
+        <button class="btn btn-large btn-primary"
+                data-bind="visible: create.isConfirmStep, click: create.createNewCart">Save changes
+        </button>
+    </div>
+</div>
+
+
+<!--Main Template: all others wizard windows use this insert data to the modal body -->
+<script id="CurrentTemplate" type="text/html">
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 data-bind="html: name"></h4>
+    </div>
+
+    <div class="modal-body" data-bind="template: {name: getTemplate, data: model }">
+    </div>
+
+</script>
+
+
+<script id="EnterCartSerial" type="text/html">
+    <p data-bind="html: message"></p>
+
+    <div id='cart_serial_search' data-bind="with: $root.create">
+
+        <input id="cart_serial_number" type="text"
+               data-bind="value: cart_serial_number, valueUpdate: 'afterkeydown', event:{keyup: cartSerialLookup}"/>
+        <span data-bind="css:{'icon-ok-circle alert-success': serial_good,
+        'icon-ban-circle alert-danger': !serial_good()}, text: cart_serial_check_message" class="icon-2x"></span>
+    </div>
+</script>
+
+<!-- Same steps in ticket_new-->
+<script id="SelectCartSize" type="text/html">
+    <p data-bind="html: message"></p>
+
+    <p data-bind="text: $root.create.cart_size" class="pull-left new-selected"></p>
+
+    <div data-bind="foreach: $root.create.cart_type_unique_sizes" class="pull-right new-radio">
+        <label>
+            <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
+            <span data-bind="text: $data"></span>
+        </label>
+    </div>
+</script>
+
+<script id="SelectCartType" type="text/html">
+    <p data-bind="html: message"></p>
+    <p data-bind="text: $root.create.cart_type" class="pull-left new-selected"></p>
+    <div data-bind="foreach: $root.create.cart_type_unique_type" class="pull-right new-radio">
+        <label>
+        <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
+         <span data-bind="text: $data"></span>
+        </label>
+    </div>
+</script>
+<!-- End comment -->
+
+
+<script id="SelectBornDate" type="text/html">
+    <p data-bind="html: message"></p>
+    <div id="datetimepicker">
+    <input id="datepicker" type="text" data-bind="value: $root.create.cart_born_date" />
+
+   </div>
+</script>
+
+
+<script id="ConfirmCartSave" type="text/html">
+    <p data-bind="html: message"></p>
+    <p data-bind="html: 'CART SERIAL: ' + $root.create.cart_serial_number()"></p>
+    <p data-bind="html: 'CART SIZE: ' + $root.create.cart_size()"></p>
+    <p data-bind="html: 'CART TYPE: ' + $root.create.cart_type()"></p>
+    <p data-bind="html: 'CART DATE: ' + $root.create.cart_born_date()"></p>
+    <br>
+    <br>
+    <p>Note: The RFID will be assigned the serial number.</p>
+
+</script>
+
+<script id="Complete" type="text/html">
+     <p data-bind="css:{'text-success': $root.create.server_message_type() == 'Success', 'text-error':
+      $root.create.server_message_type() == 'Failed'}, text: $root.create.server_message_type"></p>
+    <p data-bind="html: $root.create.server_message"></p>
+
+    <!-- ko if: $root.create.server_message_type() == 'Success' -->
+       Cart profile link for <a data-bind="attr:{ href: '{% url cart_app_profile %}' + $root.create.cart_serial_number()}, text: $root.create.cart_serial_number"></a>
+     <!-- /ko -->
+
+</script>
+
+
+
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/datepicker.css">
+<script type="text/javascript"
+        src="{{ STATIC_URL }}js/vendor/bootstrap/datetimepicker/bootstrap-datepicker.js"></script>
+
+
+{% load compressed %}
+{% compressed_js 'views_cart_new' %}
+{% compressed_js 'models_form_steps' %}
+{% compressed_js 'models_cart_type_options' %}
+
+<script type="text/javascript">
+
+    var cart_api_profile_url = "{% url cart_api_profile %}";
+    var cart_type_options_api_url = "{% url cart_type_api %}"
+
+    var cartCreate = {
+        create: new cartlogic.CartCreateViewModel(cart_api_profile_url, cart_type_options_api_url)
+    }
+
+    ko.applyBindings(cartCreate, document.getElementById('create_cart'));
+
+
+</script>

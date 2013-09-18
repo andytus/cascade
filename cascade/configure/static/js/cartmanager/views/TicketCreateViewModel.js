@@ -61,9 +61,9 @@
         //For example only show
         self.cart_type_unique_type = ko.computed(
             function () {
-                var types = ko.utils.arrayFilter(self.cart_type_options(), function (item) {
+                var types = ko.utils.arrayFilter(self.cart_type_options(), function(item) {
                     if (self.cart_size() == item.size) {
-                        return item
+                        return item;
                     }
                 });
 
@@ -125,17 +125,17 @@
 
 
         //same logic in Cart Profile view model, only grabs all options
-        self.getTypeOptions = function () {
-            $.getJSON(cart_type_api, function (data) {
+        self.getCartTypeOptions = function () {
+            $.getJSON(cart_type_options_api_url, function (data) {
                     var cartTypeList = $.map(data, function (item) {
-                        return  new cartlogic.TypeOption(item)
+                        return  new cartlogic.CartTypeOption(item)
                     });
                     self.cart_type_options(cartTypeList);
                 }
             )
         };
 
-        self.getTypeOptions();
+        self.getCartTypeOptions();
 
         self.set_address_cart_list = function (data, event) {
            self.cart_house_number(data.house_number());
@@ -193,8 +193,8 @@
         self.searchAddress = function () {
             if (self.cart_address_search() && self.cart_address_search().length == 5) {
 
-                data = {"address": self.cart_address_search()};
-                message_index = ko.utils.arrayFirst(self.stepModels(), function (item) {
+                var data = {"address": self.cart_address_search()};
+                var message_index = ko.utils.arrayFirst(self.stepModels(), function (item) {
                     return item.id === 1
                 });
                 message_index.model().message('<span class="text-success">' + 'Loading...' + '</span>');

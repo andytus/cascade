@@ -8,11 +8,9 @@ from django.conf import settings
 
 ROOT_DIR = os.path.dirname(__file__)
 
-
 DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
-
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -24,11 +22,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'cartlogictest',                      # Or path to database file if using sqlite3.
-        'USER': 'admin_cartlogic',                      # Not used with sqlite3.
-        'PASSWORD': 'charlize20',                  # Not used with sqlite3.
-        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
+        'NAME': 'cartlogictest', # Or path to database file if using sqlite3.
+        'USER': 'admin_cartlogic', # Not used with sqlite3.
+        'PASSWORD': 'charlize20', # Not used with sqlite3.
+        'HOST': 'localhost', # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '5432', # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -81,11 +79,11 @@ STATIC_URL = '/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
 
-    os.path.abspath(os.path.join(ROOT_DIR,'..','configure/static' )),
+    os.path.abspath(os.path.join(ROOT_DIR, '..', 'configure/static')),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    )
+)
 
 
 # List of finder classes that know how to find static files in
@@ -94,7 +92,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    )
+)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'ea&amp;5^_ekl^028+x4!=5a!iu43e1!amwd6nfes&amp;ik-!9trs5^zs'
@@ -104,7 +102,7 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
     #     'django.template.loaders.eggs.Loader',
-    )
+)
 
 
 
@@ -122,7 +120,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    )
+)
 
 ROOT_URLCONF = 'cascade.urls'
 
@@ -130,8 +128,7 @@ ROOT_URLCONF = 'cascade.urls'
 WSGI_APPLICATION = 'cascade.wsgi.application'
 
 #
-TEMPLATE_DIRS = (os.path.abspath(os.path.join(ROOT_DIR , '..', 'configure/templates')),)
-
+TEMPLATE_DIRS = (os.path.abspath(os.path.join(ROOT_DIR, '..', 'configure/templates')),)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -152,7 +149,7 @@ INSTALLED_APPS = (
     'djrill',
     'cascade.apps.api',
     'cascade.apps.cartmanager',
-    )
+)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -179,8 +176,8 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-            },
-        }
+        },
+    }
 }
 
 LOGIN_URL = '/accounts/login/'
@@ -190,29 +187,28 @@ LOGIN_REDIRECT_URL = '/carts/tickets/report/'
 #Storage Compression:
 
 PIPELINE_CSS = {
-    'cartlogic':{
-        'source_filenames':(
+    'cartlogic': {
+        'source_filenames': (
             'css/cartlogic.css',
         ),
         'output_filename': 'compress/cartlogic.css',
     },
-    'vendor_bootstrap':{
-        'source_filenames':('css/bootstrap-responsive.min.css', 'css/bootstrap.min.css', ),
+    'vendor_bootstrap': {
+        'source_filenames': ('css/bootstrap-responsive.min.css', 'css/bootstrap.min.css', ),
         'output_filename': 'compress/bootstrap.css'
     },
 
-    'vendor_jquery-ui':{
-        'source_filenames':('css/jquery.fileupload-ui.css', ),
+    'vendor_jquery-ui': {
+        'source_filenames': ('css/jquery.fileupload-ui.css', ),
         'output_filename': 'compress/jquery-ui.css'
     },
 
 
-    'fonts':{
-        'source_filenames':('css/font-awesome.min.css',),
+    'fonts': {
+        'source_filenames': ('css/font-awesome.min.css',),
         'output_filename': 'compress/font.css'
     }
- }
-
+}
 
 PIPELINE_JS = {
     'vendor_common': {
@@ -224,12 +220,12 @@ PIPELINE_JS = {
             'js/vendor/knockout/knockout-mappings.js',
             'js/vendor/knockout/koUtilities.js'
 
-            ),
+        ),
         'output_filename': 'js/compress/vendor_common.js',
     },
 
-    'vendor_jquery_uploads':{
-        'source_filenames':(
+    'vendor_jquery_uploads': {
+        'source_filenames': (
             'js/vendor/jquery/jquery.ui.widget.js',
             'js/vendor/jquery/jquery.iframe-transport.js',
             'js/vendor/jquery/jquery.fileupload.js',
@@ -240,7 +236,7 @@ PIPELINE_JS = {
         'output_filename': 'js/compress/vendor_jquery_uploads.js',
     },
 
-    'ajax':{
+    'ajax': {
         'source_filenames': (
             'js/utilities/ajax.js',
         ),
@@ -254,181 +250,186 @@ PIPELINE_JS = {
         'output_filename': 'js/compress/dateformat.js'
     },
 
-    'validators':{
+    'validators': {
         'source_filenames': (
             'js/utilities/validators.js',
-            ),
+        ),
         'output_filename': 'js/compress/validators.js',
-        },
+    },
 
-    'views_cart_list':{
+    'views_cart_list': {
         'source_filenames': (
             'js/cartmanager/views/CartListViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/CartListViewModel.js',
-        },
-    'views_uploaded_file_report':{
+    },
+    'views_uploaded_file_report': {
         'source_filenames': (
             'js/cartmanager/views/UploadedFileReportViewModel.js',
         ),
         'output_filename': 'js/compress/UploadedFileReportViewModel.js',
     },
 
-    'views_cart_profile_change_address':{
+    'views_cart_profile_change_address': {
         'source_filenames': (
             'js/cartmanager/views/CartProfileChangeAddressViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/CartProfileChangeAddressViewModel.js',
-        },
+    },
 
-    'views_cart_profile':{
+    'views_cart_profile': {
         'source_filenames': (
             'js/cartmanager/views/CartProfileViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/CartProfileViewModel.js',
-        },
-    'views_cart_search':{
+    },
+    'views_cart_search': {
         'source_filenames': (
             'js/cartmanager/views/CartSearchViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/CartSearchViewModel.js',
-        },
-    'views_customer_new':{
+    },
+    'views_cart_new': {
+        'source_filenames': (
+            'js/cartmanager/views/CartCreateViewModel.js',
+        ),
+        'output_filename': 'js/compress/CartCreateModel.js'
+    },
+    'views_customer_new': {
         'source_filenames': (
             'js/cartmanager/views/CustomerNewViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/CustomerNewViewModel.js',
-        },
-    'views_customer_profile':{
+    },
+    'views_customer_profile': {
         'source_filenames': (
             'js/cartmanager/views/CustomerProfileViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/CustomerProfileViewModel.js',
-        },
-    'views_location_search':{
+    },
+    'views_location_search': {
         'source_filenames': (
             'js/cartmanager/views/LocationSearchViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/LocationSearchViewModel.js',
-        },
-    'views_ticket_create':{
+    },
+    'views_ticket_create': {
         'source_filenames': (
             'js/cartmanager/views/TicketCreateViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/TicketCreateViewModel.js',
-        },
-    'views_ticket_profile':{
+    },
+    'views_ticket_profile': {
         'source_filenames': (
             'js/cartmanager/views/TicketProfileViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/TicketProfileViewModel.js',
-        },
-    'views_tickets_list':{
+    },
+    'views_tickets_list': {
         'source_filenames': (
             'js/cartmanager/views/TicketsListViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/TicketsListViewModel.js',
-        },
-    'views_tickets_report':{
+    },
+    'views_tickets_report': {
         'source_filenames': (
             'js/cartmanager/views/TicketsReportViewModel.js',
-            ),
+        ),
         'output_filename': 'js/compress/TicketsReportViewModel.js',
-        },
+    },
 
-     'models_file':{
+    'models_file': {
         'source_filenames': (
             'js/cartmanager/models/file.js',
-            ),
+        ),
         'output_filename': 'js/compress/file.js',
-        },
+    },
 
-    'models_cart':{
+    'models_cart': {
         'source_filenames': (
             'js/cartmanager/models/cart.js',
-            ),
+        ),
         'output_filename': 'js/compress/cart.js',
-        },
+    },
 
-    'models_cart_profile':{
+    'models_cart_profile': {
         'source_filenames': (
             'js/cartmanager/models/cart_profile.js',
-            ),
+        ),
         'output_filename': 'js/compress/cart_profile.js',
-        },
+    },
 
-    'models_cart_status':{
+    'models_cart_status_options': {
         'source_filenames': (
-            'js/cartmanager/models/cart_status.js',
-            ),
-        'output_filename': 'js/compress/cart_status.js',
-        },
+            'js/cartmanager/models/cart_status_options.js',
+        ),
+        'output_filename': 'js/compress/cart_status_options.js',
+    },
 
-    'models_cart_type':{
+    'models_cart_type_options': {
         'source_filenames': (
-            'js/cartmanager/models/cart_type.js',
-            ),
-        'output_filename': 'js/compress/cart_type.js',
-        },
+            'js/cartmanager/models/cart_type_options.js',
+        ),
+        'output_filename': 'js/compress/cart_type_options.js',
+    },
 
-    'models_comments':{
+    'models_comments': {
         'source_filenames': (
             'js/cartmanager/models/comments.js',
-            ),
+        ),
         'output_filename': 'js/compress/comments.js',
-        },
+    },
 
-    'models_customer':{
+    'models_customer': {
         'source_filenames': (
             'js/cartmanager/models/customer.js',
-            ),
+        ),
         'output_filename': 'js/compress/customer.js',
-        },
+    },
 
-    'models_form_steps':{
+    'models_form_steps': {
         'source_filenames': (
             'js/cartmanager/models/form_steps.js',
-            ),
+        ),
         'output_filename': 'js/compress/form_steps.js',
-        },
+    },
 
-    'models_location':{
+    'models_location': {
         'source_filenames': (
             'js/cartmanager/models/location.js',
-            ),
+        ),
         'output_filename': 'js/compress/location.js',
-        },
+    },
 
-    'models_map':{
+    'models_map': {
         'source_filenames': (
             'js/cartmanager/models/map.js',
-            ),
+        ),
         'output_filename': 'js/compress/map.js',
-        },
+    },
 
-    'models_ticket':{
+    'models_ticket': {
         'source_filenames': (
             'js/cartmanager/models/ticket.js',
-            ),
+        ),
         'output_filename': 'js/compress/ticket.js',
-        },
+    },
 
-    'models_ticket_services':{
+    'models_ticket_services': {
         'source_filenames': (
             'js/cartmanager/models/ticket_services.js',
-            ),
+        ),
         'output_filename': 'js/compress/ticket_services.js',
-        },
+    },
 
-    'models_ticket_status':{
+    'models_ticket_status': {
         'source_filenames': (
             'js/cartmanager/models/ticket_status.js',
-            ),
+        ),
         'output_filename': 'js/compress/ticket_status.js',
-        },
+    },
 
-    }
-
+}
 
 DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USERNAME']
 EMAIL_BACKEND = 'djrill.mail.backends.djrill.DjrillBackend'

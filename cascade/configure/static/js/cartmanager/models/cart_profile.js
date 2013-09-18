@@ -19,9 +19,9 @@ function CartProfile(data){
 
     self.id = ko.observable(data.id);
     self.cart_profile_url = ko.observable(data.cart_url);
-    self.size = ko.observable(data.cart_type.size);
-    self.cart_type = ko.observable(data.cart_type.name);
-    self.cart_type_id = ko.observable(data.cart_type.id);
+    self.cart_type__size = ko.observable(data.cart_type.size);
+    self.cart_type__name = ko.observable(data.cart_type.name);
+    self.cart_type__id = ko.observable(data.cart_type.id);
 
     self.last_updated = ko.observable(new cartlogic.DateFormat(data.last_updated).full_date);
 

@@ -46,7 +46,7 @@
         self.getStatusOptions = function () {
             $.getJSON(cart_status_options_api_url + "?format=jsonp&callback=?", function (data) {
                 var cartStatusOptions = $.map(data, function (item) {
-                    return new cartlogic.StatusOption(item);
+                    return new cartlogic.CartStatusOptions(item);
                 });
                 self.cart_status_options(cartStatusOptions);
                 //set drop down to current status
@@ -56,21 +56,21 @@
 
         self.getTypeOptions = function () {
             url = cart_type_options_api_url + "?format=jsonp&callback=?";
-            data = {'size':self.cart().size()};
+            data = {'size':self.cart().cart_type__size()};
             $.getJSON(url, data, function (data) {
                 var cartTypeOptions = $.map(data, function (item) {
-                    return new cartlogic.TypeOption(item)
+                    return new cartlogic.CartTypeOption(item)
                 });
                 self.cart_type_options(cartTypeOptions);
                 //Set drop down to current cart type
-                $("#cart-info-edit-type option[value='" + self.cart().cart_type_id() + "']").attr("selected", "selected");
+                $("#cart-info-edit-type option[value='" + self.cart().cart_type__name() + "']").attr("selected", "selected");
             })
         };
 
         self.setCartInfo = function () {
             //need to find current level for correct labeling
             var type = $('#cart-info-edit-type option:selected').text();
-            self.cart().cart_type(type);
+            self.cart().cart_type__name(type);
 
             var status = $("#cart-info-edit-status option:selected");
             self.cart().current_status(status.text());
@@ -84,14 +84,11 @@
         };
 
         self.saveCartData = function (data) {
-            console.log("data in:");
-            console.log(data);
             $.ajax(cart_api_profile + cart_serial_number, {
                 data:ko.toJSON(data),
                 type:"post", contentType:"application/json",
                 dataType:"jsonp",
                 success:function (data) {
-                    console.log(data);
                     self.cart().last_updated(new Date(data.details.time).toDateString());
                     //refresh cart info on page
                     self.setCartInfo();
@@ -110,7 +107,6 @@
                     // self.getCartData()
                 },
                 error:function (data) {
-                    console.log(data);
                     $("#message").addClass("alert-error").show();
                     $("#message-type").text("Error! ");
                     $("#message-text").text(data.statusText);
@@ -124,8 +120,12 @@
         };
 
         self.updateCartInfo = function(){
-            self.cart().cart_type(document.getElementById('cart-info-edit-status').text);
-            data = {current_status:document.getElementById('cart-info-edit-status').value, cart_type:document.getElementById('cart-info-edit-type').value};
+            self.cart().cart_type__name(document.getElementById('cart-info-edit-status').text);
+            var data = {current_status:document.getElementById('cart-info-edit-status').value,
+                        cart_type_name:document.getElementById('cart-info-edit-type').value,
+                        cart_type_size: self.cart().cart_type__size()
+                        };
+            console.log(data);
             self.saveCartData(data);
         };
 
@@ -191,11 +191,6 @@
             document.location.href = '#cart-profile-map';
         };
 
-        self.getLocation = function () {
-            //#TODO
-            console.log("ok")
-
-        };
 
         self.updateCoordinates = function () {
             $('#update_coordinates').modal('hide');

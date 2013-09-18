@@ -55,17 +55,17 @@
                 </a>
 
                 <div class="cart-info-text">
-                    <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_size()"></span>
+                    <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_type__size()"></span>
 
-                        <div class="cart-info-type" data-bind="text: cart_type()"></div>
+                        <div class="cart-info-type" data-bind="text: cart_type__name()"></div>
 
                     </div>
 
 
-                    <div class="info-status label" data-bind="text:current_status,  css: current_status_level"></div>
+                    <div class="info-status label" data-bind="text:current_status,  css: current_status__level"></div>
                    <br> Produced on: <b><div class="cart-info-born_date" data-bind="text: born_date()"></div></b>
                 </div>
-
+                 <br>
                  <div class="cart-info-address"><a data-bind="attr: {href: customer_url()}, text:address()"></a></div>
             </div>
         </div>
@@ -110,6 +110,8 @@
    {% comment %} <script src="{{ STATIC_URL }}js/cartmanager/views/CartListViewModel.js" xmlns="http://www.w3.org/1999/html"></script>
     <script src="{{ STATIC_URL }}js/cartmanager/models/cart.js" xmlns="http://www.w3.org/1999/html"></script>{% endcomment %}
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
+
+
     <script type="text/javascript">
         var search_parameters = {{ search_parameters|safe}};
         var customer_url = "{% url customer_app_profile%}";

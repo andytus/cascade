@@ -61,6 +61,8 @@
                    var cartTypeOptions = [];
                    var cartSizeOptions= [];
 
+                   //build CartTypeOption & cartSizeOptions array
+                   //get only unique cart sizes and type
                    $.each(data, function(index, item){
                        if ($.inArray(item.name, cartTypeOptions) == -1) {
                            cartTypeOptions.push(item.name);

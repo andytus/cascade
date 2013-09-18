@@ -71,7 +71,6 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                         #look for non exact
                         query = Cart.on_site.filter(location__street_name__contains=street_name,
                                                     location__house_number__contains=house_number)
-
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
             elif search_type == 'type':
@@ -301,43 +300,66 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
 
         return RestResponse(serializer.data)
 
-    def post(self, request, serial_number, format=None):
+    def post(self, request, serial_number):
+
         try:
-            cart = self.get_object(serial_number)
             json_data = simplejson.loads(request.raw_post_data)
-            #grabbing values to be updated or None
-            cart_type_id = json_data.get('cart_type', None)
+            create_new = json_data.get('create_new', None)
+             #grabbing values to be updated or None
+            cart_type_name = json_data.get('cart_type_name', None)
+            cart_type_size = json_data.get('cart_type_size', None)
             current_status_id = json_data.get('current_status', None)
             location_id = json_data.get('location_id', None)
             latitude = json_data.get('latitude', None)
             longitude = json_data.get('longitude', None)
 
-            #check for cart type and save to cart, if None then no value given skip it
-            if cart_type_id:
-                cart.cart_type = CartType.objects.get(pk=cart_type_id)
+            if create_new:
+                #if new cart flag then add new cart to inventory
+                cart = Cart()
+                cart.serial_number = serial_number
+                rfid = json_data.get('rfid', None)
 
-            #check for current status
-            if current_status_id:
-                cart.current_status = CartStatus.on_site.get(pk=current_status_id)
+                if rfid:
+                    cart.rfid = rfid
+                else:
+                    cart.rfid = serial_number
+                cart.at_inventory = True
+                born_date = json_data.get('born_date', None)
+                if born_date:
+                    converted_date = datetime.strptime(born_date, '%m-%d-%Y')
+                    cart.born_date = converted_date
+                cart.current_status = CartStatus.objects.get(label='Inventory')
+                cart.inventory_location = InventoryAddress.objects.get(default=True)
+
+            else:
+                cart = self.get_object(serial_number)
+            #check for cart type and save to cart, if None then no value given skip it
+            if cart_type_name and cart_type_size:
+                cart.cart_type = CartType.objects.get(name=cart_type_name, size=cart_type_size)
 
             #check for location and update latitude + longitude to collection address lat and long
             if location_id:
-                cart.location = CollectionAddress.on_site.get(pk=location_id)
+                cart.location = CollectionAddress.objects.get(pk=location_id)
                 cart.last_latitude = cart.location.latitude
                 cart.last_longitude = cart.location.longitude
+
+            #check for current status
+            if current_status_id:
+                cart.current_status = CartStatus.objects.get(pk=current_status_id)
 
             #check for latitude and longitude (map moves)
             if latitude and longitude:
                 cart.last_latitude = latitude
                 cart.last_longitude = longitude
-
+            cart.updated_by = request.user
             cart.save()
+
             return RestResponse({"details": {'message': "Update complete for %s " % serial_number,
                                              'message_type': 'Success', "time": datetime.now()}},
                                 status=django_rest_status.HTTP_200_OK)
         except Exception as e:
             return RestResponse(
-                {"details": {'message': "Darn, cart did not update, somethings wrong with the value for: %s" % e,
+                {"details": {'message': "The cart did not save or update, Error: %s" % e,
                              'message_type': 'Failed', "time": datetime.now()}}, status=django_rest_status.HTTP_200_OK)
 
 
@@ -466,7 +488,6 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                                     status=django_rest_status.HTTP_200_OK)
 
         else:
-
             #Expecting this to be a status change if it is not New
             #Change status of the ticket id & process the cart changes
             try:

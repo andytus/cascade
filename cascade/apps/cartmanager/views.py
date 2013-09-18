@@ -82,6 +82,10 @@ class CartProfile(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
+class CartNew(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'cart_new.html'
+
+
 class CartReport(LoginSiteRequiredMixin, TemplateView):
     template_name = 'cart_report.html'
 

@@ -13,8 +13,9 @@
     <ul id="cart-profile-tab" class="nav nav-pills">
         <li><a href="#cart-info" class="box-info"><i class="icon-trash"></i> cart profile</a></li>
         <li><a href="#ticket_panel" class="box-info"><i class="icon-tags"></i> tickets</a></li>
-        <li><a href="#cart-map-wrapper" class="box-info" data-bind="click: $root.profile.createMap"><i class="icon-map-marker"></i> show cart map</a></li>
-   </ul>
+        <li><a href="#cart-map-wrapper" class="box-info" data-bind="click: $root.profile.createMap"><i
+                class="icon-map-marker"></i> show cart map</a></li>
+    </ul>
 
     <div id="cart-profile" class="container-fluid" data-bind="with: profile.cart">
 
@@ -28,9 +29,9 @@
                     <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
                 </a>
 
-                <div class="cart-info-header"><span class="cart-info-size" data-bind="text: size"></span></div>
+                <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_type__size"></span></div>
 
-                <div class="cart-info-type" data-bind="text:cart_type"></div>
+                <div class="cart-info-type" data-bind="text: cart_type__name"></div>
 
                 <div class="cart-info-status info-status label"
                      data-bind="text: current_status,  css: current_status_level"></div>
@@ -44,7 +45,7 @@
 
 
             <div id="cart-info-edit">
-            <div id="cart-info-edit-address" class="well cart-info-edit-section">
+                <div id="cart-info-edit-address" class="well cart-info-edit-section">
                     <a href="{% url cart_app_address_change %}{{ serial_number }}" data-target="#modal_window"
                        class="btn btn-info btn-large cart-info-btn" data-toggle="modal"> <i class="icon-home">
                         Change</i></a>
@@ -67,18 +68,19 @@
                                     type="submit"><i class="icon-save"> Update</i></button>
                             <div class="controls-row">
                                 <label for="cart-info-edit-type" class="control-label">Type:</label>
-                                <select id="cart-info-edit-type" class="input-large" name="cart_type"
-                                        data-bind="foreach:{data: $root.profile.cart_type_options}">
-                                    <option data-bind="text: name, value: id" selected="selected"></option>
+                              <select id="cart-info-edit-type" class="input-large" name="cart_type"
+                                  data-bind="options: $root.profile.cart_type_options, optionsText: 'name',
+                                 optionsValue: 'name'">
                                 </select>
+
                             </div>
                             <div class="control-row">
                                 <label for="cart-info-edit-status" class="control-label">Status:</label>
                                 <select id="cart-info-edit-status" name="current_status" class="input-large"
-                                        data-bind="foreach:{data: $root.profile.cart_status_options}">
-                                    <option data-bind="text: label(), value: id()"></option>
-                                </select> <br>
-                            </div>
+                                        data-bind="options: $root.profile.cart_status_options,
+                                         optionsText: 'label', optionsValue: 'id'">
+                               </select> <br>
+                           </div>
                             <div id="cart-info-edit-last_update"
                                  data-bind="text: 'Last Updated: ' + last_updated()"></div>
                         </div>
@@ -92,7 +94,8 @@
 
     <div id="ticket_panel" data-bind="with: tickets" style="height: 200px">
 
-     <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 100%; width: 100%"></div>
+        <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions"
+             style="height: 100%; width: 100%"></div>
 
     </div>
 
@@ -105,18 +108,18 @@
             <h3>Confirm Update Coordinates</h3>
         </div>
         <div class="modal-body" id="update_coordinates_confirm">
-            Latitude   (Y): <i id="set_latitude"></i><br>
-            Longitude  (X): <i id="set_longitude"></i>
+            Latitude (Y): <i id="set_latitude"></i><br>
+            Longitude (X): <i id="set_longitude"></i>
         </div>
         <div class="modal-footer">
-             <button data-bind="click: $root.profile.updateCoordinates" class="btn btn-success">Update</button>
+            <button data-bind="click: $root.profile.updateCoordinates" class="btn btn-success">Update</button>
             <a href="#" class="btn" data-dismiss="modal">Close</a>
         </div>
     </div>
 
-    <div id="cart-map-wrapper"  style="display:none;" class="box-info">
-      <div id="cart-profile-map"></div>
-   </div>
+    <div id="cart-map-wrapper" style="display:none;" class="box-info">
+        <div id="cart-profile-map"></div>
+    </div>
 
 {% endblock %}
 
@@ -126,15 +129,16 @@
 
 {% block page_scripts %}
     {% load compressed %}
+    {% compressed_js 'models_cart_status_options' %}
+    {% compressed_js 'models_cart_type_options' %}
     {% compressed_js 'models_cart_profile' %}
     {% compressed_js 'models_map' %}
-    {% compressed_js 'models_cart_status' %}
     {% compressed_js 'views_cart_profile' %}
     {% compressed_js 'models_ticket' %}
     {% compressed_js 'views_tickets_list' %}
 
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
-<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
 
     <!-- Data API variables: these are used to get JSON formatted data from the server -->
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
@@ -148,11 +152,9 @@
         var ticket_app_profile_url = "{% url ticket_app_profile %}";
         var cart_status_options_api_url = "{% url cart_status_api %}";
         var cart_type_options_api_url = "{% url cart_type_api %}";
-
-
         var cartProfile = {
             tickets: new cartlogic.TicketsListViewModel(cart_serial_number, null, tickets_api_download),
-            profile: new cartlogic.CartProfileViewModel
+            profile: new cartlogic.CartProfileViewModel(cart_api_profile, cart_status_options_api_url, cart_type_options_api_url)
         };
 
         ko.applyBindings(cartProfile, document.getElementById('main'));

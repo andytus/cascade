@@ -9,12 +9,12 @@
 
 (function (cartlogic){
 
-    function TypeOption(data) {
+    function CartTypeOption(data) {
         this.id = data.id;
         this.name = data.name;
         this.size = data.size;
         this.site =data.site;
     }
-    cartlogic.TypeOption = TypeOption;
+    cartlogic.CartTypeOption = CartTypeOption;
 
 })(window.cartlogic);

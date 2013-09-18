@@ -35,9 +35,9 @@
 <script id="SelectServiceType" type="text/html">
     <p data-bind="text: message"></p>
 
-    <p data-bind="text: $root.create.service_type" class="pull-left new-ticket-selected"></p>
+    <p data-bind="text: $root.create.service_type" class="pull-left new-selected"></p>
 
-    <div data-bind="foreach: $root.create.service_type_options" class="pull-right new-ticket-radio">
+    <div data-bind="foreach: $root.create.service_type_options" class="pull-right new-radio">
         <label>
         <input type="radio" name="service_type" data-bind="id: $data, value: $data, checked: $root.create.service_type">
         <span data-bind="text: $data" ></span>
@@ -107,22 +107,20 @@
 <script id="SelectCartSize" type="text/html">
     <p data-bind="html: message"></p>
 
-    <p data-bind="text: $root.create.cart_size" class="pull-left new-ticket-selected"></p>
+    <p data-bind="text: $root.create.cart_size" class="pull-left new-selected"></p>
 
-    <div data-bind="foreach: $root.create.cart_type_unique_sizes" class="pull-right new-ticket-radio">
+    <div data-bind="foreach: $root.create.cart_type_unique_sizes" class="pull-right new-radio">
         <label>
         <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
         <span data-bind="text: $data"></span>
         </label>
     </div>
-
-
 </script>
 
 <script id="SelectCartType" type="text/html">
     <p data-bind="html: message"></p>
-    <p data-bind="text: $root.create.cart_type" class="pull-left new-ticket-selected"></p>
-    <div data-bind="foreach: $root.create.cart_type_unique_type" class="pull-right new-ticket-radio">
+    <p data-bind="text: $root.create.cart_type" class="pull-left new-selected"></p>
+    <div data-bind="foreach: $root.create.cart_type_unique_type" class="pull-right new-radio">
         <label>
         <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
          <span data-bind="text: $data"></span>
@@ -158,15 +156,17 @@
     <p data-bind="text: $root.create.server_message"></p>
 
 </script>
+
+
 {% load compressed %}
 {% compressed_js 'views_ticket_create' %}
 {% compressed_js 'models_form_steps' %}
 {% compressed_js 'models_location' %}
+{% compressed_js 'models_cart_type_options' %}
 
 
 
 <script type="text/javascript">
-    //Globals coming from incoming request
     var cart_serial_number = '{{ serial_number }}' || null;
     var cart_id = '{{ cart_id }}' || null;
     var location_id = '{{ location_id }}' || null;
@@ -179,7 +179,7 @@
     var ticket_id = '{{ticket_id }}' || null;
     var ticket_api = '{% url ticket_api %}';
     var location_api_search = "{% url location_api_search  %}";
-    var cart_type_api = "{% url cart_type_api %}";
+    var cart_type_options_api_url = "{% url cart_type_api %}";
     var ticketCreate = {
         create:new cartlogic.TicketCreateViewModel
     };

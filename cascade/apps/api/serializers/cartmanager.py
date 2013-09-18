@@ -160,9 +160,10 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
         model = Ticket
         fields = ('id', 'service_type__code', 'service_type__service', 'success_attempts',
                   'serviced_cart__serial_number', 'serviced_cart__id', 'serviced_cart__cart_type__size',
-                  'serviced_cart__cart_type__name', 'expected_cart__serial_number', 'status__service_status', 'status__level', 'processed',
-                  'date_completed', 'date_created', 'date_processed', 'date_last_attempted',
-                  'longitude', 'latitude', 'device_name', 'audit_status', 'location__house_number', 'location__street_name', 'location__unit',
+                  'serviced_cart__cart_type__name', 'expected_cart__serial_number', 'status__service_status',
+                  'status__level', 'processed', 'date_completed', 'date_created', 'date_processed',
+                  'date_last_attempted', 'longitude', 'latitude', 'device_name', 'audit_status',
+                  'location__house_number', 'location__street_name', 'location__unit',
                   'location__customer__get_absolute_url', 'location__customer__get_app_url', 'cart_type__name',
                   'cart_type__size', 'created_by__username', 'updated_by__username')
 
