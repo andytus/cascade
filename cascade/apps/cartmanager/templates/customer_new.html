@@ -27,7 +27,8 @@
             </button>
 
             <button class="btn btn-large btn-primary"
-                    data-bind="visible: create.isConfirmStep, click: create.saveCustomer, enable:$root.create.customer().valid() && $root.create.location().valid()">Save
+                    data-bind="visible: create.isConfirmStep, click: create.saveCustomer, enable:$root.create.customer().valid() && $root.create.location().valid()">
+                Save
             </button>
         </p>
     </div>
@@ -51,7 +52,7 @@
 <!-- Step Templates -->
 <script id="CustomerInfo" type="text/html">
 
-    <form class="form-horizontal"  data-bind="with: $root.create.customer">
+    <form class="form-horizontal" data-bind="with: $root.create.customer">
         <fieldset>
 
             <h2>Customer</h2>
@@ -114,9 +115,12 @@
         <fieldset>
             <!-- Text input-->
             <div class="control-group">
-                 <label class="control-label">House #</label>
-                <p class="text-error" data-bind='visible: house_number.hasError, html: house_number.validationMessage'> </p>
-                 <div class="controls">
+                <label class="control-label">House #</label>
+
+                <p class="text-error"
+                   data-bind='visible: house_number.hasError, html: house_number.validationMessage'></p>
+
+                <div class="controls">
                     <input id="house_number" class="input-small" name="house_number" type="text" size="10"
                            data-bind="value: house_number" required="">
 
@@ -128,8 +132,8 @@
                 <label class="control-label">Street:</label>
 
                 <div class="controls" data-bind="css: {'text-error': street_name.hasError }">
-                    <p data-bind='visible: street_name.hasError, html: street_name.validationMessage'> </p>
-                     <input id="street_name" name="street_name" type="text" placeholder="" data-bind="value: street_name"
+                    <p data-bind='visible: street_name.hasError, html: street_name.validationMessage'></p>
+                    <input id="street_name" name="street_name" type="text" placeholder="" data-bind="value: street_name"
                            class="input-xlarge" required="">
 
                     <p class="help-block">Street name and prefix only</p>
@@ -139,53 +143,57 @@
             <!-- Text input-->
             <div class="control-group">
 
-                <label class="control-label" >Street suffix\Unit: </label>
+                <label class="control-label">Street suffix\Unit: </label>
+
                 <div class="controls form-inline">
-                     <input id="street_suffix" name="street_suffix" class="typeahead input-mini"
+                    <input id="street_suffix" name="street_suffix" class="typeahead input-mini"
                            type="text" placeholder="(i.e. AVE)"
                            data-bind="typeahead: $root.create.suffix_defaults, value: street_suffix" data-modal="true"/>
-                   <input id="unit" name="unit" type="text" placeholder="" data-bind="value: unit" class="input-small">
+                    <input id="unit" name="unit" type="text" placeholder="" data-bind="value: unit" class="input-small">
                     <br>
 
                 </div>
             </div>
-                <div class="control-group">
-                    <label class="control-label">City\State:</label>
-                    <div class="controls form-inline">
-                        <div class="input-append">
-                               <input id="city" name="city" class="input-medium" type="text" placeholder="" required=""
-                                   data-bind="value:city, disable: $root.create.use_default_state_city">
+            <div class="control-group">
+                <label class="control-label">City\State:</label>
+
+                <div class="controls form-inline">
+                    <div class="input-append">
+                        <input id="city" name="city" class="input-medium" type="text" placeholder="" required=""
+                               data-bind="value:city, disable: $root.create.use_default_state_city">
                                <span class="add-on">
-                               <input type="checkbox" checked="" data-bind="checked: $root.create.use_default_state_city">
+                               <input type="checkbox" checked=""
+                                      data-bind="checked: $root.create.use_default_state_city">
                                </span>
-                        </div>
+                    </div>
 
-                         <div class="input-append">
-                                <input id="state" name="state" class="input-mini" type="text" placeholder="" required=""
-                                       data-bind="value: state, disable: $root.create.use_default_state_city">
+                    <div class="input-append">
+                        <input id="state" name="state" class="input-mini" type="text" placeholder="" required=""
+                               data-bind="value: state, disable: $root.create.use_default_state_city">
                               <span class="add-on">
-                                <input type="checkbox" checked="false" data-bind="checked: $root.create.use_default_state_city">
+                                <input type="checkbox" checked="false"
+                                       data-bind="checked: $root.create.use_default_state_city">
                               </span>
-                         </div>
-                            <p class="help-block">Note: check for default</p>
-
                     </div>
+                    <p class="help-block">Note: check for default</p>
+
                 </div>
+            </div>
 
-                <!-- Select Basic -->
-                <div class="control-group">
-                    <label class="control-label">Zipcode:</label>
+            <!-- Select Basic -->
+            <div class="control-group">
+                <label class="control-label">Zipcode:</label>
 
-                    <div class="controls">
-                        <select id="zipcode" name="zipcode" class="input-medium"
-                                data-bind="value: $root.create.location().zipcode, options:  $root.create.default_zipcodes">
+                <div class="controls">
+                    <select id="zipcode" name="zipcode" class="input-medium"
+                            data-bind="value: $root.create.location().zipcode, options:  $root.create.default_zipcodes">
 
 
-                        </select>
-                    </div>
+                    </select>
                 </div>
+            </div>
 
-             <div class="control-group">
+            <div class="control-group">
                 <label class="control-label">Property Type:</label>
 
                 <div class="controls">
@@ -193,7 +201,7 @@
                             data-bind="value: $root.create.location().property_type, options:  $root.create.default_property_type">
                     </select>
                 </div>
-             </div>
+            </div>
 
         </fieldset>
     </form>
@@ -201,9 +209,12 @@
 
 <script id="AddRoute" type="text/html">
     <div>
-       <select id="route-options-day" data-bind="value: $root.create.selected_route_day,
+        <ul class="route-list pull-right" id="selected_routes" data-bind="foreach: $root.create.selected_routes">
+            <li style="font-weight: bold; font-size: 1.3em" data-bind="text: $data.route_type + ': ' + $data.route_day +': ' + $data.route"></li>
+        </ul>
+        <select id="route-options-day" data-bind="value: $root.create.selected_route_day,
         options: $root.create.default_routes_unique_day">
-       </select>
+        </select>
         <label for="route-options-type">Route Type</label>
         <select id="route-options-type" data-bind="value: $root.create.selected_route_type,
         options: $root.create.default_routes_unique_type">
@@ -212,18 +223,18 @@
         <select id="route-options-route" data-bind="value: $root.create.selected_route,
         options: $root.create.default_routes_unique_routes, optionsText: 'route'">
         </select>
-        <button id="add_route" data-bind="click: $root.create.addRoute"> Add Route</button>
-        <button id="clear_routes" data-bind="click: $root.create.clearRoute">Clear Routes</button>
-        <ul class="route-list" id="selected_routes" data-bind="foreach: $root.create.selected_routes">
-             <li data-bind="text: $data.route_type + ': ' + $data.route_day +': ' + $data.route"></li>
-        </ul>
+        <br>
+        <button id="add_route" class="btn btn-primary" data-bind="click: $root.create.addRoute"> Add Route</button>
+        <button id="clear_routes" class="btn btn-danger" data-bind="click: $root.create.clearRoute">Clear Routes
+        </button>
+
     </div>
 </script>
 
 <script id="MapLocation" type="text/html">
 
-    <input id="address_lat"  />
-    <input id="address_lon"  />
+    <input id="address_lat"/>
+    <input id="address_lon"/>
     <input id="geocode_status" type="hidden" disabled=""/>
     <br><br>
 
@@ -264,7 +275,9 @@
 <script id="Complete" type="text/html">
     <p data-bind="css:{'text-success': $root.create.server_message_type() == 'Success', 'text-error':
       $root.create.server_message_type() == 'Failed'}, text: $root.create.server_message_type"></p>
+
     <p data-bind="html: $root.create.server_message"></p>
+
     <p>Click here to view customer:<a data-bind="attr:{href: customer_app_url + $root.create.customer().customer_id()}, text:
     $root.create.customer().customer_id"></a></p>
 </script>
@@ -297,7 +310,7 @@
     };
 
 
-  ko.applyBindings(customerCreate, document.getElementById('create_customer'));
+    ko.applyBindings(customerCreate, document.getElementById('create_customer'));
 
 </script>
 
