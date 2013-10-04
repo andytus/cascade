@@ -7,7 +7,7 @@
  */
 
 
-(function (cartlogic){
+(function (cartlogic) {
 
     function TicketsReportViewModel(data) {
         var self = this;
@@ -16,21 +16,59 @@
         self.selected_status = ko.observable('Requested');
         self.selected_cart_type = ko.observable();
         self.selected_cart_size = ko.observable();
+        self.selected_route = ko.observable();
+        self.selected_route_type = ko.observable();
+        self.selected_route_day = ko.observable();
 
         //options for select drop downs
         self.ticket_type_options = ko.observableArray([]);
         self.ticket_status_options = ko.observableArray([]);
         self.cart_type_options = ko.observableArray([]);
         self.cart_size_options = ko.observableArray([]);
+        self.routes = ko.observableArray([]);
+        self.route_days = ko.observableArray([]);
+        self.route_types = ko.observableArray([]);
 
-        self.getServiceTypeOptions = function(){
-            $.getJSON(ticket_service_type_api, function(data){
-                var serviceTypeOptions = $.map(data, function(item){
-                     return item.service
+
+        self.filtered_routes = ko.computed(function(){
+
+            var filtered_routes = ko.utils.arrayFilter(self.routes(), function(item){
+                    //crazy logic on this one
+
+                    //check if route type is ALL
+                    if (self.selected_route_type() == 'ALL'){
+                        //then check if route day is also ALL
+                        if(self.selected_route_day() == 'ALL'){
+                            return item;
+                        //if its not all then filter by day
+                        }else if (self.selected_route_day() == item.route_day()){
+                            return item;
+                        }
+                     // else check if route day is ALL
+                    }else if (self.selected_route_day() == 'ALL'){
+                     // then filter on route type
+                        if(self.selected_route_type() == item.route_type()){
+                            return item;
+                        }
+                    //else filter by both route day an route type
+                    }else if(self.selected_route_day() == item.route_day()
+                    && self.selected_route_type() == item.route_type()) {
+                    return item;
+                }
+                }
+            )
+           return filtered_routes;
+        });
+
+
+        self.getServiceTypeOptions = function () {
+            $.getJSON(ticket_service_type_api, function (data) {
+                var serviceTypeOptions = $.map(data, function (item) {
+                    return item.service
                 });
                 self.ticket_type_options(serviceTypeOptions);
                 self.ticket_type_options.unshift('ALL');
-                var type_match = ko.utils.arrayFirst(self.ticket_type_options(), function(item){
+                var type_match = ko.utils.arrayFirst(self.ticket_type_options(), function (item) {
                     return item == 'ALL'
                 });
 
@@ -41,13 +79,13 @@
         };
 
 
-        self.getServiceStatusOptions = function(){
-            $.getJSON(ticket_status_api, function(data){
+        self.getServiceStatusOptions = function () {
+            $.getJSON(ticket_status_api, function (data) {
                 var ticketStatusOptions = $.map(data, function (item) {
                     return item.service_status;
                 });
                 self.ticket_status_options(ticketStatusOptions);
-                var match = ko.utils.arrayFirst(self.ticket_status_options(), function(item) {
+                var match = ko.utils.arrayFirst(self.ticket_status_options(), function (item) {
                     return item === 'Requested';
                 });
                 self.selected_status(match);
@@ -55,51 +93,84 @@
             });
         };
 
-       self.getCartTypeOptions = function () {
-               url = cart_type_api + "?format=jsonp&callback=?";
-               $.getJSON(url, data, function (data) {
-                   var cartTypeOptions = [];
-                   var cartSizeOptions= [];
+        self.getRouteOptions = function () {
+            $.getJSON(route_search_api_url + "?format=jsonp&callback=?", function (data) {
+                    var routeDayOptions = [];
+                    var routeTypeOptions = [];
 
-                   //build CartTypeOption & cartSizeOptions array
-                   //get only unique cart sizes and type
-                   $.each(data, function(index, item){
-                       if ($.inArray(item.name, cartTypeOptions) == -1) {
-                           cartTypeOptions.push(item.name);
-                       }
-                       if($.inArray(item.size, cartSizeOptions) == -1){
-                           cartSizeOptions.push(item.size);
-                       }
+
+                    //get unique types and days
+                    $.each(data.results, function(index, item){
+                        if ($.inArray(item.route_day, routeDayOptions) == -1){
+                            routeDayOptions.push(item.route_day);
+                        }
+                        if ($.inArray(item.route_type, routeTypeOptions) == -1){
+                            routeTypeOptions.push(item.route_type);
+                        }
+                    });
+
+                   var routeOptions = $.map(data.results, function(item){
+                        return new cartlogic.Route(item);
                    });
+                   self.route_days(routeDayOptions);
+                   self.route_types(routeTypeOptions);
+                   self.routes(routeOptions);
+                   var all_route = new cartlogic.Route({'route_day': 'ALL', 'route_type': 'ALL', 'route': 'ALL'});
+                   self.routes.unshift(all_route);
+                   self.selected_route(all_route);
+                   self.route_days.unshift('ALL');
+                   self.route_types.unshift('ALL');
+                   self.selected_route_day('ALL');
+                   self.selected_route_type('ALL');
+                }
+            );
+        };
 
-                   self.cart_type_options(cartTypeOptions);
-                   self.cart_size_options(cartSizeOptions);
-                   self.cart_type_options.unshift('ALL');
-                   self.cart_size_options.unshift('ALL');
 
-                   var size_match = ko.utils.arrayFirst(self.cart_size_options(), function(item){
-                      return item == 'ALL'
-                   });
+        self.getCartTypeOptions = function () {
+            url = cart_type_api + "?format=jsonp&callback=?";
+            $.getJSON(url, data, function (data) {
+                var cartTypeOptions = [];
+                var cartSizeOptions = [];
 
-                   self.selected_cart_size(size_match);
+                //build CartTypeOption & cartSizeOptions array
+                //get only unique cart sizes and type
+                $.each(data, function (index, item) {
+                    if ($.inArray(item.name, cartTypeOptions) == -1) {
+                        cartTypeOptions.push(item.name);
+                    }
+                    if ($.inArray(item.size, cartSizeOptions) == -1) {
+                        cartSizeOptions.push(item.size);
+                    }
+                });
+
+                self.cart_type_options(cartTypeOptions);
+                self.cart_size_options(cartSizeOptions);
+                self.cart_type_options.unshift('ALL');
+                self.cart_size_options.unshift('ALL');
+
+                var size_match = ko.utils.arrayFirst(self.cart_size_options(), function (item) {
+                    return item == 'ALL'
+                });
+
+                self.selected_cart_size(size_match);
 
 
-                   var type_match = ko.utils.arrayFirst(self.cart_type_options(), function(item){
-                       return item == 'ALL'
-                   });
-                   self.selected_cart_type(type_match);
-             });
-           };
+                var type_match = ko.utils.arrayFirst(self.cart_type_options(), function (item) {
+                    return item == 'ALL'
+                });
+                self.selected_cart_type(type_match);
+            });
+        };
 
         self.getServiceTypeOptions();
         self.getServiceStatusOptions();
         self.getCartTypeOptions();
-
-
-
+        self.getRouteOptions();
 
 
     }
+
     cartlogic.TicketsReportViewModel = TicketsReportViewModel;
 
 })(window.cartlogic);

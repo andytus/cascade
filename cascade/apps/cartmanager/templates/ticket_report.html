@@ -16,26 +16,39 @@
             <button id="download_csv" class="run_query btn btn-success">
                 <i class="icon-download pull-right" title="Download"></i></button>
 
+            <div id="ticket-query-advanced">
+                <button type="button" class="btn btn-info" data-toggle="collapse"
+                        data-target="#ticket-query-advanced-options">
+                    <i class="icon-plus-sign"></i> More Options
+                </button>
+
+                <div id="ticket-query-advanced-options" class="collapse">
+                    Route Type: <select id="ticket-query-select-route-type" data-bind="options: $root.report.route_types,
+                    value: $root.report.selected_route_type"></select>
+                    Route Day: <select id="ticket-query-select-route-day" data-bind="options: $root.report.route_days,
+                    value: $root.report.selected_route_day"> </select>
+                    Routes <select id="ticket-query-select-route" data-bind="options: $root.report.filtered_routes,
+                    optionsText:'route', value: $root.report.selected_route"> </select>
+                </div>
+            </div>
         </div>
     </div>
 
-
     <div id="ticket_panel" data-bind="with: tickets">
-
         <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: gridOptions" style="height: 500px">
-
         </div>
 
     </div>
 
 {% endblock %}
 
-
 {% block page_scripts %}
     {% load compressed %}
     {% compressed_js 'models_ticket' %}
+    {% compressed_js 'models_route' %}
     {% compressed_js 'views_tickets_list' %}
     {% compressed_js 'views_tickets_report' %}
+
 
 
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css"/>
@@ -50,6 +63,7 @@
         var ticket_status_api = "{% url ticket_status_api %}";
         var cart_type_api = "{% url cart_type_api %}";
         var cart_app_profile_url = "{% url cart_app_profile %}";
+        var route_search_api_url = "{% url route_search_api %}";
         var ticketsReport = {
             report: new cartlogic.TicketsReportViewModel,
             tickets: new cartlogic.TicketsListViewModel(null, null, tickets_api_download)

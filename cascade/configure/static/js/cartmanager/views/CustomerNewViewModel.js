@@ -175,8 +175,7 @@
                         return new cartlogic.Route(item);
                     });
                     self.default_routes(RouteOptionsList);
-                    console.log(self.default_routes());
-                }
+               }
 
             );
         };

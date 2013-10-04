@@ -329,6 +329,10 @@ body { height: 100%; margin: 0; padding: 0 }
     margin: 0;
 }
 
+#ticket-query-advanced, #ticket-query-advanced-options{
+    margin-top: 1%;
+}
+
 
 #cart-info-edit-type {
     margin-left: 2.2%;

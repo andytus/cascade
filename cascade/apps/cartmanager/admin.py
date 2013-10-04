@@ -3,7 +3,8 @@ __author__ = 'jbennett'
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from models import CartServiceType, CartStatus, CartType, TicketStatus, AdminDefaults, ZipCodes, ServiceReasonCodes
+from models import CartServiceType, CartStatus, CartType, TicketStatus,\
+    AdminDefaults, ZipCodes, ServiceReasonCodes, Route
 
 
 from cascade.apps.cartmanager.models import UserAccountProfile, InventoryAddress
@@ -15,12 +16,9 @@ class UserAccountProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name = 'profile'
 
+
 class UserAdmin(UserAdmin):
     inlines = (UserAccountProfileInline,)
-
-
-
-
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
@@ -32,3 +30,4 @@ admin.site.register(TicketStatus)
 admin.site.register(AdminDefaults)
 admin.site.register(ZipCodes)
 admin.site.register(ServiceReasonCodes)
+admin.site.register(Route)
