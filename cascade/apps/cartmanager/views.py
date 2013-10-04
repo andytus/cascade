@@ -10,7 +10,7 @@ from cascade.libs.uploads import process_upload_records
 
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import Cart, CartsUploadFile, CustomersUploadFile, \
-    TicketsCompleteUploadFile, DataErrors, Site
+    TicketsCompleteUploadFile, RouteUploadFile, DataErrors, Site
 
 
 class FileUploadListView(LoginSiteRequiredMixin, TemplateView):
@@ -206,7 +206,6 @@ class UploadFormView(TemplateView):
         context['file_type'] = self.KIND
         return self.render_to_response(context)
 
-
     def post(self, request, **kwargs):
         #TODO implement processing option
         #TODO for now it is just True
@@ -226,16 +225,13 @@ class UploadFormView(TemplateView):
             upload_file.save()
             #Here the records are processed
             if process:
-                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.site, upload_file.id))
-                #process_upload_records(self.MODEL, upload_file.site, upload_file.id)
-            #TODO send back file id and kind for a link to file processing view
+                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.id))
             return HttpResponse(simplejson.dumps({'details': {'message': "Saved %s" % self.FILE,
                                                               'file_id': upload_file.id, 'message_type': 'Success'}}),
                                 content_type="application/json")
 
 
 class CartUploadView(UploadFormView):
-    #form_class = CartsUploadFileForm
     MODEL = CartsUploadFile
     FILE = 'cart_file'
     KIND = 'Carts'
@@ -243,7 +239,6 @@ class CartUploadView(UploadFormView):
 
 
 class CustomerUploadView(UploadFormView):
-    #form_class = CustomerUploadFileForm
     MODEL = CustomersUploadFile
     FILE = 'customer_file'
     KIND = 'Customers'
@@ -251,8 +246,14 @@ class CustomerUploadView(UploadFormView):
 
 
 class TicketsCompletedUploadView(UploadFormView):
-    #form_class = TicketsCompletedUploadFileForm
     MODEL = TicketsCompleteUploadFile
     FILE = 'ticket_file'
     KIND = 'Tickets'
     LINK = 'Ticket Upload'
+
+
+class RouteUploadView(UploadFormView):
+    MODEL = RouteUploadFile
+    FILE = 'route_file'
+    KIND = 'Route'
+    LINK = 'Route File Upload'

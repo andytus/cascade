@@ -4,11 +4,12 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.contrib.sites.models import Site
 from django.db import transaction
-from cascade.apps.cartmanager.models import CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, \
-Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, TicketStatus, TicketComments, CollectionCustomer, \
-CartServiceType, CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes
+from cascade.apps.cartmanager.models import Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, \
+    TicketStatus, TicketComments, CollectionCustomer, CartServiceType, \
+    CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route
 from django.utils import timezone
 from datetime import datetime
+
 
 def save_error(e, line):
     error_message = e.message
@@ -16,7 +17,8 @@ def save_error(e, line):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), ','.join(value))
     Site.objects.clear_cache()
-    error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line, site=Site.objects.get_current())
+    error = DataErrors(error_message=error_message, error_type=type(e),
+                       failed_data=line, site=Site.objects.get_current())
     error.save()
 
 
@@ -26,14 +28,15 @@ def save_cart_records(line, file_record):
         # get cart type by name
         cart_type = CartType.objects.get(name=cart_type, size=size)
         cart_status = CartStatus.objects.get(label=status)
-        cart = Cart(site=file_record.site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number = serial,
-                    size=size, inventory_location = InventoryAddress.objects.get(site=file_record.site, default=True), file_upload = file_record,
-                    cart_type=cart_type, current_status=cart_status, born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
-
+        cart = Cart(site=file_record.site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number=serial,
+                    size=size, inventory_location=InventoryAddress.objects.get(site=file_record.site, default=True),
+                    file_upload=file_record,cart_type=cart_type, current_status=cart_status,
+                    born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
         #TODO work on getting unit logic
         try:
             if status == 'Delivered':
-                location = CollectionAddress.objects.get(site=file_record.site, house_number=house.strip(), street_name=street)
+                location = CollectionAddress.objects.get(site=file_record.site,
+                                                         house_number=house.strip(), street_name=street)
                 if location:
                     cart.location = location
                     cart.at_inventory = False
@@ -45,7 +48,7 @@ def save_cart_records(line, file_record):
 
         cart.full_clean()
         cart.save()
-        file_record.num_good +=1
+        file_record.num_good += 1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
         file_record.status = "FAILED"
@@ -56,11 +59,15 @@ def save_cart_records(line, file_record):
 def save_ticket_records(line, file_record):
     try:
         # Get imported files data
-        # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType, RFID, ContainerSize, ContainerType, TicketStatus,DateTime,UserName,Latitude,Longitude,BrokenComponent,Comments
-        system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, upload_ticket_status,\
-        complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
+        # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType,
+        # TODO..  RFID, ContainerSize, ContainerType, TicketStatus,DateTime,UserName,Latitude,Longitude,
+        # TODO.. BrokenComponent,Comments
+        system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, \
+            upload_ticket_status, complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
+
         ticket = Ticket.on_site.get(pk=system_id)
-        time_format = '%m/%d/%Y %H:%M:%S' #matches time as 11/1/2012 15:20
+         #matches time as 11/1/2012 15:20
+        time_format = '%m/%d/%Y %H:%M:%S'
 
         #get or create cart
         if len(rfid) > 4:
@@ -70,7 +77,8 @@ def save_ticket_records(line, file_record):
                 cart = Cart.on_site.get(rfid__exact=clean_rifd)
             except Cart.DoesNotExist:
                 cart = Cart(site=file_record.site, rfid=clean_rifd,
-                            serial_number=rfid.strip('=').strip('"')[-8:], size=container_size, updated_by = file_record.uploaded_by)
+                            serial_number=rfid.strip('=').strip('"')[-8:],
+                            size=container_size, updated_by=file_record.uploaded_by)
             cart.save()
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
@@ -79,7 +87,9 @@ def save_ticket_records(line, file_record):
                 ticket.latitude = lat
                 ticket.longitude = lon
             if comment.strip() and type(comment) is str:
-                ticket_comment = TicketComments(site=file_record.site, text=comment + " -Imported from reader device: %s" % device_name, ticket=ticket, created_by=file_record.uploaded_by)
+                ticket_comment = TicketComments(site=file_record.site, text=comment +
+                                                " -Imported from reader device: %s" % device_name,
+                                                ticket=ticket, created_by=file_record.uploaded_by)
                 ticket_comment.save()
                 #status from the uploaded file
             if ticket.service_type.code == 'REPAIR':
@@ -96,7 +106,6 @@ def save_ticket_records(line, file_record):
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.status = TicketStatus.on_site.get(site=file_record.site, service_status='Unsuccessful')
                 print "end of unsuccessful"
-
 
             elif upload_ticket_status == 'COMPLETED':
                 print "in completed"
@@ -116,7 +125,6 @@ def save_ticket_records(line, file_record):
                 #updating current cart status
                 cart.current_status = ticket.service_type.complete_cart_status_change
 
-
                 if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
                     cart.location = ticket.location
                     #set to not at inventory
@@ -125,7 +133,6 @@ def save_ticket_records(line, file_record):
                     if ticket.latitude:
                         cart.last_latitude = ticket.latitude
                         cart.last_longitude = ticket.longitude
-
 
                 elif ticket.service_type.code == "EX-REM" or ticket.service_type.code == "REM":
                     # check to see if the expected cart is the same as the serviced cart
@@ -145,7 +152,8 @@ def save_ticket_records(line, file_record):
                     else:
                     # else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
                     # Check if last update is greater than or equal to 2 days and update location to None
-                    # else it has been updated, and most likely it has been processed as a delivery today, leave it alone.
+                    # else it has been updated, and most likely it has been processed
+                    # as a delivery today, leave it alone.
                         print "in day check wrong Cart"
                         days_last_updated = (timezone.now() - cart.last_updated).days
                         if days_last_updated >= 2:
@@ -162,84 +170,111 @@ def save_ticket_records(line, file_record):
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
         print e
         file_record.status = "FAILED"
-        file_record.num_error +=1
+        file_record.num_error += 1
         error_message = e.message
         if hasattr(e, 'message_dict'):
             for key, value in e.message_dict.iteritems():
                 error_message += "%s: %s " % (str(key).upper(), ','.join(value))
-        error = DataErrors(site=file_record.site, error_message=error_message, error_type = type(e), failed_data=line)
+        error = DataErrors(site=file_record.site, error_message=error_message, error_type=type(e), failed_data=line)
         error.save()
+
 
 def save_customer_records(line, file_record):
     try:
         #Customer setup & save:
-        systemid, system_name,first_name, last_name, phone, email, house_number, street_name,unit,city,\
+        systemid, system_name, first_name, last_name, phone, email, house_number, street_name, unit, city,\
         state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
         yard_organics_size, unassigned, unassigned_size, route, route_day = line.split(',')
 
-        customer = CollectionCustomer(site=file_record.site,first_name=first_name[:25].upper(), last_name=last_name[:50].upper(), email=email,
-            phone_number = phone)
+        customer = CollectionCustomer(site=file_record.site, first_name=first_name[:25].upper(),
+                                      last_name=last_name[:50].upper(), email=email, phone_number=phone)
+
 
         #full_clean checks for the correct data
         customer.full_clean()
         customer.save()
 
-        # systemid should be zero as default
+        # systemid should be zero as default if not used
+        # saves ForeignSystemCustomerID and assigns to customer, customer can have multiple ids but id can not
+        # belong to multiple customers
         if systemid:
-            new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer, system_name=system_name, site=file_record.site)
+            new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer,
+                                                            system_name=system_name, site=file_record.site)
             new_foreign_system_id.save()
 
-
-
-        #TODO: for systemid, need to create ForeignSystemCustomerID, create then save to customer, will need extra fields
         # Collection_Address setup & save:
-        collection_address = CollectionAddress(site=file_record.site, customer=customer, house_number=house_number.strip(),
-            street_name=street_name.strip().upper(), unit=unit.strip(), city=city, zipcode=zipcode,
-            state=state,latitude=latitude, longitude=longitude, property_type=property_type)
+        collection_address = CollectionAddress(site=file_record.site, customer=customer,
+                                               house_number=house_number.strip(),
+                                               street_name=street_name.strip().upper(), unit=unit.strip(),
+                                               city=city, zipcode=zipcode, state=state, latitude=latitude,
+                                               longitude=longitude, property_type=property_type)
+
+        if route != 'Null':
+            print route
+            address_route, created = Route.on_site.get_or_create(site=file_record.site, route=route,
+                                                                 route_day=route_day, defaults={'route_type': 'Refuse'})
+
+            collection_address.route = address_route
+
         collection_address.full_clean()
         collection_address.save()
-
 
         # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
         delivery = CartServiceType.on_site.get(site=file_record.site, code="DEL")
         requested = TicketStatus.on_site.get(site=file_record.site, service_status="Requested")
         user = file_record.uploaded_by
 
-
         if refuse.isdigit():
             for x in range(int(refuse)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)),
+                       service_type=delivery, location=collection_address, status=requested, created_by=user).save()
         if recycle.isdigit():
             for x in range(int(recycle)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size = int(recycle_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size=int(recycle_size)),
+                       service_type=delivery, location=collection_address, status=requested, created_by=user).save()
         if yard_organics.isdigit():
             for x in range(int(yard_organics)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard", size = int(yard_organics_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard",
+                                                      size=int(yard_organics_size)), service_type=delivery,
+                       location=collection_address, status=requested, created_by=user).save()
+
+        #Used for unassigned type carts
         if unassigned.isdigit():
             for x in range(int(unassigned)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Unassigned", size=int(other_size)), service_type = delivery, location= collection_address, status=requested, created_by=user).save()
+                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Unassigned",
+                                                      size=int(unassigned_size)), service_type=delivery,
+                       location=collection_address, status=requested, created_by=user).save()
 
         file_record.num_good += 1
 
     except Exception as e:
         #transaction.rollback()
-        #TODO if it fails all records should be deleted (i.e. collection address, customer, and ticket
         file_record.status = "FAILED"
-        file_record.num_error +=1
-        error = DataErrors(site=file_record.site, error_message=e, error_type = type(e), failed_data=line)
+        file_record.num_error += 1
+        error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)
         error.save()
 
 
+def save_route_records(line, file_record):
+    try:
+        route, route_day, route_type = line.split(',')
+        route = Route(site=file_record.site, route=route, route_day=route_day, route_type=route_type)
+        route.save()
+        file_record.num_good += 1
 
-def process_upload_records(file_model, site, file_id):
-    #hmm... not sure how clean it is to pas the model instance (i.e. file_model)
+    except Exception as e:
+        print e
+        file_record.status = "FAILED"
+        file_record.num_error += 1
+        error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)
+        error.save()
+
+
+def process_upload_records(file_model, file_id):
     file_record = file_model.objects.get(pk=file_id)
     file = file_record.file_path
-
-
     #Read use the first header row:
     file.readline()
-
     #Timer started
     file_record.date_start_processing = datetime.now()
 
@@ -254,7 +289,8 @@ def process_upload_records(file_model, site, file_id):
                 save_ticket_records(line, file_record)
             elif file_record.file_kind == 'Customers':
                 save_customer_records(line, file_record)
-
+            elif file_record.file_kind == 'Route':
+                save_route_records(line, file_record)
 
     file_record.num_records = file_record.num_good + file_record.num_error
     file_record.date_end_processing = datetime.now()

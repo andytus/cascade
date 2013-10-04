@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
       lang="en">
@@ -8,7 +6,7 @@
     {% compressed_css 'cartlogic' %}
 
 
-   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome.min.css">
 
@@ -67,7 +65,7 @@
                         </div>
                     </form>
                     <ul id="top-menu" class="nav nav-pills pull-left" style="padding: 8px 10px 10px 20px">
-                   {% comment %}     <li class="active">
+                        {% comment %}     <li class="active">
                             <a href="#">About</a>
                         </li>{% endcomment %}
                         <li class="dropdown">
@@ -76,7 +74,8 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a id="new-ticket-link" href="{% url ticket_app_new %}New" data-target="#modal_window"
+                                <li><a id="new-ticket-link" href="{% url ticket_app_new %}New"
+                                       data-target="#modal_window"
                                        data-toggle="modal">New</a></li>
                                 <li><a href="{% url tickets_completed_upload %}">Submit Completed (UPLOAD)</a></li>
                                 <li><a href="{% url ticket_app_report %}">Reports (DOWNLOAD)</a></li>
@@ -92,7 +91,7 @@
                                 <li><a href="{% url customer_app_new %}" data-target="#modal_window"
                                        data-toggle="modal">New</a></li>
                                 {% if request.user.is_superuser %}
-                                <li><a href="{% url customer_app_report %}">Reports</a></li>
+                                    <li><a href="{% url customer_app_report %}">Reports</a></li>
                                 {% endif %}
                             </ul>
 
@@ -105,24 +104,27 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                 <li><a href="{% url cart_app_new %}" data-target="#modal_window"
-                                        data-toggle="modal">New</a> </li>
+                                <li><a href="{% url cart_app_new %}" data-target="#modal_window"
+                                       data-toggle="modal">New</a></li>
                             </ul>
                         </li>
 
-                      {% if user.is_superuser %}
+                        {% if user.is_superuser %}
 
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
-                                Admin
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url customer_uploads %}">upload customers</a></li>
-                            </ul>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                    Admin
+                                    <b class="caret"></b>
+                                </a>
 
-                        </li>
-                      {% endif %}
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url route_uploads %}">Route upload</a></li>
+                                     <li><a href="{% url customer_uploads %}">Customers upload</a></li>
+                                    <li><a href="{% url cart_uploads %}">Carts upload</a></li>
+                                </ul>
+
+                            </li>
+                        {% endif %}
 
                     </ul>
                     <div id="login_link" class="pull-right">
@@ -146,7 +148,7 @@
 <div id="modal_window" class="modal hide fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 
     <div class="modal-body">
-     Loading...
+        Loading...
     </div>
 
 </div>
@@ -163,7 +165,7 @@
         <div class="row-fluid">
 
             <div id="left" class="span2">
-{#                <img class="logo pull-right" src="{{ STATIC_URL }}img/logos/{{ current_site.name }}.png" />#}
+                {#                <img class="logo pull-right" src="{{ STATIC_URL }}img/logos/{{ current_site.name }}.png" />#}
                 {% block left %}
 
 
@@ -177,7 +179,7 @@
 
             <div id="right" class="span2">
                 <div id="loading-message" class="alert message">
-                <p id="loading-message-text"></p>
+                    <p id="loading-message-text"></p>
                 </div>
                 {% block right %}
                 {% endblock %}
@@ -194,13 +196,9 @@
 </script>
 
 
-
-
-
 <script type="text/javascript"
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcDSYkOfnoKvp7Fjk-3u0Gwxx-d7a1GW8&sensor=false">
 </script>
-
 
 
 {% load compressed %}
@@ -236,7 +234,7 @@
     //add to destroy modal content on close in order to properly refresh (i.e. new ticket, should not display previous
     //info)
     $('.modal').on('hidden', function () {
-       $('.modal').data('modal', null);
+        $('.modal').data('modal', null);
     });
 
 </script>

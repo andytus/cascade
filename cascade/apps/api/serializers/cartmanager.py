@@ -1,13 +1,14 @@
 from rest_framework import serializers
 from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
-    Ticket, AdminDefaults, CartsUploadFile, TicketsCompleteUploadFile, CustomersUploadFile, TicketStatus,\
-    TicketComments, CartServiceType
+    Ticket, AdminDefaults, TicketStatus, TicketComments, CartServiceType, Route
 
-#Monkey patch on django rest framework for supporting nulls: https://github.com/tomchristie/django-rest-framework/issues/384
+#Monkey patch on django rest framework for supporting nulls:
+# https://github.com/tomchristie/django-rest-framework/issues/384
+
+
 class NullSerializerPatch(serializers.BaseSerializer):
 
     def field_to_native(self, obj, field_name):
-
 
         if obj is None:
             return None
@@ -88,12 +89,14 @@ class CartStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
         model = CartStatus
         exclude = ('site',)
 
+
 class CartTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
     class Meta:
         model = CartType
         depth = 1
         exclude = ('site',)
+
 
 class AddressCartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     customer = CustomerInfoSerializer()
@@ -171,16 +174,17 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
 
 class TicketCommentSerializer(serializers.ModelSerializer, NullSerializerPatch):
     created_by = CleanRelatedField(source='created_by.username')
+
     class Meta:
         model = TicketComments
         exclude = ('site', )
-
 
 
 class TicketStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = TicketStatus
         exclude = ('site',)
+
 
 class CartServiceTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
@@ -198,6 +202,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer, NullSerializerPatch
 
 class AdminLocationDefaultSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_location_info')
+
     class Meta:
         model = AdminDefaults
         depth = 1
@@ -205,7 +210,7 @@ class AdminLocationDefaultSerializer(serializers.ModelSerializer, NullSerializer
 
 
 class UploadFileSerializer(serializers.Serializer):
-    id =  serializers.IntegerField()
+    id = serializers.IntegerField()
     file_kind = serializers.CharField()
     status = serializers.CharField()
     num_good = serializers.IntegerField()
@@ -216,3 +221,11 @@ class UploadFileSerializer(serializers.Serializer):
     date_start_processing = serializers.DateTimeField()
     size = serializers.IntegerField()
     message = serializers.CharField()
+
+
+class RouteSerializer(serializers.ModelSerializer, NullSerializerPatch):
+
+    class Meta:
+        model = Route
+        depth = 1
+        exclude = ('site', )

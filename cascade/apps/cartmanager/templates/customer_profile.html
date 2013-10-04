@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 {% block title %}Customer Profile {% endblock %}
 
 {% block left %}
@@ -13,8 +12,8 @@
         <div class="pull-left">
             <form class="form-horizontal" id="customer-info-form">
                 <fieldset>
-
                     <h2>Customer:</h2>
+
                     <!-- first name-->
                     <div class="control-group">
                         <label class="control-label">First Name</label>
@@ -36,7 +35,6 @@
                             <input id="last_name" name="last_name" type="text" placeholder="Enter last name"
                                    class="input-xlarge"
                                    data-bind="value: last_name, enable: $root.profile.edit_customer, hasfocus: last_name.hasFocus">
-
                         </div>
                     </div>
 
@@ -111,16 +109,27 @@
             <h2>Cart Locations:</h2>
 
             <table class="customer-cart-table table  table-bordered">
-                <caption><span class="pull-left"><i class="icon-3x" data-bind="css:{'icon-building': property_type() == 'Business',
-                         'icon-home': property_type() == 'Residential'}"> </i><span
-                        class="customer-cart-table-address"
-                        data-bind="html: '<b>' + full_address() + '</b>'"></span><br>
-                    <span class="customer-cart-table-city-state"
-                          data-bind="html: city() + ', ' +  state() +' '+ zipcode()"></span></span>
+                <caption>
+                    <div class="pull-left"><i class="icon-3x" data-bind="css:{'icon-building': property_type() == 'Business',
+                         'icon-home': property_type() == 'Residential'}"> </i>
+                        <span class="customer-cart-table-address"
+                              data-bind="html: '<b>' + full_address() + '</b>'"></span><br>
+                        <span class="customer-cart-table-city-state"
+                              data-bind="html: city() + ', ' +  state() +' '+ zipcode()"></span>
+
+                        <div class="customer-cart-table-routes" data-bind="visible: routes().length">
+                            <b>Routes:</b>
+                            <ul class="route-list" data-bind="foreach: routes">
+                                <li data-bind="text: $data.route_type() + ': ' + $data.route_day() +': ' + $data.route()"></li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <button class="btn btn-info btn-small customer-cart-table-address-remove"
                             data-bind="click: $root.profile.confirmRemoveAddress">
                         Remove Address
                     </button>
+
                 </caption>
                 <thead>
                 <tr>
@@ -156,7 +165,8 @@
 
     <div id="ticket_panel" data-bind="with: tickets" style="height: 200px">
 
-     <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 100%; width: 100%"></div>
+        <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions"
+             style="height: 100%; width: 100%"></div>
 
     </div>
 
@@ -173,12 +183,13 @@
     {% compressed_js 'models_customer' %}
     {% compressed_js 'models_ticket' %}
     {% compressed_js 'models_location' %}
+    {% compressed_js 'models_route' %}
     {% compressed_js 'views_customer_profile' %}
     {% compressed_js 'views_tickets_list' %}
     {% compressed_js 'validators' %}
 
 
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css"/>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
 
 
@@ -193,8 +204,8 @@
         var customer_id = "{{ customer_id }}";
         var cart_app_profile_url = "{% url cart_app_profile %}";
         var customerProfile = {
-            profile:new cartlogic.CustomerProfileViewModel,
-            tickets:new cartlogic.TicketsListViewModel(null, customer_id, tickets_api_download)
+            profile: new cartlogic.CustomerProfileViewModel,
+            tickets: new cartlogic.TicketsListViewModel(null, customer_id, tickets_api_download)
 
         };
 

@@ -34,12 +34,15 @@ class UploadFile(models.Model):
         ("PENDING", "PENDING"),
         ("UPLOADED", "UPLOADED"),
         ("FAILURES", "FAILURES"),
-        )
+    )
+
     FILE_KIND = (
         ("CollectionCustomer", "Customers"),
         ("Cart", "Carts"),
         ("CartTicket", "Tickets"),
-        )
+        ("Route", "Route"),
+    )
+
     file_path = models.FileField(upload_to=get_upload_path, max_length=300)
     uploaded_by = models.ForeignKey(User)
     size = models.PositiveIntegerField()
@@ -55,7 +58,6 @@ class UploadFile(models.Model):
     message = models.CharField(max_length=200, null=True, blank=True)
     records_processed = models.BooleanField(default=False)
 
-
     #model managers
     site = models.ForeignKey(Site)
     objects = models.Manager()
@@ -65,12 +67,19 @@ class UploadFile(models.Model):
         abstract = True
 
 
-class CartsUploadFile(UploadFile):
-    #file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Carts")
+class RouteUploadFile(UploadFile):
     pass
 
+
+class CartsUploadFile(UploadFile):
+    pass
+
+
+class CustomersUploadFile(UploadFile):
+    pass
+
+
 class TicketsCompleteUploadFile(UploadFile):
-# file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Tickets")
     success_count = models.IntegerField(default=0)
     removal_count = models.IntegerField(default=0)
     audit_count = models.IntegerField(default=0)
@@ -78,24 +87,16 @@ class TicketsCompleteUploadFile(UploadFile):
     unsuccessful = models.IntegerField(default=0)
     repair_count = models.IntegerField(default=0)
 
-
-class CustomersUploadFile(UploadFile):
-# file_path = models.FileField(storage=UPLOADEDFILES, upload_to="Customers")
-
-    #TODO def get_absolute_url
-    pass
-
-
-def save_error(e, line):
-    error_message = e.message
-    print error_message
-    if hasattr(e, 'message_dict'):
-        for key, value in e.message_dict.iteritems():
-            error_message += "%s: %s " % (str(key).upper(), ','.join(value))
-    Site.objects.clear_cache()
-    error = DataErrors(error_message=error_message, error_type = type(e), failed_data=line,
-                       site=Site.objects.get_current())
-    error.save()
+# TODO Depreciate, now lives in uploads
+# def save_error(e, line):
+#     error_message = e.message
+#     if hasattr(e, 'message_dict'):
+#         for key, value in e.message_dict.iteritems():
+#             error_message += "%s: %s " % (str(key).upper(), ','.join(value))
+#     Site.objects.clear_cache()
+#     error = DataErrors(error_message=error_message, error_type=type(e), failed_data=line,
+#                        site=Site.objects.get_current())
+#     error.save()
 
 
 class AdminDefaults(models.Model):
@@ -117,7 +118,6 @@ class AdminDefaults(models.Model):
         return "%s, %s" % (self.city, self.state)
 
 
-
 class ZipCodes(models.Model):
     zipcode = models.CharField(max_length=5)
     plus_four = models.CharField(max_length=4)
@@ -132,6 +132,7 @@ class ZipCodes(models.Model):
 
     def __unicode__(self):
         return "%s-%s" % (self.zipcode, self.plus_four)
+
 
 class CartStatus(models.Model):
     LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
@@ -198,7 +199,8 @@ class CartServiceType(models.Model):
         return {'service': self.service, 'code': self.code, 'description': self.description}
 
     def __unicode__(self):
-         return "%s" % (self.service)
+        return self.service
+
 
 class ServiceReasonCodes(models.Model):
     code = models.CharField(max_length=30)
@@ -206,8 +208,10 @@ class ServiceReasonCodes(models.Model):
 
 
 class Route(models.Model):
-    ROUTE_TYPE = (("General","General"),("Recycling","Recycling"),
-                  ("Refuse","Refuse"), ("Yard-Organics","Yard-Organics"))
+
+    ROUTE_TYPE = (("General", "General"), ("Recycling", "Recycling"),
+                  ("Refuse", "Refuse"), ("Yard-Organics", "Yard-Organics"))
+
     #May turn this into a GeoManaged model for GIS capabilities
     route = models.CharField(max_length=15, null=True)
     route_day = models.CharField(max_length=15, null=True)
@@ -218,8 +222,12 @@ class Route(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
+    def get_info(self):
+        return {'route': self.route, 'route_day': self.route_day, 'route_type': self.route_type}
 
-    #TODO def get_absolute_url
+    def __unicode__(self):
+        return "Route: %s, Day: %s, Route Type: %s" % (self.route, self.route_day, self.route_type)
+
 
 class Address(models.Model):
     #Over ride defaults with instance applications.
@@ -235,17 +243,24 @@ class Address(models.Model):
     longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     geocode_status = models.CharField(max_length=20, null=True, blank=True)
     geocode_type = models.CharField(max_length=20, null=True, blank=True)
-    property_type = models.CharField(max_length=25, null=True, choices=(('Residential','Residential'), ('Business', 'Business')))
-    route = models.ForeignKey(Route, null=True, blank=True)
+    property_type = models.CharField(max_length=25, null=True, choices=(('Residential', 'Residential'),
+                                                                        ('Business', 'Business')))
+    route = models.ManyToManyField(Route, null=True, blank=True)
 
     #model managers:
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
+    def get_routes(self):
+        routes = []
+        for route in self.route.all():
+            routes.append(route.get_info())
+        return routes
 
     def get_coordinates(self):
-        coordinates = {"type":"Feature", "geometry": {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]}}
+        coordinates = {"type": "Feature", "geometry": {"type": "Point", "coordinates":
+                       [float(self.latitude or 0), float(self.longitude or 0)]}}
         return coordinates
 
     def get_absolute_url(self):
@@ -267,6 +282,7 @@ class Address(models.Model):
         #Do not want to add a new address that already exist
         unique_together = (('house_number', 'street_name', 'unit'))
 
+
 class CollectionCustomer(models.Model):
     #other_system_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     first_name = models.CharField(max_length=25, default="UNKNOWN", null=True)
@@ -280,7 +296,6 @@ class CollectionCustomer(models.Model):
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
-
 
     def __unicode__(self):
         return "NAME: " + self.first_name + " " + self.last_name
@@ -299,8 +314,6 @@ class CollectionCustomer(models.Model):
     def get_info(self):
         info = {"id":self.id, "name":self.full_name, "url": self.get_absolute_url()}
         return info
-
-
 
 
 class ForeignSystemCustomerID(models.Model):
@@ -327,9 +340,9 @@ class CollectionAddress(Address):
         info = {"properties": {"url": self.get_absolute_url(), "id": self.id, "property_type": self.property_type,
                 "house_number": self.house_number, "unit" :self.unit, "street_name":self.street_name, "city": self.city,
                 "state": self.state, "zipcode": self.zipcode, "geocode_type": self.geocode_type,
-                "geocode_status": self.geocode_status,"carts": self.location.values("id", "serial_number",
-                "cart_type__size", "cart_type__name")},"type": "Feature", "geometry": {"type": "Point", "coordinates":
-                [float(self.latitude or 0), float(self.longitude or 0)]}, }
+                "geocode_status": self.geocode_status, "carts": self.location.values("id", "serial_number",
+                "cart_type__size", "cart_type__name")}, "type": "Feature", "geometry": {"type": "Point", "coordinates":
+                [float(self.latitude or 0), float(self.longitude or 0)]}, "routes": self.get_routes()}
 
         return info
 
@@ -347,7 +360,6 @@ class InventoryAddress(Address):
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
 
         return info
-
 
 
 class Cart(models.Model):
@@ -459,14 +471,12 @@ class TicketComments(models.Model):
         return info
 
 
-
 class UserAccountProfile(models.Model):
     user = models.OneToOneField(User)
     sites = models.ManyToManyField(Site)
     company = models.CharField(max_length=50, null=True)
     objects = models.Manager()
     on_site = CurrentSiteManager()
-
 
 
 class DataErrors(models.Model):
@@ -493,13 +503,21 @@ class TicketsCompletedUploadFileForm(forms.Form):
     ticket_file = forms.FileField()
     process = forms.BooleanField(label="Process Records", initial=True,  required=False)
 
+
 class CartsUploadFileForm(forms.Form):
     cart_file = forms.FileField()
     process = forms.BooleanField(label="Process Records", initial=True,  required=False)
 
+
 class CustomerUploadFileForm(forms.Form):
     customer_file = forms.FileField()
     process = forms.BooleanField(label="Process Records", initial=True, required=False)
+
+
+class RouteUploadForm(forms.Form):
+    route_file = forms.FileField()
+    process = forms.BooleanField(label="Process Records", initial=True, required=False)
+
 
 
 

@@ -223,40 +223,33 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/compress/vendor_common.js',
     },
-
     'vendor_jquery_uploads': {
         'source_filenames': (
             'js/vendor/jquery/jquery.ui.widget.js',
             'js/vendor/jquery/jquery.iframe-transport.js',
             'js/vendor/jquery/jquery.fileupload.js',
 
-
         ),
-
         'output_filename': 'js/compress/vendor_jquery_uploads.js',
     },
-
     'ajax': {
         'source_filenames': (
             'js/utilities/ajax.js',
         ),
         'output_filename': 'js/compress/ajax.js',
     },
-
     'dateformat': {
         'source_filenames': (
             'js/utilities/dateformat.js',
         ),
         'output_filename': 'js/compress/dateformat.js'
     },
-
     'validators': {
         'source_filenames': (
             'js/utilities/validators.js',
         ),
         'output_filename': 'js/compress/validators.js',
     },
-
     'views_cart_list': {
         'source_filenames': (
             'js/cartmanager/views/CartListViewModel.js',
@@ -269,14 +262,12 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/compress/UploadedFileReportViewModel.js',
     },
-
     'views_cart_profile_change_address': {
         'source_filenames': (
             'js/cartmanager/views/CartProfileChangeAddressViewModel.js',
         ),
         'output_filename': 'js/compress/CartProfileChangeAddressViewModel.js',
     },
-
     'views_cart_profile': {
         'source_filenames': (
             'js/cartmanager/views/CartProfileViewModel.js',
@@ -337,77 +328,66 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/compress/TicketsReportViewModel.js',
     },
-
     'models_file': {
         'source_filenames': (
             'js/cartmanager/models/file.js',
         ),
         'output_filename': 'js/compress/file.js',
     },
-
     'models_cart': {
         'source_filenames': (
             'js/cartmanager/models/cart.js',
         ),
         'output_filename': 'js/compress/cart.js',
     },
-
     'models_cart_profile': {
         'source_filenames': (
             'js/cartmanager/models/cart_profile.js',
         ),
         'output_filename': 'js/compress/cart_profile.js',
     },
-
     'models_cart_status_options': {
         'source_filenames': (
             'js/cartmanager/models/cart_status_options.js',
         ),
         'output_filename': 'js/compress/cart_status_options.js',
     },
-
     'models_cart_type_options': {
         'source_filenames': (
             'js/cartmanager/models/cart_type_options.js',
         ),
         'output_filename': 'js/compress/cart_type_options.js',
     },
-
     'models_comments': {
         'source_filenames': (
             'js/cartmanager/models/comments.js',
         ),
         'output_filename': 'js/compress/comments.js',
     },
-
     'models_customer': {
         'source_filenames': (
             'js/cartmanager/models/customer.js',
         ),
         'output_filename': 'js/compress/customer.js',
     },
-
     'models_form_steps': {
         'source_filenames': (
             'js/cartmanager/models/form_steps.js',
         ),
         'output_filename': 'js/compress/form_steps.js',
     },
-
     'models_location': {
         'source_filenames': (
             'js/cartmanager/models/location.js',
         ),
         'output_filename': 'js/compress/location.js',
     },
-
     'models_map': {
         'source_filenames': (
             'js/cartmanager/models/map.js',
         ),
         'output_filename': 'js/compress/map.js',
     },
-
     'models_ticket': {
         'source_filenames': (
             'js/cartmanager/models/ticket.js',
@@ -421,14 +401,18 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/compress/ticket_services.js',
     },
-
     'models_ticket_status': {
         'source_filenames': (
             'js/cartmanager/models/ticket_status.js',
         ),
         'output_filename': 'js/compress/ticket_status.js',
     },
-
+    'models_route': {
+        'source_filenames': (
+            'js/cartmanager/models/route.js',
+        ),
+        'output_filename': 'js/compress/route.js',
+    }
 }
 
 DEFAULT_FROM_EMAIL = os.environ['MANDRILL_USERNAME']

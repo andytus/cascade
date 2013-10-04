@@ -191,8 +191,6 @@
                 <div class="controls">
                     <select id="property_type" name="property_type" class="input-medium"
                             data-bind="value: $root.create.location().property_type, options:  $root.create.default_property_type">
-
-
                     </select>
                 </div>
              </div>
@@ -201,8 +199,28 @@
     </form>
 </script>
 
-<script id="MapLocation" type="text/html">
+<script id="AddRoute" type="text/html">
+    <div>
+       <select id="route-options-day" data-bind="value: $root.create.selected_route_day,
+        options: $root.create.default_routes_unique_day">
+       </select>
+        <label for="route-options-type">Route Type</label>
+        <select id="route-options-type" data-bind="value: $root.create.selected_route_type,
+        options: $root.create.default_routes_unique_type">
+        </select>
+        <label for="route-options-route">Route</label>
+        <select id="route-options-route" data-bind="value: $root.create.selected_route,
+        options: $root.create.default_routes_unique_routes, optionsText: 'route'">
+        </select>
+        <button id="add_route" data-bind="click: $root.create.addRoute"> Add Route</button>
+        <button id="clear_routes" data-bind="click: $root.create.clearRoute">Clear Routes</button>
+        <ul class="route-list" id="selected_routes" data-bind="foreach: $root.create.selected_routes">
+             <li data-bind="text: $data.route_type + ': ' + $data.route_day +': ' + $data.route"></li>
+        </ul>
+    </div>
+</script>
 
+<script id="MapLocation" type="text/html">
 
     <input id="address_lat"  />
     <input id="address_lon"  />
@@ -233,7 +251,10 @@
     <div id="confirm-new-address" data-bind="with: $root.create.location">
         <p data-bind="html: '<b>ADDRESS: </b>'+ full_address_ci_st_zip()"></p>
 
-        <p></p>
+        <b>ROUTES:</b>
+        <ul class="route-list" data-bind="foreach: $root.create.selected_routes">
+            <li data-bind="text: $data.route_type + ': ' + $data.route_day +': ' + $data.route"></li>
+        </ul>
 
         <p></p>
     </div>
@@ -254,6 +275,7 @@
 {% compressed_js 'models_customer' %}
 {% compressed_js 'models_map' %}
 {% compressed_js 'models_location' %}
+{% compressed_js 'models_route' %}
 {% compressed_js 'views_customer_new' %}
 {% compressed_js 'models_form_steps' %}
 {% compressed_js 'validators' %}
@@ -265,11 +287,10 @@
     var customer_app_url = "{% url customer_app_profile %}";
     var customer_api_url = "{% url customer_api_profile %}";
     var location_api_profile = "{% url location_api_profile %}";
+    var route_search_api_url = "{% url route_search_api %}";
 
     //adding the validator library
     utilities.validateKo();
-
-
     var customerCreate = {
         create: new cartlogic.CustomerNewViewModel
 

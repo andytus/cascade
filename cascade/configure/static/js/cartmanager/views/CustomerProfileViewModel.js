@@ -16,12 +16,10 @@
         self.customer_id = ko.observable(customer_id);
         self.edit_customer = ko.observable(false);
         self.customer_addresses = ko.observableArray([]);
-
         self.removeAddressId = ko.observable("");
 
         self.getCustomerData = function(){
             $.ajax({
-
                 url: customer_api_url + self.customer_id(),
                 type: 'GET',
                 dataType: "json",
@@ -40,8 +38,8 @@
 
         self.saveCustomerData = function(){
 
-             //grab changes
-             data = ko.toJSON({customer_id: self.customer_id(), first_name: self.customer().first_name(),
+            //grab changes
+            data = ko.toJSON({customer_id: self.customer_id(), first_name: self.customer().first_name(),
                               last_name: self.customer().last_name(), phone_number: self.customer().phone_number,
                               email: self.customer().email()});
 

@@ -38,6 +38,7 @@
          return !(self.house_number.hasError())
                 && !(self.street_name.hasError())
          };
+        self.routes = ko.observableArray([]);
 
         if(data){
 
@@ -52,7 +53,11 @@
             self.carts(data.info.properties.carts);
             self.latitude(null);
             self.longitude(null);
+            var routes = $.map(data.info.routes, function(item){
+                return new cartlogic.Route(item)
+            });
 
+            self.routes(routes);
         }
 
     }

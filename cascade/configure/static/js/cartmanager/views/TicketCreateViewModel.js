@@ -123,7 +123,6 @@
         self.stepModels.splice(-2, 0, cart_size_step);
         self.stepModels.splice(-2, 0, cart_type_step);
 
-
         //same logic in Cart Profile view model, only grabs all options
         self.getCartTypeOptions = function () {
             $.getJSON(cart_type_options_api_url, function (data) {

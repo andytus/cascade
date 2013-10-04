@@ -23,7 +23,7 @@ from cascade.libs.renderers import CSVRenderer
 from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, CartSearchSerializer, \
     CartProfileSerializer, CustomerProfileSerializer, CartStatusSerializer, CartTypeSerializer, \
     CartServiceTicketSerializer, AdminLocationDefaultSerializer, UploadFileSerializer, TicketStatusSerializer, \
-    TicketCommentSerializer, CartServiceTypeSerializer
+    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
 
@@ -196,6 +196,7 @@ class LocationAPI(LoginSiteRequiredMixin, APIView):
         if customer_id:
             customer = CollectionCustomer.on_site.get(id=customer_id)
             if location_id == 'New':
+                route_list = json_data.get('routes', None)
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('unit', None)
@@ -212,6 +213,17 @@ class LocationAPI(LoginSiteRequiredMixin, APIView):
                                              state=state, latitude=latitude, longitude=longitude,
                                              geocode_status=geocode_status, customer=customer)
                 location.save()
+
+                #add routes
+                if route_list:
+                    routes = simplejson.loads(route_list)
+                    for route in routes:
+                        add_route = Route.on_site.get(route=route['route'],
+                                                      route_type=route['route_type'],
+                                                      route_day=route['route_day'])
+                        location.route.add(add_route)
+                    location.save()
+
                 return RestResponse({'details': {'message': "Saved new address: %s  for customer: %s" %
                                                             (location, customer._get_full_name()),
                                                  'message_type': 'Success'}},
@@ -383,17 +395,15 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 serializer = CartServiceTicketSerializer(ticket)
                 return RestResponse(serializer.data)
             else:
-                return RestResponse({
-                                        "details": {
-                                            'message': "Sorry! did not find ticket with id: '%s. Did it get deleted?'" % (
+                return RestResponse({"details": {
+                                     "message": "Sorry! did not find ticket with id: '%s. Did it get deleted?'" % (
                                                 ticket_id), 'message_type': 'Failed'},
-                                        "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
+                                     "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
         except ValueError:
             #except ValueError if ticket_id is not an number
-            RestResponse({
-                             "details": {'message': "Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id),
-                                         'message_type': 'Failed'},
-                             "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
+            RestResponse({"details": {'message': "Sorry! ticket ids are numbers, not ...'%s!'" % (ticket_id),
+                          'message_type': 'Failed'},
+                          "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
 
     def post(self, request, ticket_id, format=None):
         json_data = simplejson.loads(request.body)
@@ -534,7 +544,6 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
 
             except ValueError as e:
                 #TODO beef up the error response ...to generic
-
                 return RestResponse(
                     {'details': {'message': "Sorry! ticket could not be updated: %s" % e, 'message_type': 'Failed'}},
                     status=django_rest_status.HTTP_200_OK)
@@ -628,17 +637,15 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
         else:
             customer = self.get_object(customer_id)
 
-        if (first_name and last_name and phone_number):
+        if first_name and last_name and phone_number:
             customer.first_name = first_name.upper()
             customer.last_name = last_name.upper()
             customer.email = email.upper()
             customer.phone_number = phone_number
             customer.save()
-
             return RestResponse({"details": {"message": "Changes saved for customer: %s" % (customer._get_full_name()),
                                              "customer_id": customer.id, "message_type": "Success"}},
                                 status=django_rest_status.HTTP_200_OK)
-
         else:
             return RestResponse({'details': {'message': "Missing one or more values", 'message_type': 'Failed'}},
                                 status=django_rest_status.HTTP_200_OK)
@@ -708,9 +715,10 @@ class FileUploadListAPI(LoginSiteRequiredMixin, ListAPIView):
             file_query = TicketsCompleteUploadFile.on_site.all()
         elif file_type == 'Customers':
             file_query = CustomersUploadFile.on_site.all()
+        elif file_type == 'Route':
+            file_query = RouteUploadFile.on_site.all()
         if file_query and status:
             if status.upper() != 'ALL':
-                print status.upper()
                 file_query = file_query.filter(status=status.upper())
         if file_query and sort_by:
             file_query = file_query.order_by(sort_by)
@@ -720,3 +728,33 @@ class FileUploadListAPI(LoginSiteRequiredMixin, ListAPIView):
             return file_query
         else:
             raise Http404
+
+
+class RouteListAPI(LoginSiteRequiredMixin, ListAPIView):
+    """
+    Provides search api for routes
+    """
+    serializer_class = RouteSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    paginate_by = 100
+
+    def get_queryset(self):
+        route = self.request.QUERY_PARAMS.get('route', 'ALL')
+        route_day = self.request.QUERY_PARAMS.get('route_day', 'ALL')
+        route_type = self.request.QUERY_PARAMS.get('route_type', 'ALL')
+
+        file_query = Route.on_site.all()
+
+        if route.upper() != 'ALL':
+            file_query = file_query.filter(route=route)
+
+        if route_day.upper() != 'ALL':
+            file_query = file_query.filter(route_day=route_day)
+
+        if route_type.upper() != 'ALL':
+            file_query = file_query.filter(route_type=route_type)
+
+        return file_query
+
+
+
