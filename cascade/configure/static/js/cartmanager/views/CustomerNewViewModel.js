@@ -20,6 +20,7 @@
         self.use_default_state_city = ko.observable(true);
 
         self.default_zipcodes = ko.observableArray([]);
+
         //#TODO Pull from admin config
         self.default_property_type = ko.observableArray(['Residential', 'Business']);
         self.selected_route_day = ko.observable();
@@ -31,21 +32,24 @@
 
         self.default_routes = ko.observableArray([]);
         self.default_routes_unique_type = ko.computed(function () {
-            var route_type = ko.utils.arrayMap(self.default_routes(), function (item) {
+            var route_type = ko.utils.arrayMap(self.default_routes(), function(item) {
                 return item.route_type();
             });
-            return ko.utils.arrayGetDistinctValues(route_type.sort());
+            route_type.unshift('ALL')
+            return ko.utils.arrayGetDistinctValues(route_type);
         });
 
         self.default_routes_unique_day = ko.computed(function () {
-            var route_days = ko.utils.arrayMap(self.default_routes(), function (item) {
+            var route_days = ko.utils.arrayMap(self.default_routes(), function(item) {
                 return item.route_day();
             });
+
+            route_days.unshift('ALL')
             return ko.utils.arrayGetDistinctValues(route_days.sort());
         });
 
         self.default_routes_unique_routes = ko.computed(function () {
-            var filtered_routes = ko.utils.arrayFilter(self.default_routes(), function (item) {
+            var filtered_routes = ko.utils.arrayFilter(self.default_routes(), function(item) {
                 if (self.selected_route_day() == item.route_day()
                     && self.selected_route_type() == item.route_type()) {
                     return item;
@@ -63,7 +67,8 @@
                                        route_day:self.selected_route().route_day(),
                                        route_type:self.selected_route().route_type()
                                       });
-            console.log(ko.toJSON(self.selected_routes()));
+            self.selected_route_day('ALL');
+            self.selected_route_type("ALL");
         }
 
         self.clearRoute = function(){
