@@ -33,11 +33,10 @@
         self.filtered_routes = ko.computed(function(){
 
             var filtered_routes = ko.utils.arrayFilter(self.routes(), function(item){
-                    //crazy logic on this one
 
-                    //check if route type is ALL
-                    if (self.selected_route_type() == 'ALL'){
-                        //then check if route day is also ALL
+                    //check if cart type (i.e. same as route) is ALL
+                    if (self.selected_cart_type() == 'ALL'){
+                        //then check if route day is also ALL and return all routes
                         if(self.selected_route_day() == 'ALL'){
                             return item;
                         //if its not all then filter by day
@@ -46,17 +45,21 @@
                         }
                      // else check if route day is ALL
                     }else if (self.selected_route_day() == 'ALL'){
-                     // then filter on route type
-                        if(self.selected_route_type() == item.route_type()){
+                     // if the selected cart type is the same as the route type return the route
+                        if(self.selected_cart_type() == item.route_type()){
                             return item;
                         }
-                    //else filter by both route day an route type
+                    //else filter by both route day and cart type
                     }else if(self.selected_route_day() == item.route_day()
-                    && self.selected_route_type() == item.route_type()) {
+                    && self.selected_cart_type() == item.route_type()) {
                     return item;
                 }
                 }
             )
+
+           var all_route = new cartlogic.Route({'id':'ALL', 'route_day': 'ALL',
+                                              'route_type': 'ALL', 'route': 'ALL'});
+           filtered_routes.unshift(all_route);
            return filtered_routes;
         });
 
@@ -115,9 +118,7 @@
                    self.route_days(routeDayOptions);
                    self.route_types(routeTypeOptions);
                    self.routes(routeOptions);
-                   var all_route = new cartlogic.Route({'route_day': 'ALL', 'route_type': 'ALL', 'route': 'ALL'});
-                   self.routes.unshift(all_route);
-                   self.selected_route(all_route);
+
                    self.route_days.unshift('ALL');
                    self.route_types.unshift('ALL');
                    self.selected_route_day('ALL');

@@ -20,6 +20,9 @@
         self.service = ko.observable("ALL");
         self.cart_type = ko.observable("ALL");
         self.cart_size = ko.observable("ALL");
+        self.route_type = ko.observable("ALL");
+        self.route_day = ko.observable("ALL");
+        self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
 
         self.cart_serial_number = ko.observable(cart_serial_number);
@@ -49,6 +52,9 @@
                 data.cart_type = self.cart_type();
                 data.service = self.service();
                 data.status = self.status();
+                data.route = self.route();
+                data.route_type = self.route_type();
+                data.route_day = self.route_day();
             }
 
             $.ajax(tickets_api_download, {
@@ -80,10 +86,15 @@
         $('.run_query').click(function () {
 
             var context = (ko.contextFor(this));
+            console.log(context.$data.selected_route().route(), context.$data.selected_route_day());
             self.cart_size(context.$data.selected_cart_size());
             self.cart_type(context.$data.selected_cart_type());
             self.service(context.$data.selected_type());
             self.status(context.$data.selected_status());
+            self.route_type(context.$data.selected_route_type());
+            self.route_day(context.$data.selected_route_day());
+            self.route(context.$data.selected_route().route());
+
             if (this.id == 'download_csv') {
                 //if it is a csv format just load in the window (no ajax needed).
                 var data = {};
@@ -91,6 +102,9 @@
                 data.cart_type = self.cart_type();
                 data.service = self.service();
                 data.status = self.status();
+                data.route_type = self.route_type();
+                data.route_day = self.route_type();
+                data.route = self.route();
                 window.location = tickets_api_download + "?format=csv&" + jQuery.param(data);
             } else {
                 self.getPagedDataAsync();

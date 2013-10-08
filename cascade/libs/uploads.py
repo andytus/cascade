@@ -210,7 +210,7 @@ def save_customer_records(line, file_record):
                                                longitude=longitude, property_type=property_type)
 
         if route != 'Null':
-            print route
+
             address_route, created = Route.on_site.get_or_create(site=file_record.site, route=route,
                                                                  route_day=route_day, defaults={'route_type': 'Refuse'})
 

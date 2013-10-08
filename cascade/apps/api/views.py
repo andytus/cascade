@@ -109,6 +109,9 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
         service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
         processed = self.request.QUERY_PARAMS.get('processed', 'True')
+        route_type = self.request.QUERY_PARAMS.get('route_type', 'ALL')
+        route_day = self.request.QUERY_PARAMS.get('route_day', 'ALL')
+        route = self.request.QUERY_PARAMS.get('route', 'ALL')
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -120,7 +123,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             if sort_by:
                 query = Ticket.on_site.order_by(sort_by)
             else:
-                query = Ticket.on_site.filter()
+                query = Ticket.on_site.all()
 
             if cart_serial:
                 query = query.filter(
@@ -140,6 +143,14 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = query.filter(service_type__service=service_type)
             if processed == 'False':
                 query = query.filter(processed=False)
+            if route != 'ALL':
+                route = Route.on_site.get(route=route)
+                query = query.filter(location__route=route)
+            if route_day != 'ALL':
+                routes = Route.on_site.filter(route_day=route_day)
+                query = query.filter(location__route__in=routes)
+                #get only the distinct tickets
+                query = query.distinct('id')
             return query
         except:
             raise Http404
@@ -231,7 +242,7 @@ class LocationAPI(LoginSiteRequiredMixin, APIView):
             else:
                 location = self.get_object(location_id)
                 if operation == 'remove':
-                #Make sure the customer is currently assigned to the address #TODO test else
+                #Make sure the customer is currently assigned to the address
                     if location.customer == customer:
                         location.customer = None
                         location.save()
@@ -617,7 +628,6 @@ class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
             return CollectionCustomer.on_site.get(id=customer_id)
         except CollectionCustomer.DoesNotExist:
             raise Http404
-
 
     def get(self, request, customer_id, format=None):
         customer = self.get_object(customer_id)
