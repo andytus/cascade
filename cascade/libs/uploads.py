@@ -184,7 +184,8 @@ def save_customer_records(line, file_record):
         #Customer setup & save:
         systemid, system_name, first_name, last_name, phone, email, house_number, street_name, unit, city,\
         state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
-        yard_organics_size, unassigned, unassigned_size, route, route_day = line.split(',')
+        yard_organics_size, unassigned, unassigned_size, refuse_route, refuse_route_day,\
+        recycle_route, recycle_route_day, yard_organics_route, yard_organics_route_day = line.split(',')
 
         customer = CollectionCustomer(site=file_record.site, first_name=first_name[:25].upper(),
                                       last_name=last_name[:50].upper(), email=email, phone_number=phone)
@@ -208,13 +209,30 @@ def save_customer_records(line, file_record):
                                                street_name=street_name.strip().upper(), unit=unit.strip(),
                                                city=city, zipcode=zipcode, state=state, latitude=latitude,
                                                longitude=longitude, property_type=property_type)
+        refuse_address_route = None
+        recycle_address_route = None
+        yard_organics_address_route = None
 
-        if route != 'Null':
+        if refuse_route != 'Null':
 
-            address_route, created = Route.on_site.get_or_create(site=file_record.site, route=route,
-                                                                 route_day=route_day, defaults={'route_type': 'Refuse'})
+            refuse_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=refuse_route,
+                                                                        route_day=refuse_route_day,
+                                                                        defaults={'route_type': 'Refuse'})
+            collection_address.add(refuse_address_route)
 
-            collection_address.route = address_route
+        if recycle_route != 'Null':
+
+            recycle_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=recycle_route,
+                                                                         route_day=recycle_route_day,
+                                                                         defaults={'route_type': 'Refuse'})
+            collection_address.route.add(recycle_address_route)
+
+        if yard_organics_route != 'Null':
+
+            yard_organics_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=yard_organics_route,
+                                                                       route_day=yard_organics_route_day,
+                                                                       defaults={'route_type': 'Refuse'})
+            collection_address.route.add(yard_organics_address_route)
 
         collection_address.full_clean()
         collection_address.save()
@@ -226,17 +244,29 @@ def save_customer_records(line, file_record):
 
         if refuse.isdigit():
             for x in range(int(refuse)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)),
-                       service_type=delivery, location=collection_address, status=requested, created_by=user).save()
+                t = Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(refuse_size)),
+                           service_type=delivery, location=collection_address, status=requested, created_by=user)
+                if refuse_address_route:
+                    t.route = refuse_address_route
+                t.save()
+
         if recycle.isdigit():
             for x in range(int(recycle)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size=int(recycle_size)),
-                       service_type=delivery, location=collection_address, status=requested, created_by=user).save()
+                t = Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size=int(recycle_size))
+                           , service_type=delivery, location=collection_address, status=requested, created_by=user)
+                if recycle_address_route:
+                    t.route = recycle_address_route
+                t.save()
+
         if yard_organics.isdigit():
             for x in range(int(yard_organics)):
-                Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard",
-                                                      size=int(yard_organics_size)), service_type=delivery,
-                       location=collection_address, status=requested, created_by=user).save()
+                t = Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Yard",
+                                                          size=int(yard_organics_size)), service_type=delivery,
+                                                           location=collection_address, status=requested,
+                                                           created_by=user)
+                if yard_organics_address_route:
+                    t.route = yard_organics_address_route
+                t.save()
 
         #Used for unassigned type carts
         if unassigned.isdigit():
