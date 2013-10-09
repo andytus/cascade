@@ -63,6 +63,10 @@
            return filtered_routes;
         });
 
+         self.selected_route_day.subscribe(function(data){
+            console.log("test")
+        })
+
 
         self.getServiceTypeOptions = function () {
             $.getJSON(ticket_service_type_api, function (data) {

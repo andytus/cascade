@@ -147,7 +147,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 route = Route.on_site.get(route=route)
                 query = query.filter(location__route=route)
             if route_day != 'ALL':
-                routes = Route.on_site.filter(route_day=route_day)
+                routes = Route.on_site.filter(route_day=route_day, route_type=cart_type)
                 query = query.filter(location__route__in=routes)
                 #get only the distinct tickets
                 query = query.distinct('id')
