@@ -289,13 +289,23 @@ def save_customer_records(line, file_record):
 
 def save_route_records(line, file_record):
     try:
-        route, route_day, route_type = line.split(',')
-        route = Route(site=file_record.site, route=route, route_day=route_day, route_type=route_type)
+        route, route_day, route_type, house_number, street_name, unit = line.split(',')
+        route, created = Route.on_site.get_or_create(site=file_record.site, route=route,
+                                                     route_day=route_day, route_type=route_type)
+        if unit.strip():
+            print "in unit"
+            collection_address = CollectionAddress.objects.get(house_number=house_number,
+                                                               street_name=street_name.strip().upper(),
+                                                               unit=unit.strip())
+        else:
+            collection_address = CollectionAddress.objects.get(house_number=house_number,
+                                                               street_name=street_name.strip().upper())
+        collection_address.route.add(route)
+
         route.save()
         file_record.num_good += 1
 
     except Exception as e:
-        print e
         file_record.status = "FAILED"
         file_record.num_error += 1
         error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)

@@ -47,8 +47,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         """
-        Performs search query for Carts
-
+                Performs search query for Carts
         """
         search_type = self.request.QUERY_PARAMS.get('type', None)
         value = self.request.QUERY_PARAMS.get('value', None)
