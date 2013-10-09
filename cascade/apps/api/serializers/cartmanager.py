@@ -39,12 +39,14 @@ class GetInfoManyRelatedField(serializers.ManyRelatedField):
         else:
             return None
 
+
 class GetInfoRelatedField(serializers.RelatedField):
     def to_native(self, obj):
         if obj:
             return obj.get_info()
         else:
             return None
+
 
 class CleanRelatedField(serializers.Field):
     def field_to_native(self, obj, field_name):
@@ -68,6 +70,7 @@ class CartLocationCustomerField(serializers.Field):
             return "Not Assigned"
         else:
             return value.customer.get_info()
+
 
 class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
@@ -153,6 +156,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
     location__house_number = CleanRelatedField(source='location.house_number')
     location__street_name = CleanRelatedField(source='location.street_name')
     location__unit = serializers.RelatedField(source='location.unit')
+    route = CleanRelatedField(source='route.route')
     location__customer__get_absolute_url = CleanRelatedField(source='location.customer.get_absolute_url')
     location__customer__get_app_url = CleanRelatedField(source='location.customer.get_app_url')
     #############################################################
@@ -166,8 +170,8 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
                   'serviced_cart__serial_number', 'serviced_cart__id', 'serviced_cart__cart_type__size',
                   'serviced_cart__cart_type__name', 'expected_cart__serial_number', 'status__service_status',
                   'status__level', 'reason_code__description', 'processed', 'date_completed', 'date_created',
-                  'date_processed','date_last_attempted', 'longitude', 'latitude', 'device_name', 'audit_status',
-                  'location__house_number', 'location__street_name', 'location__unit',
+                  'date_processed', 'date_last_attempted', 'longitude', 'latitude', 'device_name', 'audit_status',
+                  'location__house_number', 'location__street_name', 'location__unit', 'route',
                   'location__customer__get_absolute_url', 'location__customer__get_app_url', 'cart_type__name',
                   'cart_type__size', 'created_by__username', 'updated_by__username')
 

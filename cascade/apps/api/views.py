@@ -145,12 +145,16 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = query.filter(processed=False)
             if route != 'ALL':
                 route = Route.on_site.get(route=route)
-                query = query.filter(location__route=route)
+                query = query.filter(route=route)
             if route_day != 'ALL':
-                routes = Route.on_site.filter(route_day=route_day, route_type=route_type)
-                query = query.filter(location__route__in=routes)
-                #get only the distinct tickets
-                query = query.distinct('id')
+                routes = Route.on_site.filter(route_day=route_day)
+                query = query.filter(route__in=routes)
+            if route_type != 'ALL':
+                routes = Route.on_site.filter(route_type=route_type)
+                query = query.filter(route__in=routes)
+
+            #get only the distinct tickets
+
             return query
         except:
             raise Http404
@@ -442,10 +446,9 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                         location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
 
                 else:
-                    return RestResponse({
-                                            "details": {'message': "No address information given",
-                                                        'message_type': 'Failed'},
-                                            "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
+                    return RestResponse({"details": {'message': "No address information given",
+                                        'message_type': 'Failed'},
+                                        "time": datetime.now()}, status=django_rest_status.HTTP_200_OK)
 
                 #Get the current service type and a cart service status object of requested
                 requested_service_type = json_data.get('service_type', None)
@@ -453,6 +456,12 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 expected_cart_serial_number = json_data.get('cart_serial_number', None)
                 size = json_data.get('cart_size', None)
                 cart_type_name = json_data.get('cart_type', None)
+
+                #get the locations route to assign to a ticket
+                try:
+                    route = Route.objects.get(collectionaddress=location, route_type=cart_type_name)
+                except ObjectDoesNotExist:
+                    route = None
 
                 #If we have an expected cart serial number it is a remove, exchange, repair or audit
                 #TODO put repair or audits in here
@@ -462,15 +471,17 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                         if requested_service_type == 'Exchange':
                             service_type_remove = CartServiceType.on_site.get(code='EX-REM')
                         else:
-                            print requested_service_type
                             service_type_remove = CartServiceType.on_site.get(code='REM')
 
                         remove_ticket = Ticket(created_by=request.user, location=location,
                                                status=requested_ticket_status,
                                                expected_cart=expected_cart,
                                                service_type=service_type_remove,
-                                               cart_type=expected_cart.cart_type
-                        )
+                                               cart_type=expected_cart.cart_type)
+
+                        if route:
+                            remove_ticket.route = route
+
                         remove_ticket.save()
 
                 #Create service ticket or tickets below, some code repeated but feels more readable
@@ -482,11 +493,12 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
                     delivery_ticket = Ticket(created_by=request.user, location=location, service_type=service_type,
                                              status=requested_ticket_status,
-                                             cart_type=cart_type,
-                    )
+                                             cart_type=cart_type)
+
+                    if route:
+                        delivery_ticket.route = route
+
                     delivery_ticket.save()
-
-
 
                 elif requested_service_type == 'Exchange':
                     #Exchange? You should get and add the cart type from name and size
@@ -495,10 +507,11 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
                     exchange_del_ticket = Ticket(created_by=request.user, location=location, service_type=service_type,
                                                  status=requested_ticket_status,
-                                                 cart_type=cart_type
-                    )
-                    exchange_del_ticket.save()
+                                                 cart_type=cart_type)
+                    if route:
+                        exchange_del_ticket.route = route()
 
+                    exchange_del_ticket.save()
                 return RestResponse({'details': {
                     'message': 'Success! New %s Ticket(s) created for %s' % (requested_service_type, location),
                     'message_type': 'Success'}}, status=django_rest_status.HTTP_201_CREATED)

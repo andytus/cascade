@@ -29,10 +29,12 @@ function Ticket(data) {
     self.status__level = ko.observable();
     self.reason_code__description = ko.observable();
 
+
     //location of ticket
     self.location__house_number = ko.observable();
     self.location__street_name = ko.observable();
     self.location__unit = ko.observable();
+    self.route__route = ko.observable();
     self.location__customer__get_app_url = ko.observable();
 
     //serviced cart attributes
@@ -108,6 +110,9 @@ function Ticket(data) {
 
         self.created_by__username(data.created_by__username);
         self.updated_by__username(data.updated_by__username);
+
+        self.route__route(data.route);
+
 
     }
 

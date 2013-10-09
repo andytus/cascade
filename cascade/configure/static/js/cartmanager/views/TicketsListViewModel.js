@@ -157,6 +157,7 @@
             {field: 'location__house_number', displayName: 'House'},
             {field: 'location__street_name', displayName: 'Street', width: 165, maxWidth: 400},
             {field: 'location__unit', displayName: 'Unit', width: 50},
+            {field: 'route__route', displayName: 'Route', width: 60},
             {field: 'serviced_cart__serial_number', displayName: 'Serviced #', cellTemplate: self.cart_profile_cell_template, width: 100},
             {field: 'expected_cart__serial_number', displayName: 'Expected #', cellTemplate: self.cart_profile_cell_template, width: 100},
             {field: 'date_created', displayName: 'Created'},

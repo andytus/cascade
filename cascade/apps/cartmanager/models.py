@@ -415,6 +415,7 @@ class Ticket(models.Model):
     expected_cart = models.ForeignKey(Cart, null=True, blank=True, related_name='expected_cart')
 
     location = models.ForeignKey(CollectionAddress, related_name="ticket_locations")
+    route = models.ForeignKey(Route, related_name='ticket_route', null=True, blank=True)
     service_type = models.ForeignKey(CartServiceType, null=True, blank=True, related_name="service_type")
     cart_type = models.ForeignKey(CartType, null=True, blank=True, related_name="cart_type")
     status = models.ForeignKey(TicketStatus, null=True, blank=True, related_name="status")
