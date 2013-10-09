@@ -1,1 +1,2 @@
-systemid,system_name,first,last,phone,email,house,street_name,unit,city,state,zipcode, property_type,latitude,longitude,recycle_count,size,refuse_count,size,yard_organics_count,size,unassigned,size,route,route_day
+    systemid, system_name, first_name, last_name, phone, email, house_number, street_name, unit, city, state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics, yard_organics_size, unassigned, unassigned_size, refuse_route, refuse_route_day, recycle_route, recycle_route_day, yard_organics_route, yard_organics_route_day
+    34,parcel,test,test,123-456-7890,test@test.com,3099,test,33,Happyville,MI,49508,Residential,0,0,1,64,1,96,2,96,0,0,111,Friday,222,Friday,333,Tuesday

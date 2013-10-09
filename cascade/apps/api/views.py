@@ -333,8 +333,8 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
             json_data = simplejson.loads(request.raw_post_data)
             create_new = json_data.get('create_new', None)
              #grabbing values to be updated or None
-            cart_type_name = json_data.get('cart_type_name', None)
-            cart_type_size = json_data.get('cart_type_size', None)
+            cart_type_name = json_data.get('cart_type__name', None)
+            cart_type_size = json_data.get('cart_type__size', None)
             current_status_id = json_data.get('current_status', None)
             location_id = json_data.get('location_id', None)
             latitude = json_data.get('latitude', None)
@@ -362,6 +362,7 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
                 cart = self.get_object(serial_number)
             #check for cart type and save to cart, if None then no value given skip it
             if cart_type_name and cart_type_size:
+                print cart_type_name
                 cart.cart_type = CartType.objects.get(name=cart_type_name, size=cart_type_size)
 
             #check for location and update latitude + longitude to collection address lat and long

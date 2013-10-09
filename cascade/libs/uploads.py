@@ -209,6 +209,10 @@ def save_customer_records(line, file_record):
                                                street_name=street_name.strip().upper(), unit=unit.strip(),
                                                city=city, zipcode=zipcode, state=state, latitude=latitude,
                                                longitude=longitude, property_type=property_type)
+
+        collection_address.full_clean()
+        collection_address.save()
+
         refuse_address_route = None
         recycle_address_route = None
         yard_organics_address_route = None
@@ -218,24 +222,23 @@ def save_customer_records(line, file_record):
             refuse_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=refuse_route,
                                                                         route_day=refuse_route_day,
                                                                         defaults={'route_type': 'Refuse'})
-            collection_address.add(refuse_address_route)
+            collection_address.route.add(refuse_address_route)
 
         if recycle_route != 'Null':
 
             recycle_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=recycle_route,
                                                                          route_day=recycle_route_day,
-                                                                         defaults={'route_type': 'Refuse'})
+                                                                         defaults={'route_type': 'Recycle'})
             collection_address.route.add(recycle_address_route)
 
         if yard_organics_route != 'Null':
 
-            yard_organics_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=yard_organics_route,
-                                                                       route_day=yard_organics_route_day,
-                                                                       defaults={'route_type': 'Refuse'})
+            yard_organics_address_route, created = Route.on_site.get_or_create(site=file_record.site,
+                                                                               route=yard_organics_route,
+                                                                               route_day=yard_organics_route_day,
+                                                                            defaults={'route_type': 'Yard & Organic'})
             collection_address.route.add(yard_organics_address_route)
 
-        collection_address.full_clean()
-        collection_address.save()
 
         # Tickets setup & save for Refuse, Recycle, Other, Yard\Organics:
         delivery = CartServiceType.on_site.get(site=file_record.site, code="DEL")
@@ -278,7 +281,6 @@ def save_customer_records(line, file_record):
         file_record.num_good += 1
 
     except Exception as e:
-        #transaction.rollback()
         file_record.status = "FAILED"
         file_record.num_error += 1
         error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)

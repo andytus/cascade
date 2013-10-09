@@ -75,8 +75,6 @@
 
         self.getCartTypeOptions();
 
-        //#<TODO----------------------------------------------------------------------------------------------------->
-
         self.cartSerialLookup = function () {
             if (self.cart_serial_number() && self.cart_serial_number().length > 7) {
                 if (self.cart_serial_number().length > 30) {
@@ -115,6 +113,7 @@
 
         self.createNewCart = function () {
             var url = cart_api_profile_url + self.cart_serial_number();
+            console.log(self.cart_type());
             var data = {'create_new': true, 'cart_type__name': self.cart_type(), 'cart_type__size': self.cart_size()};
 
             if (self.cart_born_date()) {
