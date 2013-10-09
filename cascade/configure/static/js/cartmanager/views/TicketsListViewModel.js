@@ -103,7 +103,7 @@
                 data.service = self.service();
                 data.status = self.status();
                 data.route_type = self.route_type();
-                data.route_day = self.route_type();
+                data.route_day = self.route_day();
                 data.route = self.route();
                 window.location = tickets_api_download + "?format=csv&" + jQuery.param(data);
             } else {

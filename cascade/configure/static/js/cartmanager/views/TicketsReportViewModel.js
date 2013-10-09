@@ -35,7 +35,7 @@
             var filtered_routes = ko.utils.arrayFilter(self.routes(), function(item){
 
                     //check if cart type (i.e. same as route) is ALL
-                    if (self.selected_cart_type() == 'ALL'){
+                    if (self.selected_route_type() == 'ALL'){
                         //then check if route day is also ALL and return all routes
                         if(self.selected_route_day() == 'ALL'){
                             return item;
@@ -46,16 +46,20 @@
                      // else check if route day is ALL
                     }else if (self.selected_route_day() == 'ALL'){
                      // if the selected cart type is the same as the route type return the route
-                        if(self.selected_cart_type() == item.route_type()){
+                        if(self.selected_route_type() == item.route_type()){
                             return item;
                         }
                     //else filter by both route day and cart type
                     }else if(self.selected_route_day() == item.route_day()
-                    && self.selected_cart_type() == item.route_type()) {
+                    && self.selected_route_type() == item.route_type()) {
                     return item;
                 }
                 }
             )
+
+           self.selected_route_type.subscribe(function(data){
+             self.selected_cart_type(data);
+           });
 
            var all_route = new cartlogic.Route({'id':'ALL', 'route_day': 'ALL',
                                               'route_type': 'ALL', 'route': 'ALL'});
@@ -63,12 +67,7 @@
            return filtered_routes;
         });
 
-         self.selected_route_day.subscribe(function(data){
-            console.log("test")
-        })
-
-
-        self.getServiceTypeOptions = function () {
+         self.getServiceTypeOptions = function () {
             $.getJSON(ticket_service_type_api, function (data) {
                 var serviceTypeOptions = $.map(data, function (item) {
                     return item.service
