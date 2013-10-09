@@ -228,6 +228,11 @@ class Route(models.Model):
     def __unicode__(self):
         return "Route: %s, Day: %s, Route Type: %s" % (self.route, self.route_day, self.route_type)
 
+    class meta:
+        unique_together = (('route', 'route_day', 'route_type'))
+
+
+
 
 class Address(models.Model):
     #Over ride defaults with instance applications.
