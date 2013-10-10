@@ -292,15 +292,18 @@ def save_route_records(line, file_record):
         route, route_day, route_type, house_number, street_name, unit = line.split(',')
         route, created = Route.on_site.get_or_create(site=file_record.site, route=route,
                                                      route_day=route_day, route_type=route_type)
-        if unit.strip():
-            print "in unit"
-            collection_address = CollectionAddress.objects.get(house_number=house_number,
-                                                               street_name=street_name.strip().upper(),
-                                                               unit=unit.strip())
-        else:
-            collection_address = CollectionAddress.objects.get(house_number=house_number,
-                                                               street_name=street_name.strip().upper())
-        collection_address.route.add(route)
+        if house_number.strip() and street_name.strip():
+            try:
+                if unit.strip():
+                    collection_address = CollectionAddress.objects.get(house_number=house_number,
+                                                                   street_name=street_name.strip().upper(),
+                                                                   unit=unit.strip())
+                else:
+                    collection_address = CollectionAddress.objects.get(house_number=house_number,
+                                                                   street_name=street_name.strip().upper())
+                collection_address.route.add(route)
+            except CollectionAddress.DoesNotExist as e:
+                pass
 
         route.save()
         file_record.num_good += 1
