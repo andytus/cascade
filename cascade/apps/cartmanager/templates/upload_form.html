@@ -26,9 +26,9 @@
             <button id="upload_button" class="btn btn-large btn-info" style="display: none"> Upload Now</button>
             {% comment %} #TODO implement processing option Process: <input type="checkbox" value="true" name="process"/>{% endcomment %}
         </form>
-         <div id="fileupload-template-link" class="pull-left">
-         <a  href="{% url template_uploads %}{{ file_type }}"><i class="icon-file"></i>Template</a> <br>
-         <a href="{% url upload_file_list %}?file_status=UPLOADED&file_type={{ file_type }}"><i class="icon-upload"></i>Show UPLOADED FILES</a>
+         <div id="fileupload-template-link" class="pull-right">
+         <a  href="{% url template_uploads %}{{ file_type }}"><i class="icon-file"> </i>Template</a> <br>
+         <a href="{% url upload_file_list %}?file_status=UPLOADED&file_type={{ file_type }}"><i class="icon-upload"> </i>Show UPLOADED FILES</a>
          </div>
 
         <div id="fileupload-message"></div><br>
