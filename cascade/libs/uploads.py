@@ -29,7 +29,7 @@ def save_cart_records(line, file_record):
         cart_type = CartType.objects.get(name=cart_type, size=size)
         cart_status = CartStatus.objects.get(label=status)
         cart = Cart(site=file_record.site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number=serial,
-                    size=size, inventory_location=InventoryAddress.objects.get(site=file_record.site, default=True),
+                    inventory_location=InventoryAddress.objects.get(site=file_record.site, default=True),
                     file_upload=file_record,cart_type=cart_type, current_status=cart_status,
                     born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
         #TODO work on getting unit logic
