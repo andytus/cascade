@@ -1,7 +1,8 @@
 from django.utils import simplejson
 from django.contrib.sites.models import get_current_site
 
-from django.views.generic import TemplateView, ListView
+from django.template import Context, loader
+from django.views.generic import TemplateView, ListView, View
 from django.http import Http404
 from django.http import HttpResponse
 
@@ -11,6 +12,18 @@ from cascade.libs.uploads import process_upload_records
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import Cart, CartsUploadFile, CustomersUploadFile, \
     TicketsCompleteUploadFile, RouteUploadFile, DataErrors, Site
+
+
+class GetUploadTemplate(LoginSiteRequiredMixin, View):
+
+    def get(self, request, **kwargs):
+        print kwargs['type']
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=%s.csv' % kwargs['type']
+        t = loader.get_template('%s.csv' % kwargs['type'])
+        c = Context()
+        response.write(t.render(c))
+        return response
 
 
 class FileUploadListView(LoginSiteRequiredMixin, TemplateView):

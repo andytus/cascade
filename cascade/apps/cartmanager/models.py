@@ -289,7 +289,6 @@ class Address(models.Model):
 
 
 class CollectionCustomer(models.Model):
-    #other_system_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     first_name = models.CharField(max_length=25, default="UNKNOWN", null=True)
     last_name = models.CharField(max_length=50, default="UNKNOWN", null=True)
     phone_number = PhoneNumberField(max_length=15, null=True, blank=True)

@@ -14,9 +14,9 @@
 {% block main_content %}
 
     <div id="fileupload-wrapper" class="box-info">
-    <a href="{% url upload_file_list %}?file_status=UPLOADED&file_type={{ file_type }}">Show UPLOADED FILES</a>
-     <h1>{{ link }}</h1>
-          <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+        <h1>{{ link }}</h1>
+
+        <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
         <span id="add-file" class="btn btn-success btn-large fileinput-button">
          <i class="icon-plus icon-white"></i>
@@ -24,13 +24,14 @@
         <input id="upload_file" type="file" name="upload_file">
         </span>
             <button id="upload_button" class="btn btn-large btn-info" style="display: none"> Upload Now</button>
-             {% comment %} #TODO implement processing option Process: <input type="checkbox" value="true" name="process"/>{% endcomment %}
+            {% comment %} #TODO implement processing option Process: <input type="checkbox" value="true" name="process"/>{% endcomment %}
         </form>
-        <div id="fileupload-message"></div>
+         <div id="fileupload-template-link" class="pull-left">
+         <a  href="{% url template_uploads %}{{ file_type }}"><i class="icon-file"></i>Template</a> <br>
+         <a href="{% url upload_file_list %}?file_status=UPLOADED&file_type={{ file_type }}"><i class="icon-upload"></i>Show UPLOADED FILES</a>
+         </div>
 
-   {% comment %}     <div id="progress" class="progress progress-info progress-striped active">
-            <div class="bar" style="width: 0%;"></div>
-        </div>{% endcomment %}
+        <div id="fileupload-message"></div><br>
     </div>
 
     <div id="file-process" class="box-info">
@@ -46,12 +47,12 @@
 {% endblock %}
 
 {% block page_scripts %}
- {% load compressed %}
-{% compressed_js 'vendor_jquery_uploads' %}
-{% compressed_js 'file.js' %}
+    {% load compressed %}
+    {% compressed_js 'vendor_jquery_uploads' %}
+    {% compressed_js 'file.js' %}
 
 
-  {% comment %}  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.ui.widget.js"></script>
+    {% comment %}  <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.ui.widget.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery/jquery.fileupload.js"></script>
   {% endcomment %}
@@ -63,17 +64,17 @@
 
         $(function () {
             $('#fileupload').fileupload({
-                type:'POST',
-                dataType:'json',
-                add:function (e, data) {
+                type: 'POST',
+                dataType: 'json',
+                add: function (e, data) {
                     $("#upload_button").click(function () {
                         data.context = $('<p/>').text('Uploading...').replaceAll($(this));
                         data.submit();
                         $("#message").addClass("alert-info").show();
                         i = 0;
-                        setInterval(function() {
+                        setInterval(function () {
                             i = ++i % 4;
-                            $("#message-text").text("Uploading"+Array(i+1).join("."));
+                            $("#message-text").text("Uploading" + Array(i + 1).join("."));
                         }, 300);
 
 
@@ -82,26 +83,27 @@
                     });
                 },
 
-                change:function (e, data) {
+                change: function (e, data) {
                     //TODO add upload file name and size here
                     $("#fileupload-message").text(data.files[0].name);
                     $("#upload_button").show();
 
                 },
 
-                done:function (e, data) {
+                done: function (e, data) {
                     data.context.text('Upload finished')
-                   // search_query = JSON.stringify({file_type: '{{ file_type }}', file_id: data.result.details.file_id});
-                    $("#fileupload-message").html("<p>Upload Complete</p><p>Check Status: <a href="+ upload_file_list_url
-                          +"?file_type="+ file_type  + "&file_id=" + data.result.details.file_id +">View</a></p>");
+                    // search_query = JSON.stringify({file_type: '
+                    {{ file_type }}', file_id: data.result.details.file_id});
+                    $("#fileupload-message").html("<p>Upload Complete</p><p>Check Status: <a href=" + upload_file_list_url
+                            + "?file_type=" + file_type + "&file_id=" + data.result.details.file_id + ">View</a></p>");
                     $("#message").addClass("alert-info").hide();
 
                 },
-                fail:function (e, data) {
+                fail: function (e, data) {
                     $("#message").removeClass("alert-info")
                             .addClass("alert-error")
                             .html("Error:" + data.statusText).show();
-                   //  data.errorThrown;
+                    //  data.errorThrown;
                     // data.textStatus;
                     // data.jqXHR
                 }

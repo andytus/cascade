@@ -60,8 +60,9 @@ def save_ticket_records(line, file_record):
     try:
         # Get imported files data
         # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType,
-        # TODO..  RFID, ContainerSize, ContainerType, TicketStatus,DateTime,UserName,Latitude,Longitude,
-        # TODO.. BrokenComponent,Comments
+        # TODO..  RFID, ContainerSize, ContainerType, TicketStatus, DateTime, UserName, Latitude, Longitude,
+        # TODO.. BrokenComponent, Comments
+        # TODO.. Process ADHOC
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, \
             upload_ticket_status, complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
 
@@ -70,6 +71,7 @@ def save_ticket_records(line, file_record):
         time_format = '%m/%d/%Y %H:%M:%S'
 
         #get or create cart
+        #len check to remove ADHOC or other errors
         if len(rfid) > 4:
             print "in rfid check"
             try:
@@ -302,7 +304,7 @@ def save_route_records(line, file_record):
                     collection_address = CollectionAddress.objects.get(house_number=house_number,
                                                                    street_name=street_name.strip().upper())
                 collection_address.route.add(route)
-            except CollectionAddress.DoesNotExist as e:
+            except CollectionAddress.DoesNotExist:
                 pass
 
         route.save()
