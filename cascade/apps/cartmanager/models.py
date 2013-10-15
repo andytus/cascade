@@ -240,7 +240,7 @@ class Address(models.Model):
     ST = "NA"
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
-    unit = models.CharField(max_length=15, null=True, blank=True)
+    unit = models.CharField(max_length=15, blank=True)
     city = models.CharField(max_length=25, default=CITY)
     state = models.CharField(max_length=2, default=ST)
     zipcode = models.IntegerField()
@@ -273,7 +273,7 @@ class Address(models.Model):
 
     def __unicode__(self):
 
-        full_address =  "%s %s"  %(self.house_number, self.street_name)
+        full_address = "%s %s" % (self.house_number, self.street_name)
 
         if self.unit:
             full_address = full_address + " " + self.unit
@@ -342,7 +342,7 @@ class CollectionAddress(Address):
 
     def get_info(self):
         info = {"properties": {"url": self.get_absolute_url(), "id": self.id, "property_type": self.property_type,
-                "house_number": self.house_number, "unit" :self.unit, "street_name":self.street_name, "city": self.city,
+                "house_number": self.house_number, "unit": self.unit, "street_name":self.street_name, "city": self.city,
                 "state": self.state, "zipcode": self.zipcode, "geocode_type": self.geocode_type,
                 "geocode_status": self.geocode_status, "carts": self.location.values("id", "serial_number",
                 "cart_type__size", "cart_type__name")}, "type": "Feature", "geometry": {"type": "Point", "coordinates":
