@@ -80,7 +80,8 @@ def save_ticket_records(line, file_record):
             except Cart.DoesNotExist:
                 cart = Cart(site=file_record.site, rfid=clean_rifd,
                             serial_number=rfid.strip('=').strip('"')[-8:],
-                            size=container_size, updated_by=file_record.uploaded_by)
+                            cart_type=CartType.objects.get(name=container_type, size=container_size),
+                            updated_by=file_record.uploaded_by)
             cart.save()
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
