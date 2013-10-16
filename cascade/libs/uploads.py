@@ -193,7 +193,18 @@ def save_customer_records(line, file_record):
                                       last_name=last_name[:50].upper(), email=email, phone_number=phone)
 
 
-        #full_clean checks for the correct data
+
+        # Collection_Address setup & save:
+        collection_address = CollectionAddress(site=file_record.site, customer=customer,
+                                               house_number=house_number.strip(),
+                                               street_name=street_name.strip().upper(), unit=unit.strip(),
+                                               city=city, zipcode=zipcode, state=state, latitude=latitude,
+                                               longitude=longitude, property_type=property_type)
+
+        collection_address.full_clean()
+        collection_address.save()
+
+       #full_clean checks for the correct data
         customer.full_clean()
         customer.save()
 
@@ -205,15 +216,7 @@ def save_customer_records(line, file_record):
                                                             system_name=system_name, site=file_record.site)
             new_foreign_system_id.save()
 
-        # Collection_Address setup & save:
-        collection_address = CollectionAddress(site=file_record.site, customer=customer,
-                                               house_number=house_number.strip(),
-                                               street_name=street_name.strip().upper(), unit=unit.strip(),
-                                               city=city, zipcode=zipcode, state=state, latitude=latitude,
-                                               longitude=longitude, property_type=property_type)
 
-        collection_address.full_clean()
-        collection_address.save()
 
         refuse_address_route = None
         recycle_address_route = None
