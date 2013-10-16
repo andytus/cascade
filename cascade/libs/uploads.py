@@ -78,7 +78,7 @@ def save_ticket_records(line, file_record):
                 cart = Cart.on_site.get(rfid__exact=clean_rfid)
             except Cart.DoesNotExist:
                 cart = Cart(site=file_record.site, rfid=clean_rfid,
-                            serial_number=rfid.strip('=').strip('"')[-12:],
+                            serial_number=rfid,  #rfid.strip('=').strip('"')[-12:],
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
                             updated_by=file_record.uploaded_by)
             cart.save()
