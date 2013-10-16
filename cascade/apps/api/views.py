@@ -75,7 +75,8 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             elif search_type == 'type':
                 query = query.filter(cart_type__name=value)
             elif search_type == 'size':
-                query = query.filter(size=value)
+                print value
+                query = query.filter(cart_type__size=int(value))
             elif search_type == 'status':
                 query = query.filter(current_status__label=value)
             else:
