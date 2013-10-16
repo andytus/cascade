@@ -73,13 +73,12 @@ def save_ticket_records(line, file_record):
         #get or create cart
         #len check to remove ADHOC or other errors
         if len(rfid) > 4:
-            print "in rfid check"
             try:
-                clean_rifd = rfid.strip('=').strip('"')
-                cart = Cart.on_site.get(rfid__exact=clean_rifd)
+                clean_rfid = rfid.strip('=').strip('"')
+                cart = Cart.on_site.get(rfid__exact=clean_rfid)
             except Cart.DoesNotExist:
-                cart = Cart(site=file_record.site, rfid=clean_rifd,
-                            serial_number=rfid.strip('=').strip('"')[-8:],
+                cart = Cart(site=file_record.site, rfid=clean_rfid,
+                            serial_number=rfid.strip('=').strip('"')[-12:],
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
                             updated_by=file_record.uploaded_by)
             cart.save()
