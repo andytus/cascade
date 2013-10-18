@@ -36,7 +36,6 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ['service_type__code', 'status__service_status']
 
 
-
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(InventoryAddress)
