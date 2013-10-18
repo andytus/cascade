@@ -117,6 +117,9 @@ class AdminDefaults(models.Model):
     def __unicode__(self):
         return "%s, %s" % (self.city, self.state)
 
+    class Meta:
+        verbose_name_plural = "Admin Defaults"
+
 
 class ZipCodes(models.Model):
     zipcode = models.CharField(max_length=5)
@@ -133,6 +136,9 @@ class ZipCodes(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.zipcode, self.plus_four)
 
+    class Meta:
+        verbose_name_plural = "Zipcodes"
+
 
 class CartStatus(models.Model):
     LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
@@ -147,6 +153,9 @@ class CartStatus(models.Model):
 
     def __unicode__(self):
         return "%s, %s" % (self.level, self.label)
+
+    class Meta:
+        verbose_name_plural = "Cart status"
 
 
 class CartType(models.Model):
@@ -182,6 +191,9 @@ class TicketStatus(models.Model):
     def __unicode__(self):
         return "%s, %s" % (self.service_status, self.level)
 
+    class Meta:
+        verbose_name_plural = "Ticket Status"
+
 
 class CartServiceType(models.Model):
     SERVICE_CODE = (('EX-DEL', 'EX-DEL'), ('EX-REM', 'EX-REM'), ('DEL','DEL'), ('REM', 'REM'), ('REPAIR', 'REPAIR'), ('AUDIT', 'AUDIT'))
@@ -202,9 +214,13 @@ class CartServiceType(models.Model):
         return self.service
 
 
+
 class ServiceReasonCodes(models.Model):
     code = models.CharField(max_length=30)
     description = models.TextField(max_length=300, null=True)
+
+    class Meta:
+        verbose_name_plural = "Service Reason Codes"
 
 
 class Route(models.Model):
@@ -364,6 +380,10 @@ class InventoryAddress(Address):
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
 
         return info
+
+    class Meta:
+        verbose_name_plural = "Inventory Address"
+
 
 
 class Cart(models.Model):

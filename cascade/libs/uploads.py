@@ -107,10 +107,9 @@ def save_ticket_records(line, file_record):
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.status = TicketStatus.on_site.get(site=file_record.site, service_status='Unsuccessful')
-                print "end of unsuccessful"
 
             elif upload_ticket_status == 'COMPLETED':
-                print "in completed"
+
                 ticket.updated_by = file_record.uploaded_by
                 file_record.success_count += 1
                 ticket.success_attempts += 1

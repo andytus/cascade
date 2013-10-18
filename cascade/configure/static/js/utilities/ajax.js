@@ -61,7 +61,7 @@ window.utilities = {};
           },
         complete:function(){
             // hide gif here, eg:
-            $("#loading-message").hide("fast");
+            $("#loading-message").hide("slow");
         }
      })
     }
