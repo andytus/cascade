@@ -120,7 +120,6 @@ def save_ticket_records(line, file_record):
                 cart_type_update = CartType.on_site.get(name=container_type, size=container_size)
                 cart.cart_type = cart_type_update
                 ticket.status = TicketStatus.on_site.get(service_status='Completed')
-                print ticket.status
                 ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
                 ticket.processed = True
                 #updating current cart status
