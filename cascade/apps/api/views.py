@@ -510,7 +510,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                                                  status=requested_ticket_status,
                                                  cart_type=cart_type)
                     if route:
-                        exchange_del_ticket.route = route()
+                        exchange_del_ticket.route = route
 
                     exchange_del_ticket.save()
                 return RestResponse({'details': {
