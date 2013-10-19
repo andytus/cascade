@@ -143,15 +143,15 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = query.filter(service_type__service=service_type)
             if processed == 'False':
                 query = query.filter(processed=False)
-            if route != 'ALL':
-                route = Route.on_site.get(route=route)
-                query = query.filter(route=route)
             if route_day != 'ALL':
                 routes = Route.on_site.filter(route_day=route_day)
                 query = query.filter(route__in=routes)
             if route_type != 'ALL':
                 routes = Route.on_site.filter(route_type=route_type)
                 query = query.filter(route__in=routes)
+            if route != 'ALL':
+                route = Route.on_site.get(route=route)
+                query = query.filter(route=route)
 
             #get only the distinct tickets
 
