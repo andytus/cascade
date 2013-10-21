@@ -362,7 +362,6 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
                 cart = self.get_object(serial_number)
             #check for cart type and save to cart, if None then no value given skip it
             if cart_type_name and cart_type_size:
-                print cart_type_name
                 cart.cart_type = CartType.objects.get(name=cart_type_name, size=cart_type_size)
 
             #check for location and update latitude + longitude to collection address lat and long

@@ -122,8 +122,8 @@
         self.updateCartInfo = function(){
             self.cart().cart_type__name(document.getElementById('cart-info-edit-status').text);
             var data = {current_status:document.getElementById('cart-info-edit-status').value,
-                        cart_type_name:document.getElementById('cart-info-edit-type').value,
-                        cart_type_size: self.cart().cart_type__size()
+                        cart_type__name:document.getElementById('cart-info-edit-type').value,
+                        cart_type__size: self.cart().cart_type__size()
                         };
             console.log(data);
             self.saveCartData(data);
