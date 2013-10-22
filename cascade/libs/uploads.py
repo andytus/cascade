@@ -24,30 +24,45 @@ def save_error(e, line):
 
 def save_cart_records(line, file_record):
     try:
-        rfid, serial, size, cart_type, born_date, status, house, street, unit = line.split(',')
+        rfid, serial, size, cart_type, born_date, status, house, street, unit, date_delivered = line.split(',')
         # get cart type by name
         cart_type = CartType.objects.get(name=cart_type, size=size)
         cart_status = CartStatus.objects.get(label=status)
         cart = Cart(site=file_record.site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number=serial,
                     inventory_location=InventoryAddress.objects.get(site=file_record.site, default=True),
-                    file_upload=file_record,cart_type=cart_type, current_status=cart_status,
+                    file_upload=file_record, cart_type=cart_type, current_status=cart_status,
                     born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
         #TODO work on getting unit logic
-        try:
-            if status == 'Delivered':
-                location = CollectionAddress.objects.get(site=file_record.site,
-                                                         house_number=house.strip(), street_name=street)
-                if location:
-                    cart.location = location
-                    cart.at_inventory = False
-            else:
-                cart.at_inventory = True
-        except Exception as e:
-            #cant find put the cart in inventory
-            cart.at_inventory = True
 
         cart.full_clean()
         cart.save()
+
+        try:
+            if status == 'Delivered':
+                print "in assign"
+                location = CollectionAddress.objects.get(site=file_record.site,
+                                                         house_number=house.strip(),
+                                                         unit=unit or '',
+                                                         street_name=street)
+                if location:
+                    print location, "is location"
+                    ticket = Ticket(site=file_record.site, location=location, serviced_cart=cart, expected_cart=cart,
+                                    service_type=CartServiceType.objects.get(code='DEL'),
+                                    cart_type=cart.cart_type,
+                                    status=TicketStatus.objects.get(service_status='Completed'),
+                                    date_completed=datetime.strptime(date_delivered.strip(), "%m/%d/%Y"))
+                    ticket.save()
+                    print ticket, "is ticket id"
+                    cart.location = location
+                    cart.at_inventory = False
+                    cart.save()
+            else:
+                cart.at_inventory = True
+        except Exception as e:
+            print e
+            #cant find address,  put the cart in inventory
+            cart.at_inventory = True
+
         file_record.num_good += 1
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:

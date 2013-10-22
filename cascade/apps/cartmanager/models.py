@@ -265,7 +265,10 @@ class Address(models.Model):
     geocode_status = models.CharField(max_length=20, null=True, blank=True)
     geocode_type = models.CharField(max_length=20, null=True, blank=True)
     property_type = models.CharField(max_length=25, null=True, choices=(('Residential', 'Residential'),
-                                                                        ('Business', 'Business')))
+                                                                        ('Business', 'Business'),
+                                                                        ('Unoccupied', 'Unoccupied'),
+                                                                        ('Vacant Lot', 'Vacant Lot')
+                                                                        ))
     route = models.ManyToManyField(Route, null=True, blank=True)
 
     #model managers:
