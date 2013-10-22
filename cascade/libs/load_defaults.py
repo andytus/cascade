@@ -44,12 +44,12 @@ class LoadData:
 
     def load_cart_status(self):
         for record in self.cart_status:
-            cart_status = CartStatus(site=Site.objects.get(pk=self.default_site), level=record['level'], label=record['label'])
+            cart_status = CartStatus(level=record['level'], label=record['label'])
             cart_status.save()
 
     def load_service_types(self):
         for record in self.service_types:
-            service_type = CartServiceType(site=Site.objects.get(pk=self.default_site), service=record['service'],
+            service_type = CartServiceType(service=record['service'],
                                            code=record['code'], description=record['description'],
                                            complete_cart_status_change=
                                            CartStatus.objects.get(label=record['complete_cart_status_change'])
@@ -58,6 +58,6 @@ class LoadData:
 
     def load_ticket_status(self):
         for record in self.ticket_status:
-            ticket_status = TicketStatus(site=self.default_site, level=record['level'],
+            ticket_status = TicketStatus(level=record['level'],
                                          service_status=record['service_status'])
             ticket_status.save()
