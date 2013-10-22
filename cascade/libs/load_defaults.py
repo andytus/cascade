@@ -1,5 +1,6 @@
 __author__ = 'jbennett'
 
+from django.contrib.sites.models import Site
 from cascade.apps.cartmanager.models import CartStatus, CartType, TicketStatus, CartServiceType
 
 
@@ -38,17 +39,17 @@ class LoadData:
 
     def load_cart_types(self):
         for record in self.cart_types:
-            cart_type = CartType(site=self.default_site, name=record['name'], size=record['size'])
+            cart_type = CartType(site=Site.objects.get(pk=self.default_site), name=record['name'], size=record['size'])
             cart_type.save()
 
     def load_cart_status(self):
         for record in self.cart_status:
-            cart_status = CartStatus(site=self.default_site, level=record['level'], label=record['label'])
+            cart_status = CartStatus(site=Site.objects.get(pk=self.default_site), level=record['level'], label=record['label'])
             cart_status.save()
 
     def load_service_types(self):
         for record in self.service_types:
-            service_type = CartServiceType(site=self.default_site, service=record['service'],
+            service_type = CartServiceType(site=Site.objects.get(pk=self.default_site), service=record['service'],
                                            code=record['code'], description=record['description'],
                                            complete_cart_status_change=
                                            CartStatus.objects.get(label=record['complete_cart_status_change'])
@@ -60,9 +61,3 @@ class LoadData:
             ticket_status = TicketStatus(site=self.default_site, level=record['level'],
                                          service_status=record['service_status'])
             ticket_status.save()
-
-
-
-
-
-
