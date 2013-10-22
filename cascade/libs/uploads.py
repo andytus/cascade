@@ -206,7 +206,9 @@ def save_customer_records(line, file_record):
                                       last_name=last_name[:50].upper(), email=email.strip(), phone_number=phone)
 
 
-
+               #full_clean checks for the correct data
+        customer.full_clean()
+        customer.save()
 
         # Collection_Address setup & save:
         collection_address = CollectionAddress(site=file_record.site, customer=customer,
@@ -218,9 +220,6 @@ def save_customer_records(line, file_record):
         collection_address.full_clean()
         collection_address.save()
 
-       #full_clean checks for the correct data
-        customer.full_clean()
-        customer.save()
 
         # systemid should be zero as default if not used
         # saves ForeignSystemCustomerID and assigns to customer, customer can have multiple ids but id can not
