@@ -39,20 +39,20 @@ def save_cart_records(line, file_record):
 
         try:
             if status == 'Delivered':
-                print "in assign"
+
                 location = CollectionAddress.objects.get(site=file_record.site,
                                                          house_number=house.strip(),
                                                          unit=unit or '',
                                                          street_name=street)
                 if location:
-                    print location, "is location"
+
                     ticket = Ticket(site=file_record.site, location=location, serviced_cart=cart, expected_cart=cart,
                                     service_type=CartServiceType.objects.get(code='DEL'),
                                     cart_type=cart.cart_type,
                                     status=TicketStatus.objects.get(service_status='Completed'),
                                     date_completed=datetime.strptime(date_delivered.strip(), "%m/%d/%Y"))
                     ticket.save()
-                    print ticket, "is ticket id"
+
                     cart.location = location
                     cart.at_inventory = False
                     cart.save()
@@ -67,7 +67,7 @@ def save_cart_records(line, file_record):
 
     except (Exception, ValidationError, ValueError, IntegrityError) as e:
         file_record.status = "FAILED"
-        file_record.num_error +=1
+        file_record.num_error += 1
         save_error(e, line)
 
 
@@ -203,7 +203,7 @@ def save_customer_records(line, file_record):
         recycle_route, recycle_route_day, yard_organics_route, yard_organics_route_day = line.split(',')
 
         customer = CollectionCustomer(site=file_record.site, first_name=first_name[:25].upper(),
-                                      last_name=last_name[:50].upper(), email=email, phone_number=phone)
+                                      last_name=last_name[:50].upper(), email=email or None, phone_number=phone)
 
 
 
