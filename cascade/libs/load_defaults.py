@@ -39,7 +39,7 @@ class LoadData:
 
     def load_cart_types(self):
         for record in self.cart_types:
-            cart_type = CartType(site=Site.objects.get(pk=self.default_site), name=record['name'], size=record['size'])
+            cart_type = CartType(name=record['name'], size=record['size'])
             cart_type.save()
 
     def load_cart_status(self):
