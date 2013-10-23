@@ -6,18 +6,23 @@ from cascade.apps.cartmanager.views import CartUploadView, DataErrorsView, Custo
     CustomerReport, CartReport, LocationSearch, CustomerProfile, CustomerNew,  FileUploadListView, \
     CartAddressChange, CartNew, RouteUploadView, GetUploadTemplate
 
+from django.views.decorators.cache import cache_page
+
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
 urlpatterns = patterns('cascade.apps.cartmanager.views',
-                       url(r'^cart/search/$', CartSearch.as_view(), name='cart_search'),
+                       url(r'^cart/search/$', cache_page(60 * 3)(CartSearch.as_view()), name='cart_search'),
                        url(r'^cart/report/$', CartReport.as_view(), name='cart_app_report'),
-                       url(r'^cart/profile/(?P<serial_number>[a-zA-Z0-9]+)?$', CartProfile.as_view(),
+                       url(r'^cart/profile/(?P<serial_number>[a-zA-Z0-9]+)?$',
+                           cache_page(60 * 3)(CartProfile.as_view()),
                            name='cart_app_profile'),
-                       url(r'^cart/new/(?P<serial_number>[a-zA-Z0-9]+)?$', CartNew.as_view(), name='cart_app_new'),
+                       url(r'^cart/new/(?P<serial_number>[a-zA-Z0-9]+)?$',
+                           cache_page(60 * 3)(CartNew.as_view()), name='cart_app_new'),
                        url(r'^cart/profile/update/location/(?P<serial_number>[a-zA-Z0-9]+)?$',
                            CartAddressChange.as_view(), name='cart_app_address_change'),
-                       url(r'^customer/profile/(?P<customer_id>[a-zA-Z0-9]+)?$', CustomerProfile.as_view(),
+                       url(r'^customer/profile/(?P<customer_id>[a-zA-Z0-9]+)?$',
+                           cache_page(60 * 3)(CustomerProfile.as_view()),
                            name='customer_app_profile'),
-                       url(r'^customer/new/$', CustomerNew.as_view(), name='customer_app_new'),
+                       url(r'^customer/new/$', cache_page(60 * 3)(CustomerNew.as_view()), name='customer_app_new'),
                        url(r'^customer/report/$', CustomerReport.as_view(), name='customer_app_report'),
                        url(r'^location/search/$', LocationSearch.as_view(), name='location_app_search'),
                        url(r'^upload/files/$', FileUploadListView.as_view(), name='upload_file_list'),

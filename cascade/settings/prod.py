@@ -37,23 +37,39 @@ SOUTH_DATABASE_ADAPTERS ={
 
 DEBUG = False
 
-#test
+#heroku set by redis-to-go addon
+redis_url = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
+
+
+CACHES = {
+        'default': {
+            'BACKEND': 'redis_cache.RedisCache',
+            'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
+            'OPTIONS': {
+                'DB': 0,
+                'PASSWORD': redis_url.password,
+            }
+        }
+}
+
+
 RQ_QUEUES = {
     'default': {
-        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'URL': redis_url,
         'PORT': 6379,
         'DB': 0,
         },
     'high': {
-        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'), # Heroku
+        'URL': redis_url,
         'DB': 0,
         },
     'low': {
-        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'URL': redis_url,
         'PORT': 6379,
         'DB': 0,
         }
 }
+
 
 PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None

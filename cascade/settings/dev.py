@@ -20,6 +20,16 @@ RQ_QUEUES = {
         }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.cache.RedisCache',
+        'LOCATION': 'localhost:6379',
+        'OPTIONS': {'DB': 0},
+    }
+
+}
+
+
 PIPELINE_ENABLED = False
 
 EMAIL_SUBJECT_PREFIX = '[CartLogic-Dev]'
