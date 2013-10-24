@@ -25,3 +25,4 @@ slimit==0.8.1
 cssmin==0.1.4
 django-registration==1.0
 djrill==0.6.0
+django-redis-cache==0.10.0
