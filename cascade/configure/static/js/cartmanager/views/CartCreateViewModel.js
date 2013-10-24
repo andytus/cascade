@@ -76,7 +76,7 @@
         self.getCartTypeOptions();
 
         self.cartSerialLookup = function () {
-            if (self.cart_serial_number() && self.cart_serial_number().length > 7) {
+            if (self.cart_serial_number() && self.cart_serial_number().length > 6) {
                 if (self.cart_serial_number().length > 30) {
                     //validate not larger than 30
                     self.serial_good(false);
