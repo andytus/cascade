@@ -106,14 +106,9 @@
     {% load compressed %}
     {% compressed_js 'views_cart_list' %}
     {% compressed_js 'models_cart' %}
-    {% compressed_js 'models_ticket' %}
+    {% compressed_js 'models_location' %}
 
-   {% comment %} <script src="{{ STATIC_URL }}js/cartmanager/views/CartListViewModel.js" xmlns="http://www.w3.org/1999/html"></script>
-    <script src="{{ STATIC_URL }}js/cartmanager/models/cart.js" xmlns="http://www.w3.org/1999/html"></script>{% endcomment %}
-    <!-- Data API variables: these are used to get JSON formatted data from the server -->
-
-
-    <script type="text/javascript">
+   <script type="text/javascript">
         var search_parameters = {{ search_parameters|safe}};
         var customer_url = "{% url customer_app_profile%}";
         var cart_url = "{% url cart_app_profile %}";
