@@ -115,6 +115,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
+        routes = None
 
         try:
             if page_size:
@@ -145,16 +146,13 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = query.filter(processed=False)
             if route_day != 'ALL':
                 routes = Route.on_site.filter(route_day=route_day)
-                query = query.filter(route__in=routes)
             if route_type != 'ALL':
                 routes = Route.on_site.filter(route_type=route_type)
-                query = query.filter(route__in=routes)
             if route != 'ALL':
-                routes = Route.on_site.filter(route=routes)
+                routes = Route.on_site.filter(route=route)
+            if routes:
                 query = query.filter(route__in=routes)
-
             #get only the distinct tickets
-
             return query
         except:
             raise Http404
