@@ -1,7 +1,7 @@
 __author__ = 'jbennett'
 
 
-from django import http
+from django.http import Http404
 from django.conf import settings
 from django.contrib.sites.models import Site
 
@@ -15,4 +15,4 @@ class MultiSiteMiddleware(object):
 
         except Site.DoesNotExist:
             #TODO change redirect to generic about page
-            raise http.Http404
+            raise Http404
