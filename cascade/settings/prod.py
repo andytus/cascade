@@ -55,17 +55,18 @@ CACHES = {
 
 RQ_QUEUES = {
     'default': {
-        'URL': redis_url.hostname,
-        'PORT': redis_url.port,
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'PORT': 6379,
         'DB': 0,
         },
     'high': {
-        'URL': redis_url.hostname,
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'PORT': 6379,
         'DB': 0,
         },
     'low': {
-        'URL': redis_url.hostname,
-        'PORT': redis_url.port,
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'),
+        'PORT': 6379,
         'DB': 0,
         }
 }
