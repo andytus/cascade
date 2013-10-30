@@ -55,17 +55,17 @@ CACHES = {
 
 RQ_QUEUES = {
     'default': {
-        'URL': redis_url,
-        'PORT': 6379,
+        'URL': redis_url.hostname,
+        'PORT': redis_url.port,
         'DB': 0,
         },
     'high': {
-        'URL': redis_url,
+        'URL': redis_url.hostname,
         'DB': 0,
         },
     'low': {
-        'URL': redis_url,
-        'PORT': 6379,
+        'URL': redis_url.hostname,
+        'PORT': redis_url.port,
         'DB': 0,
         }
 }
