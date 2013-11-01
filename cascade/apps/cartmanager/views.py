@@ -15,6 +15,12 @@ from cascade.apps.cartmanager.models import Cart, CartsUploadFile, CustomersUplo
 
 
 class GetUploadTemplate(LoginSiteRequiredMixin, View):
+    """
+    A view for downloading static csv templates used
+    to provide the correct format for uploading carts,
+    tickets, customers and routes.
+
+    """
 
     def get(self, request, **kwargs):
         print kwargs['type']
@@ -26,11 +32,146 @@ class GetUploadTemplate(LoginSiteRequiredMixin, View):
         return response
 
 
+class CartSearch(LoginSiteRequiredMixin, TemplateView):
+
+    """
+    A view for rendering the cart search page.
+    Catches the search parameters from the url and places
+    them into a returned context variable.
+
+    search_query contains the type and value for the query.
+    For example, search_query = {"type":"type","value":"Recycle"}
+
+    """
+    template_name = 'cart_search.html'
+    search_query = None
+
+    def get_context_data(self, **kwargs):
+        context = super(CartSearch, self).get_context_data(**kwargs)
+        search_parameters = self.request.GET.get('search_query', None)
+        if search_parameters:
+            context['search_parameters'] = self.request.GET['search_query']
+        return context
+
+
+#TODO
+class CartReport(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering cart reports.
+
+    """
+    template_name = 'cart_report.html'
+
+
+class CartProfile(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for showing cart profile or details information.
+    For example, born data, size, type, and current status
+
+    Requires a url parameter for the serial number
+    Serial number is used in subsequent request to the API.
+
+    """
+
+    template_name = 'cart_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CartProfile, self).get_context_data(**kwargs)
+        if kwargs['serial_number']:
+            context['serial_number'] = kwargs['serial_number']
+        else:
+            raise Http404
+        return context
+
+
+class CartNew(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view to render the new cart template
+    The new cart template is a pop-up wizard.
+
+    """
+    template_name = 'cart_new.html'
+
+
+class CartAddressChange(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering the change cart address pop-up wizard
+    Catches the serial number of the cart from the url and places
+    into a returned context variable.
+
+    """
+
+    template_name = 'cart_profile_address_change.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CartAddressChange, self).get_context_data(**kwargs)
+        #putting in for duplicate cart serials, not used right now
+        if kwargs['serial_number']:
+            context['serial_number'] = kwargs['serial_number']
+        else:
+            raise Http404
+        return context
+
+
+class CustomerProfile(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for displaying customer profile information.
+    This includes any associated addresses and their carts
+    and services tickets associated with each address.Catches
+    customer id or primary key from the url and places into
+    a returned context variable.
+
+
+    """
+    template_name = 'customer_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CustomerProfile, self).get_context_data()
+        if kwargs["customer_id"]:
+            context['customer_id'] = kwargs["customer_id"]
+        else:
+            raise Http404
+        return context
+
+
+class CustomerNew(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering a popup wizard to add a new Customer
+
+    """
+    template_name = 'customer_new.html'
+
+
+#TODO
+class CustomerReport(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for generating a report on customers
+
+    """
+    template_name = 'customer_report.html'
+
+
+class LocationSearch(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering a pop for searching for addresses
+
+    """
+    template_name = 'location_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LocationSearch, self).get_context_data(**kwargs)
+        context['address_id'] = self.request.GET.get('address_id', None)
+        return context
+
+
+
 class FileUploadListView(LoginSiteRequiredMixin, TemplateView):
     """
     A view for rendering a list of uploaded files page.
-    Catches the JSON search parameters from the url, loads into
-    a dictionary and returns to context variable.
+    Catches the url parameters, loads into
+    a dictionary and returns to as context variable.
+
+    for example, ?file_id=1&file_status=UPLOADED&file_type=Tickets
 
     """
     template_name = 'uploaded_files.html'
@@ -51,92 +192,23 @@ class FileUploadListView(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
-class CartSearch(LoginSiteRequiredMixin, TemplateView):
-    """
-    A view for rendering the cart search page.
-    Catches the search parameters from the url and places
-    them into a returned context variable.
-
-    """
-    template_name = 'cart_search.html'
-    search_query = None
-
-    def get_context_data(self, **kwargs):
-        context = super(CartSearch, self).get_context_data(**kwargs)
-        #TODO Create a default search query ... selecting the last 50 modified and remove the raise
-        search_parameters = self.request.GET.get('search_query', None)
-        if search_parameters:
-            context['search_parameters'] = self.request.GET['search_query']
-        return context
-
-
-class CartAddressChange(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'cart_profile_address_change.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CartAddressChange, self).get_context_data(**kwargs)
-        #putting in for duplicate cart serials, not used right now
-        if kwargs['serial_number']:
-            context['serial_number'] = kwargs['serial_number']
-        else:
-            raise Http404
-        return context
-
-
-class CartProfile(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'cart_profile.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CartProfile, self).get_context_data(**kwargs)
-        if kwargs['serial_number']:
-            context['serial_number'] = kwargs['serial_number']
-        else:
-            raise Http404
-        return context
-
-
-class CartNew(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'cart_new.html'
-
-
-class CartReport(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'cart_report.html'
-
-
-class LocationSearch(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'location_search.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(LocationSearch, self).get_context_data(**kwargs)
-        context['address_id'] = self.request.GET.get('address_id', None)
-        return context
-
-
-class CustomerProfile(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'customer_profile.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CustomerProfile, self).get_context_data()
-        if kwargs["customer_id"]:
-            context['customer_id'] = kwargs["customer_id"]
-        else:
-            raise Http404
-        return context
-
-
-class CustomerNew(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'customer_new.html'
-
-
-class CustomerReport(LoginSiteRequiredMixin, TemplateView):
-    template_name = 'customer_report.html'
-
 
 class TicketReport(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for generating reports for tickets
+
+    """
     template_name = 'ticket_report.html'
 
 
 class TicketNew(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering a popup wizard for new tickets.
+    Accepts ticket id as 'New', location_id and in case of removals
+    or exchange removals a cart_id.
+    Returns context containing:
+    cart_id, serial number, cart address information and  location_id
+    """
     template_name = "ticket_new.html"
 
     def get_context_data(self, **kwargs):
@@ -157,7 +229,6 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                     context['location_id'] = location_id
 
                 cart_id = self.request.GET.get('cart_id', None)
-                #TODO change to serial number
                 if cart_id:
                     #send over the cart id to use in the Ticket API and the cart serial for user verification.
                     #Note: should use cart serial but currently can not be trusted as unique for each account
@@ -176,6 +247,12 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
 
 
 class TicketProfile(LoginSiteRequiredMixin, TemplateView):
+    """
+    A view for rendering a ticket profile.
+    Accepts a ticket id from the url and returns it
+    as a context variable.
+
+    """
     template_name = "ticket_profile.html"
 
     def get_context_data(self, **kwargs):
@@ -187,23 +264,18 @@ class TicketProfile(LoginSiteRequiredMixin, TemplateView):
         return context
 
 
-class DataErrorsView(ListView):
-    template_name = 'uploaderrors.html'
-    context_object_name = "data_errors"
-    queryset = DataErrors.on_site.filter(fix_date__isnull=True)
-    paginate_by = 15
-
-    def get_context_data(self, **kwargs):
-        context = super(DataErrorsView, self).get_context_data(**kwargs)
-        return context
-
-
 class UploadFormView(TemplateView):
     """
-     A base view for uploading files
+     A base view for uploading files, after file is saved,
+     the view enqueue to worker using django_rq.
+     Records are processed by the uploads.process_upload_records()
 
-     Subclasses API View.
-     Expects process boolean and csv file type
+     Get returns context of link and file_type
+    (from subclasses, Customer, Cart, Ticket, and Route).
+     Post returns HttpResponse with details containing
+     message, file_id and success.
+
+     Expects csv file type
 
     """
     template_name = 'upload_form.html'
@@ -244,7 +316,20 @@ class UploadFormView(TemplateView):
                                 content_type="application/json")
 
 
+class RouteUploadView(UploadFormView):
+    """
+    Subclass of UploadFormView for uploading Route files.
+    """
+    MODEL = RouteUploadFile
+    FILE = 'route_file'
+    KIND = 'Route'
+    LINK = 'Route File Upload'
+
+
 class CartUploadView(UploadFormView):
+    """
+    Subclass of UploadFormView for uploading Carts files.
+    """
     MODEL = CartsUploadFile
     FILE = 'cart_file'
     KIND = 'Carts'
@@ -252,6 +337,9 @@ class CartUploadView(UploadFormView):
 
 
 class CustomerUploadView(UploadFormView):
+    """
+    Subclass of UploadFormView for uploading Customer files.
+    """
     MODEL = CustomersUploadFile
     FILE = 'customer_file'
     KIND = 'Customers'
@@ -259,14 +347,24 @@ class CustomerUploadView(UploadFormView):
 
 
 class TicketsCompletedUploadView(UploadFormView):
+    """
+    Subclass of UploadFormView for uploading Ticket files.
+    """
     MODEL = TicketsCompleteUploadFile
     FILE = 'ticket_file'
     KIND = 'Tickets'
     LINK = 'Ticket Upload'
 
 
-class RouteUploadView(UploadFormView):
-    MODEL = RouteUploadFile
-    FILE = 'route_file'
-    KIND = 'Route'
-    LINK = 'Route File Upload'
+class UploadErrorsView(ListView):
+    """
+    A view showing all uploaded record errors.
+    """
+    template_name = 'uploaderrors.html'
+    context_object_name = "data_errors"
+    queryset = DataErrors.on_site.filter(fix_date__isnull=True)
+    paginate_by = 15
+
+    def get_context_data(self, **kwargs):
+        context = super(UploadErrorsView, self).get_context_data(**kwargs)
+        return context
