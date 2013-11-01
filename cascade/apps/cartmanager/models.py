@@ -87,17 +87,6 @@ class TicketsCompleteUploadFile(UploadFile):
     unsuccessful = models.IntegerField(default=0)
     repair_count = models.IntegerField(default=0)
 
-# TODO Depreciate, now lives in uploads
-# def save_error(e, line):
-#     error_message = e.message
-#     if hasattr(e, 'message_dict'):
-#         for key, value in e.message_dict.iteritems():
-#             error_message += "%s: %s " % (str(key).upper(), ','.join(value))
-#     Site.objects.clear_cache()
-#     error = DataErrors(error_message=error_message, error_type=type(e), failed_data=line,
-#                        site=Site.objects.get_current())
-#     error.save()
-
 
 class AdminDefaults(models.Model):
     city = models.CharField(max_length=200, blank=True, null=True)
