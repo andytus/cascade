@@ -176,6 +176,12 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             yield self.csv_out(row, index)
             #time.sleep(0.09)
 
+    def stream_response_pdf(self, data):
+        index = 0
+        for row in data:
+            index += 1
+            yield row
+
     def list(self, request, *args, **kwargs):
         file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
         data = self.get_queryset()
@@ -192,7 +198,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             result = StringIO.StringIO()
             pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
 
-            response = HttpResponse(result.getvalue(), mimetype='application/pdf')
+            response = HttpResponse(self.stream_response_pdf(result.getvalue()), mimetype='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
             return response
 
