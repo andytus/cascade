@@ -37,6 +37,7 @@ def write_pdf(template_src, context_dict, file_name):
     """
     Write template and context to a pdf attachment
 
+
     """
 
     template = loader.get_template(template_src)
