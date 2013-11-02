@@ -85,6 +85,9 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+FIXTURE_DIRS = (os.path.join(ROOT_DIR, '..', 'fixtures'),)
+
+
 
 # List of finder classes that know how to find static files in
 # various locations.
