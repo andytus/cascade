@@ -26,6 +26,6 @@ cssmin==0.1.4
 django-registration==1.0
 djrill==0.6.0
 django-redis-cache==0.10.0
-reportlab=2.7
-pisa=3.0.38
-html5lib=1.0b3
+reportlab==2.7
+pisa==3.0.38
+html5lib==1.0b3
