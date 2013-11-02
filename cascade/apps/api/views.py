@@ -9,8 +9,9 @@ from django.db.models import Q
 from django.contrib.sites.models import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
-from django.http import HttpResponse
-from django.utils import simplejson
+from django.http import HttpResponse, StreamingHttpResponse
+# Depreciated in Django 1.5 (from django.utils import simplejson)
+import json as simplejson
 from django.template import Context, loader
 
 from rest_framework.response import Response as RestResponse
@@ -197,10 +198,10 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             html = template.render(context)
             result = StringIO.StringIO()
             pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
+            print pdf.pageSize
 
-            response = HttpResponse(self.stream_response_pdf(result.getvalue()), mimetype='application/pdf')
+            response = StreamingHttpResponse(result.getvalue(), mimetype='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
-            result.close()
             return response
 
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)

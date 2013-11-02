@@ -138,12 +138,12 @@
                 <tbody data-bind="foreach: carts">
                 <tr>
                     <td colspan="2"><a
-                            data-bind="text: serial_number, attr:{href: '{% url cart_app_profile %}' + serial_number}"></a>
+                            data-bind="text: serial_number, attr:{href: '{% url "cart_app_profile" %}' + serial_number}"></a>
                     </td>
                     <td data-bind="text: cart_type__size + ' ' + cart_type__name"></td>
                     <td>
                         <a class="btn btn-mini btn-info customer-cart-table-address-new-ticket"
-                           data-bind="attr: {href:'{% url ticket_app_new %}New?cart_id=' + id}"
+                           data-bind="attr: {href:'{% url "ticket_app_new" %}New?cart_id=' + id}"
                            data-target="#modal_window" data-toggle="modal" role="dialog"><i class="icon-tag">New
                             Ticket</i>
                         </a>
@@ -194,13 +194,13 @@
     <script type="text/javascript">
         //adding the validator library
         utilities.validateKo();
-        var tickets_api_download = "{% url tickets_api_download %}";
-        var ticket_app_profile_url = "{% url ticket_app_profile %}";
-        var customer_api_url = "{% url customer_api_profile %}";
-        var location_api_search = "{% url location_api_search  %}";
-        var location_api_profile = "{% url location_api_profile %}";
+        var tickets_api_download = "{% url "tickets_api_download" %}";
+        var ticket_app_profile_url = "{% url "ticket_app_profile" %}";
+        var customer_api_url = "{% url "customer_api_profile" %}";
+        var location_api_search = "{% url "location_api_search"  %}";
+        var location_api_profile = "{% url "location_api_profile" %}";
         var customer_id = "{{ customer_id }}";
-        var cart_app_profile_url = "{% url cart_app_profile %}";
+        var cart_app_profile_url = "{% url "cart_app_profile" %}";
         var customerProfile = {
             profile: new cartlogic.CustomerProfileViewModel,
             tickets: new cartlogic.TicketsListViewModel(null, customer_id, tickets_api_download)

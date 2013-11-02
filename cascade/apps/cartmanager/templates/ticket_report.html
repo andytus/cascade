@@ -57,13 +57,13 @@
     <script type="text/javascript">
         var customer_id = null;
         var cart_serial_number = null;
-        var tickets_api_download = "{% url tickets_api_download %}";
-        var ticket_service_type_api = "{% url ticket_service_type_api %}";
-        var ticket_app_profile_url = "{% url ticket_app_profile %}";
-        var ticket_status_api = "{% url ticket_status_api %}";
-        var cart_type_api = "{% url cart_type_api %}";
-        var cart_app_profile_url = "{% url cart_app_profile %}";
-        var route_search_api_url = "{% url route_search_api %}";
+        var tickets_api_download = "{% url "tickets_api_download" %}";
+        var ticket_service_type_api = "{% url "ticket_service_type_api" %}";
+        var ticket_app_profile_url = "{% url "ticket_app_profile" %}";
+        var ticket_status_api = "{% url "ticket_status_api" %}";
+        var cart_type_api = "{% url "cart_type_api" %}";
+        var cart_app_profile_url = "{% url "cart_app_profile" %}";
+        var route_search_api_url = "{% url "route_search_api" %}";
         var ticketsReport = {
             report: new cartlogic.TicketsReportViewModel,
             tickets: new cartlogic.TicketsListViewModel(null, null, tickets_api_download)

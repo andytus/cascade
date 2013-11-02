@@ -177,9 +177,9 @@
 
     var cart_address_house_number = '{{ cart_address_house_number }}' || null;
     var ticket_id = '{{ticket_id }}' || null;
-    var ticket_api = '{% url ticket_api %}';
-    var location_api_search = "{% url location_api_search  %}";
-    var cart_type_options_api_url = "{% url cart_type_api %}";
+    var ticket_api = '{% url "ticket_api" %}';
+    var location_api_search = "{% url "location_api_search"  %}";
+    var cart_type_options_api_url = "{% url "cart_type_api" %}";
     var ticketCreate = {
         create:new cartlogic.TicketCreateViewModel
     };

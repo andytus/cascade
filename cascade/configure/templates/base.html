@@ -31,7 +31,7 @@
 
                 <div class="nav-collapse collapse">
                     <!-- all will collapse or hide at 940px-->
-                    <form id="cart_search_form" class="navbar-form pull-left" action="{% url cart_search %}">
+                    <form id="cart_search_form" class="navbar-form pull-left" action="{% url "cart_search" %}">
                         <input id="search_query" name="search_query" type="hidden" data-bind="value: search_query"/>
 
                         <div class="input-append input-prepend">
@@ -74,11 +74,11 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a id="new-ticket-link" href="{% url ticket_app_new %}New"
+                                <li><a id="new-ticket-link" href="{% url "ticket_app_new" %}New"
                                        data-target="#modal_window"
                                        data-toggle="modal">New</a></li>
-                                <li><a href="{% url tickets_completed_upload %}">Submit Completed (UPLOAD)</a></li>
-                                <li><a href="{% url ticket_app_report %}">Reports (DOWNLOAD)</a></li>
+                                <li><a href="{% url "tickets_completed_upload" %}">Submit Completed (UPLOAD)</a></li>
+                                <li><a href="{% url "ticket_app_report" %}">Reports (DOWNLOAD)</a></li>
                             </ul>
                         </li>
 
@@ -88,10 +88,10 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url customer_app_new %}" data-target="#modal_window"
+                                <li><a href="{% url "customer_app_new" %}" data-target="#modal_window"
                                        data-toggle="modal">New</a></li>
                                 {% if request.user.is_superuser %}
-                                    <li><a href="{% url customer_app_report %}">Reports</a></li>
+                                    <li><a href="{% url "customer_app_report" %}">Reports</a></li>
                                 {% endif %}
                             </ul>
 
@@ -104,7 +104,7 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url cart_app_new %}" data-target="#modal_window"
+                                <li><a href="{% url "cart_app_new" %}" data-target="#modal_window"
                                        data-toggle="modal">New</a></li>
                             </ul>
                         </li>
@@ -118,9 +118,9 @@
                                 </a>
 
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url route_uploads %}">Route upload</a></li>
-                                     <li><a href="{% url customer_uploads %}">Customers upload</a></li>
-                                    <li><a href="{% url cart_uploads %}">Carts upload</a></li>
+                                    <li><a href="{% url "route_uploads" %}">Route upload</a></li>
+                                     <li><a href="{% url "customer_uploads" %}">Customers upload</a></li>
+                                    <li><a href="{% url "cart_uploads" %}">Carts upload</a></li>
                                 </ul>
 
                             </li>
@@ -129,9 +129,9 @@
                     </ul>
                     <div id="login_link" class="pull-right">
                         {% if user %}
-                            {{ user.username }} | <a href="{% url django.contrib.auth.views.logout %}">Logout</a>
+                            {{ user.username }} | <a href="{% url "django.contrib.auth.views.logout" %}">Logout</a>
                         {% else %}
-                            <a href="{% url django.contrib.auth.views.login %}">Login</a>
+                            <a href="{% url "django.contrib.auth.views.login" %}">Login</a>
                         {% endif %}
 
                     </div>
@@ -219,8 +219,8 @@
     //Globals for each page go here:
 
     var static_url = "{{ STATIC_URL }}";
-    var ticket_api = "{% url ticket_api %}";
-    var new_customer_url = "{% url customer_app_new %}";
+    var ticket_api = "{% url "ticket_api" %}";
+    var new_customer_url = "{% url "customer_app_new" %}";
 
     //simply hide the message bar:
     $('#message').hide();

@@ -30,8 +30,8 @@
         <br>
 
         <div id="fileupload-template-link" class="pull-right">
-            <a href="{% url template_uploads %}{{ file_type }}"><i class="icon-file"> </i>Template</a> <br>
-            <a href="{% url upload_file_list %}?file_status=UPLOADED&file_type={{ file_type }}"><i
+            <a href="{% url "template_uploads" %}{{ file_type }}"><i class="icon-file"> </i>Template</a> <br>
+            <a href="{% url "upload_file_list" %}?file_status=UPLOADED&file_type={{ file_type }}"><i
                     class="icon-upload"> </i>Show UPLOADED FILES</a>
         </div>
         <br>
@@ -56,7 +56,7 @@
 
     <script type="text/javascript">
 
-        var upload_file_list_url = '{% url upload_file_list %}';
+        var upload_file_list_url = '{% url "upload_file_list" %}';
         var file_type = "{{ file_type }}";
 
         $(function () {

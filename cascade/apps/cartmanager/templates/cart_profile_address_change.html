@@ -83,8 +83,8 @@
 
 <script type="text/javascript">
     var serial_number = '{{ serial_number }}';
-    var cart_api_profile = '{% url cart_api_profile %}';
-    var location_api_search = "{% url location_api_search  %}";
+    var cart_api_profile = '{% url "cart_api_profile" %}';
+    var location_api_search = "{% url "location_api_search"  %}";
     var updateLocation = {
         change_address: new cartlogic.CartProfileChangeAddressViewModel(),
         search_address: new cartlogic.LocationSearchViewModel()

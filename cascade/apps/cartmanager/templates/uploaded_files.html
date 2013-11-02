@@ -31,7 +31,7 @@
         var file_type = '{{ file_type }}' || null;
         var file_status = '{{ file_status }}' || 'ALL';
         var file_id = '{{ file_id }}' || 0;
-        var upload_file_list_api_url = '{% url upload_file_list_api  %}' || null;
+        var upload_file_list_api_url = '{% url "upload_file_list_api"  %}' || null;
         var UploadedFileReport = {
             files: new cartlogic.UploadedFileReportViewModel(file_type, file_status, file_id, upload_file_list_api_url)
         }

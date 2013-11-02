@@ -46,7 +46,7 @@
 
             <div id="cart-info-edit">
                 <div id="cart-info-edit-address" class="well cart-info-edit-section">
-                    <a href="{% url cart_app_address_change %}{{ serial_number }}" data-target="#modal_window"
+                    <a href="{% url "cart_app_address_change" %}{{ serial_number }}" data-target="#modal_window"
                        class="btn btn-info btn-large cart-info-btn" data-toggle="modal"> <i class="icon-home">
                         Change</i></a>
 
@@ -144,14 +144,14 @@
     <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
         var cart_serial_number = '{{ serial_number }}' || null;
         var customer_id = '{{ customer_id }}' || null;
-        var cart_api_profile = "{% url cart_api_profile %}";
-        var tickets_api_download = "{% url tickets_api_download %}";
-        var ticket_app_new = "{% url ticket_app_new %}";
-        var customer_app_url = "{% url customer_app_profile %}";
-        var cart_app_profile_url = "{% url cart_app_profile %}";
-        var ticket_app_profile_url = "{% url ticket_app_profile %}";
-        var cart_status_options_api_url = "{% url cart_status_api %}";
-        var cart_type_options_api_url = "{% url cart_type_api %}";
+        var cart_api_profile = "{% url "cart_api_profile" %}";
+        var tickets_api_download = "{% url "tickets_api_download" %}";
+        var ticket_app_new = "{% url "ticket_app_new" %}";
+        var customer_app_url = "{% url "customer_app_profile" %}";
+        var cart_app_profile_url = "{% url "cart_app_profile" %}";
+        var ticket_app_profile_url = "{% url "ticket_app_profile" %}";
+        var cart_status_options_api_url = "{% url "cart_status_api" %}";
+        var cart_type_options_api_url = "{% url "cart_type_api" %}";
         var cartProfile = {
             tickets: new cartlogic.TicketsListViewModel(cart_serial_number, null, tickets_api_download),
             profile: new cartlogic.CartProfileViewModel(cart_api_profile, cart_status_options_api_url, cart_type_options_api_url)

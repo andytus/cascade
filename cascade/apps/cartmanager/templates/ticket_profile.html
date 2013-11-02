@@ -29,12 +29,12 @@
             <div class="ticket-info-service-type"
                  data-bind="html: '<u>' + service_type__service() + ' of ' +  + cart_type__size() + ' ' + cart_type__name() + '</u>'"></div>
             <!-- ko if: serviced_cart__serial_number() != "---" -->
-            <div>Serviced Cart: <a data-bind=" text: serviced_cart__serial_number() ,attr:{href:'{% url cart_app_profile%}' + serviced_cart__serial_number()}"> </a>,
+            <div>Serviced Cart: <a data-bind=" text: serviced_cart__serial_number() ,attr:{href:'{% url "cart_app_profile" %}' + serviced_cart__serial_number()}"> </a>,
                 <span data-bind="text: 'Size: ' + serviced_cart__cart_type__size() + ', Type: ' + serviced_cart__cart_type__name()"></span>
             </div>
             <!-- /ko -->
             <!-- ko if: expected_cart__serial_number() != "---" -->
-            <div>Expected Cart: <a data-bind=" text: expected_cart__serial_number() ,attr:{href:'{% url cart_app_profile%}' + expected_cart__serial_number()}"> </a>,
+            <div>Expected Cart: <a data-bind=" text: expected_cart__serial_number() ,attr:{href:'{% url "cart_app_profile" %}' + expected_cart__serial_number()}"> </a>,
                 <span data-bind="text: 'Size: ' + cart_type__size() + ', Type: ' + cart_type__name()"></span>
             </div>
             <!-- /ko -->
@@ -139,9 +139,9 @@
     <script type="text/javascript">
         var user_name = '{{ user.username }}';
         var ticket_id = '{{ticket_id }}' || null;
-        var ticket_api = '{% url ticket_api %}';
-        var ticket_status_api = '{% url ticket_status_api %}';
-        var ticket_comment_api = '{% url ticket_comment_api %}';
+        var ticket_api = '{% url "ticket_api" %}';
+        var ticket_status_api = '{% url "ticket_status_api" %}';
+        var ticket_comment_api = '{% url "ticket_comment_api" %}';
         var ticketProfile = {
             profile:new cartlogic.TicketsProfileViewModel()
         };

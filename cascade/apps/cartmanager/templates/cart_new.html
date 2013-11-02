@@ -105,7 +105,7 @@
     <p data-bind="html: $root.create.server_message"></p>
 
     <!-- ko if: $root.create.server_message_type() == 'Success' -->
-       Cart profile link for <a data-bind="attr:{ href: '{% url cart_app_profile %}' + $root.create.cart_serial_number()}, text: $root.create.cart_serial_number"></a>
+       Cart profile link for <a data-bind="attr:{ href: '{% url "cart_app_profile" %}' + $root.create.cart_serial_number()}, text: $root.create.cart_serial_number"></a>
      <!-- /ko -->
 
 </script>
@@ -124,8 +124,8 @@
 
 <script type="text/javascript">
 
-    var cart_api_profile_url = "{% url cart_api_profile %}";
-    var cart_type_options_api_url = "{% url cart_type_api %}"
+    var cart_api_profile_url = "{% url "cart_api_profile" %}";
+    var cart_type_options_api_url = "{% url "cart_type_api" %}"
 
     var cartCreate = {
         create: new cartlogic.CartCreateViewModel(cart_api_profile_url, cart_type_options_api_url)
