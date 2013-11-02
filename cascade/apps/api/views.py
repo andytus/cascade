@@ -4,6 +4,7 @@
 
 import csv
 import cStringIO as StringIO
+import cgi
 
 from django.db.models import Q
 from django.contrib.sites.models import get_current_site
@@ -27,6 +28,29 @@ from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, Car
     TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
+import ho.pisa as pisa
+
+
+
+
+def write_pdf(template_src, context_dict, file_name):
+    """
+    Write template and context to a pdf attachment
+
+    """
+
+    template = loader.get_template(template_src)
+    context = Context(context_dict)
+    html = template.render(context)
+    result = StringIO.StringIO()
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        response = StreamingHttpResponse(result.getvalue(), mimetype='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
+        return response
+    return HttpResponse("There was a problem, Gremlin's ate your pdf! %s" % cgi.escape(html))
+
+
 
 
 class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
@@ -94,7 +118,6 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         else:
             return RestResponse({"detail": "No Search values received or incorrect values received...try again. "},
                                 status=django_rest_status.HTTP_404_NOT_FOUND)
-
 
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket
@@ -177,33 +200,18 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             yield self.csv_out(row, index)
             #time.sleep(0.09)
 
-    def stream_response_pdf(self, data):
-        index = 0
-        for row in data:
-            index += 1
-            yield row
-
     def list(self, request, *args, **kwargs):
         file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
         data = self.get_queryset()
         if self.request.accepted_renderer.format == "csv":
-            response = HttpResponse(self.stream_response_generator(data), mimetype='text/csv')
+            response = StreamingHttpResponse(self.stream_response_generator(data), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             return response
 
         if self.request.accepted_renderer.format == "pdf":
-            import ho.pisa as pisa
-            template = loader.get_template('tickets_pdf.html')
             context = Context({'tickets': data})
-            html = template.render(context)
-            result = StringIO.StringIO()
-            pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
-            print pdf.pageSize
-
-            response = StreamingHttpResponse(result.getvalue(), mimetype='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
+            response = write_pdf('tickets_pdf.html', context, file_name)
             return response
-
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
 

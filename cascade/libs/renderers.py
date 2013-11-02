@@ -14,4 +14,3 @@ class PDFRenderer(renderers.BaseRenderer):
     format = 'pdf'
     def render(self, data, accepted_media_type=None, renderer_context=None):
         return data
-
