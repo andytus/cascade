@@ -30,9 +30,7 @@ ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SOUTH_DATABASE_ADAPTERS ={
-
 'default': "south.db.postgresql_psycopg2"
-
 }
 
 DEBUG = False
