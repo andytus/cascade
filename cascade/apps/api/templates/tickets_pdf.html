@@ -1,0 +1,96 @@
+<document pagesize='letter'>
+    <html>
+    <head>
+        <title>Ticket Report</title>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+        <style type="text/css">
+
+            body {
+                font-family: verdana, arial, sans-serif;
+                font-size: 14px;
+            }
+
+            @page {
+                size: letter landscape;
+                margin: 1.0in 0.25in 0.5in 0.25in;
+                padding: 0;
+
+            @frame header{
+            -pdf-frame-content: headerContent;
+            margin-left: 80px;
+            margin-top: 20px;
+            marging-bottom: 10px;
+            }
+
+            @frame footer {
+            -pdf-frame-content: footerContent;
+            bottom: 0.3cm;
+            margin-left: 25cm;
+            margin-right: 1cm;
+            height: 1cm;
+            }
+                }
+
+            th,
+            td {
+                padding: 2px 2px 2px 2px;
+                text-align: left;
+            }
+
+            th {
+                border-bottom: 2px solid #333333;
+            }
+
+            td {
+                border-bottom: 1px dotted #999999;
+            }
+
+        </style>
+    </head>
+    <body>
+    <div id="headerContent">
+        <div style="font-size: 30px;">
+            Service Tickets
+        </div>
+        <div style="margin-left: 4.00in;">
+            Assigned To_____________________________ Date ________________________
+        </div>
+    </div>
+
+
+    <table repeat="1">
+        <tr>
+            <th>ID</th>
+            <th>STATUS</th>
+            <th>TYPE</th>
+            <th>ROUTE</th>
+            <th>ADDRESS</th>
+            <th>CART TYPE</th>
+            <th>CART SIZE</th>
+            <th>EXPECTED CART</th>
+            <th>SERVICED CART</th>
+        </tr>
+        <tbody>
+
+        {% for row in tickets %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.status.service_status }}</td>
+                <td>{{ row.service_type.code }}</td>
+                <td>{{ row.route.route }}</td>
+                <td>{{ row.location }}</td>
+                <td>{{ row.cart_type.name }}</td>
+                <td>{{ row.cart_type.size }}</td>
+                <td>{{ row.expected_cart.serial_number }}</td>
+                <td>{{ row.serviced_cart.serial_number }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <div id="footerContent">
+        page #
+        <pdf:pagenumber>
+    </div>
+    </body>
+    </html>
