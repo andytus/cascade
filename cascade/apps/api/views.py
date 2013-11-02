@@ -200,6 +200,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
             response = HttpResponse(self.stream_response_pdf(result.getvalue()), mimetype='application/pdf')
             response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
+            result.close()
             return response
 
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
