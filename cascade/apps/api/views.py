@@ -187,13 +187,14 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         if self.request.accepted_renderer.format == "pdf":
             import ho.pisa as pisa
             template = loader.get_template('tickets_pdf.html')
-            print data
             context = Context({'tickets': data})
             html = template.render(context)
             result = StringIO.StringIO()
             pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
 
-            return HttpResponse(result.getvalue(), mimetype='application/pdf')
+            response = HttpResponse(result.getvalue(), mimetype='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
+            return response
 
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
