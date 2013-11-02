@@ -19,7 +19,7 @@ from rest_framework import status as django_rest_status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 
-from cascade.libs.renderers import CSVRenderer
+from cascade.libs.renderers import CSVRenderer, PDFRenderer
 from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, CartSearchSerializer, \
     CartProfileSerializer, CustomerProfileSerializer, CartStatusSerializer, CartTypeSerializer, \
     CartServiceTicketSerializer, AdminLocationDefaultSerializer, UploadFileSerializer, TicketStatusSerializer, \
@@ -98,7 +98,8 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket
     serializer_class = CartServiceTicketSerializer
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, JSONPRenderer, BrowsableAPIRenderer, CSVRenderer)
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, JSONPRenderer,
+                        PDFRenderer, BrowsableAPIRenderer, CSVRenderer)
     paginate_by = 100
 
     def get_queryset(self):
@@ -176,12 +177,24 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             #time.sleep(0.09)
 
     def list(self, request, *args, **kwargs):
+        file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
+        data = self.get_queryset()
         if self.request.accepted_renderer.format == "csv":
-            file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
-            data = self.get_queryset()
             response = HttpResponse(self.stream_response_generator(data), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             return response
+
+        if self.request.accepted_renderer.format == "pdf":
+            import ho.pisa as pisa
+            template = loader.get_template('tickets_pdf.html')
+            print data
+            context = Context({'tickets': data})
+            html = template.render(context)
+            result = StringIO.StringIO()
+            pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
+
+            return HttpResponse(result.getvalue(), mimetype='application/pdf')
+
         return super(TicketSearchAPI, self).list(request, *args, **kwargs)
 
 
