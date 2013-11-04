@@ -4,7 +4,6 @@
 
 import csv
 import cStringIO as StringIO
-import cgi
 
 from django.db.models import Q
 from django.contrib.sites.models import get_current_site
@@ -31,15 +30,11 @@ from cascade.apps.cartmanager.models import *
 import ho.pisa as pisa
 
 
-
-
 def write_pdf(template_src, context_dict, file_name):
     """
     Write template and context to a pdf attachment
 
-
     """
-
     template = loader.get_template(template_src)
     context = Context(context_dict)
     html = template.render(context)
@@ -49,9 +44,8 @@ def write_pdf(template_src, context_dict, file_name):
         response = StreamingHttpResponse(result.getvalue(), mimetype='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
         return response
-    return HttpResponse("There was a problem, Gremlin's ate your pdf! %s" % cgi.escape(html))
-
-
+    return RestResponse({'details': {'message': "There was a problem, Gremlin's ate your pdf!",
+                                     'message_type': 'Failed'}}, status=django_rest_status.HTTP_200_OK)
 
 
 class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
@@ -119,6 +113,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         else:
             return RestResponse({"detail": "No Search values received or incorrect values received...try again. "},
                                 status=django_rest_status.HTTP_404_NOT_FOUND)
+
 
 class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket

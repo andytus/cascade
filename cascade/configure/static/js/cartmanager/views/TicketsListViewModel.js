@@ -95,7 +95,7 @@
             self.route_day(context.$data.selected_route_day());
             self.route(context.$data.selected_route().route());
 
-            if (this.id == 'download_csv') {
+            if (this.id == 'download_csv' || this.id == 'download_pdf') {
                 //if it is a csv format just load in the window (no ajax needed).
                 var data = {};
                 data.cart_size = self.cart_size();
@@ -105,7 +105,7 @@
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
                 data.route = self.route();
-                window.location = tickets_api_download + "?format=csv&" + jQuery.param(data);
+                window.location = tickets_api_download + "?format=" +this.id.slice(9) +"&" + jQuery.param(data);
             } else {
                 self.getPagedDataAsync();
             }

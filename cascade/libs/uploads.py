@@ -1,9 +1,9 @@
 __author__ = 'jbennett'
 
-from django.core.exceptions import ValidationError
-from django.db.utils import IntegrityError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.db.utils import IntegrityError, DatabaseError
 from django.contrib.sites.models import Site
-from django.db import transaction
+#from django.db import transaction
 from cascade.apps.cartmanager.models import Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, \
     TicketStatus, TicketComments, CollectionCustomer, CartServiceType, \
     CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route
@@ -11,14 +11,14 @@ from django.utils import timezone
 from datetime import datetime
 
 
-def save_error(e, line):
-    error_message = e.message
+def save_error(e, line, site):
+    error_message = e
     if hasattr(e, 'message_dict'):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), ','.join(value))
     Site.objects.clear_cache()
-    error = DataErrors(error_message=error_message, error_type=type(e),
-                       failed_data=line, site=Site.objects.get_current())
+    error = DataErrors(error_message=error_message, error_type=e.__class__.__name__,
+                       failed_data=line, site=site)
     error.save()
 
 
@@ -65,10 +65,10 @@ def save_cart_records(line, file_record):
 
         file_record.num_good += 1
 
-    except (Exception, ValidationError, ValueError, IntegrityError) as e:
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         file_record.status = "FAILED"
         file_record.num_error += 1
-        save_error(e, line)
+        save_error(e, line, file_record.site)
 
 
 def save_ticket_records(line, file_record):
@@ -182,16 +182,16 @@ def save_ticket_records(line, file_record):
             ticket.save()
             file_record.num_good += 1
 
-    except (Exception, ValidationError, ValueError, IntegrityError) as e:
-        print e
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         file_record.status = "FAILED"
         file_record.num_error += 1
-        error_message = e.message
-        if hasattr(e, 'message_dict'):
-            for key, value in e.message_dict.iteritems():
-                error_message += "%s: %s " % (str(key).upper(), ','.join(value))
-        error = DataErrors(site=file_record.site, error_message=error_message, error_type=type(e), failed_data=line)
-        error.save()
+        save_error(e, line, file_record.site)
+        # error_message = e.message
+        # if hasattr(e, 'message_dict'):
+        #     for key, value in e.message_dict.iteritems():
+        #         error_message += "%s: %s " % (str(key).upper(), ','.join(value))
+        # error = DataErrors(site=file_record.site, error_message=error_message, error_type=type(e), failed_data=line)
+        # error.save()
 
 
 def save_customer_records(line, file_record):
@@ -298,11 +298,12 @@ def save_customer_records(line, file_record):
 
         file_record.num_good += 1
 
-    except Exception as e:
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         file_record.status = "FAILED"
         file_record.num_error += 1
-        error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)
-        error.save()
+        save_error(e, line, file_record.site)
+        #error = DataErrors(site=file_record.site, error_message=e, error_type=e.__class__.__name__, failed_data=line)
+        #error.save()
 
 
 def save_route_records(line, file_record):
@@ -326,11 +327,12 @@ def save_route_records(line, file_record):
         route.save()
         file_record.num_good += 1
 
-    except Exception as e:
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         file_record.status = "FAILED"
         file_record.num_error += 1
-        error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)
-        error.save()
+        save_error(e, line, file_record.site)
+        #error = DataErrors(site=file_record.site, error_message=e, error_type=type(e), failed_data=line)
+        #error.save()
 
 
 def process_upload_records(file_model, file_id):

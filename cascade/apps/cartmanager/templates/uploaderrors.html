@@ -10,7 +10,7 @@
     </tr>
         {% for records in data_errors %}
          <tr>
-        <td>{{records.error_date}}</td><td>{{records.failed_type}}</td>
+        <td>{{records.error_date}}</td><td>{{records.error_type}}</td>
         <td>{{records.error_message|escape}}</td><td>{{records.failed_data}}</td>
         </tr>
         {% endfor %}
