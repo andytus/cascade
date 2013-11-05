@@ -16,10 +16,10 @@
         self.house_number = ko.observable().extend({ validate: {required: true,  requiredMessage: "Missing house number"} });
         self.street_name = ko.observable().extend({ validate: {required: true,  requiredMessage: "Need a street"} });
         self.street_suffix = ko.observable("");
-        self.unit = ko.observable();
+        self.unit = ko.observable(" ");
         self.full_address = ko.computed(function(){
             var full_address = self.house_number() +" "+ self.street_name();
-            if (self.unit() != null || self.unit(), length > 0){
+            if (self.unit() != null || self.unit().length > 0){
                 full_address = full_address + " " + self.unit();
              }
             return full_address.trim();
