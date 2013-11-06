@@ -534,17 +534,14 @@ body { height: 100%; margin: 0; padding: 0 }
 
 }
 
-
 .modal .modal-body {
     max-height: 90%;
     overflow-y: auto;
-
 }
 
 .typeahead.dropdown-menu {
     z-index: 1051;
 }
-
 
 #map_address_wrapper{
     height: 200px;
@@ -564,13 +561,13 @@ body { height: 100%; margin: 0; padding: 0 }
 .errorlist{
     color: #8b0000;
 }
+ /* Currently not used:
+/*.logo{*/
+    /*margin-top: 2%;*/
+    /*margin-right: auto;*/
+    /*margin-left:  auto;*/
 
-.logo{
-    margin-top: 2%;
-    margin-right: auto;
-    margin-left:  auto;
-
-}
+/*}*/
 
 .address-list{
     overflow-y:scroll;

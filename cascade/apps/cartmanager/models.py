@@ -376,9 +376,8 @@ class InventoryAddress(Address):
     class Meta:
         verbose_name_plural = "Inventory Address"
 
-
-
 class Cart(models.Model):
+
     """
     CART model stores all cart information.
     These fields are loaded from manufacturing:
