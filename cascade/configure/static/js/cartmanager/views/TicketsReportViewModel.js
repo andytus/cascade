@@ -19,6 +19,7 @@
         self.selected_route = ko.observable();
         self.selected_route_type = ko.observable();
         self.selected_route_day = ko.observable();
+        self.selected_search_days = ko.observable();
 
         //options for select drop downs
         self.ticket_type_options = ko.observableArray([]);
@@ -28,6 +29,15 @@
         self.routes = ko.observableArray([]);
         self.route_days = ko.observableArray([]);
         self.route_types = ko.observableArray([]);
+        self.search_days = ko.observableArray(
+            [{'display': 'Day', 'value': 1},
+            {'display': 'Three days', 'value': 3},
+            {'display': 'Week', 'value': 7},
+            {'display': 'Two weeks', 'value': 14},
+            {'display': 'Month', 'value': 30},
+            {'display': 'Year', 'value': 365},
+            {'display': 'Millennium', 'value': 'ALL'}]
+        )
 
 
         self.filtered_routes = ko.computed(function(){
@@ -159,8 +169,12 @@
 
                 self.selected_cart_size(size_match);
 
+                var day_match = ko.utils.arrayFirst(self.search_days(), function (item) {
+                    return  item.value == 'ALL'
+                  });
+                self.selected_search_days(day_match);
 
-                var type_match = ko.utils.arrayFirst(self.cart_type_options(), function (item) {
+                 var type_match = ko.utils.arrayFirst(self.cart_type_options(), function (item) {
                     return item == 'ALL'
                 });
                 self.selected_cart_type(type_match);

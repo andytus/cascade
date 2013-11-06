@@ -127,10 +127,6 @@ MIDDLEWARE_CLASSES = (
     #'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
-#CACHE_MIDDLEWARE_ALIAS = 'default'
-#CACHE_MIDDLEWARE_SECONDS = 60
-#CACHE_MIDDLEWARE_KEY_PREFIX = 'default'
-
 ROOT_URLCONF = 'cascade.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.

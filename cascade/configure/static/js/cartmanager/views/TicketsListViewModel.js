@@ -24,6 +24,8 @@
         self.route_day = ko.observable("ALL");
         self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
+        self.search_days = ko.observable('ALL');
+
 
         self.cart_serial_number = ko.observable(cart_serial_number);
         self.customer_id = ko.observable(customer_id);
@@ -55,6 +57,7 @@
                 data.route = self.route();
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
+                data.search_days = self.search_days();
             }
 
             $.ajax(tickets_api_download, {
@@ -86,7 +89,6 @@
         $('.run_query').click(function () {
 
             var context = (ko.contextFor(this));
-            console.log(context.$data.selected_route().route(), context.$data.selected_route_day());
             self.cart_size(context.$data.selected_cart_size());
             self.cart_type(context.$data.selected_cart_type());
             self.service(context.$data.selected_type());
@@ -94,6 +96,9 @@
             self.route_type(context.$data.selected_route_type());
             self.route_day(context.$data.selected_route_day());
             self.route(context.$data.selected_route().route());
+            self.search_days(context.$data.selected_search_days().value);
+
+            self.route(context.$data.selected_search_days().value)
 
             if (this.id == 'download_csv' || this.id == 'download_pdf') {
                 //if it is a csv format just load in the window (no ajax needed).
@@ -105,7 +110,8 @@
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
                 data.route = self.route();
-                window.location = tickets_api_download + "?format=" +this.id.slice(9) +"&" + jQuery.param(data);
+                data.search_days = self.search_days();
+                window.location = tickets_api_download + "?format=" + this.id.slice(9) + "&" + jQuery.param(data);
             } else {
                 self.getPagedDataAsync();
             }
@@ -136,7 +142,7 @@
             if (self.sortInfo().direction == 'desc') {
                 self.sort_by("-" + self.sort_by())
             }
-           self.getPagedDataAsync();
+            self.getPagedDataAsync();
 
         });
 
@@ -180,14 +186,14 @@
         }
 
 
-    $('#modal_window').on('hidden', function(){
-        //need to refresh the ticket panel on add of new ticket form a modal window
-        self.getPagedDataAsync();
-    })
+        $('#modal_window').on('hidden', function () {
+            //need to refresh the ticket panel on add of new ticket form a modal window
+            self.getPagedDataAsync();
+        })
 
 
     }
-;
+    ;
 
     cartlogic.TicketsListViewModel = TicketsListViewModel;
 
