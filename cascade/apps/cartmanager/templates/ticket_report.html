@@ -2,16 +2,16 @@
 {% block title %}Ticket Reports (Download){% endblock %}
 {% block main_content %}
 
-    <div class="box-info">
+    <div class="box-info" >
         <div id="ticket-query" class="well search-queries" data-bind="with: $root.report">
             Show <select id="ticket-query-select-status" data-bind="options: ticket_status_options,
-         value: selected_status" class="input-medium"></select> tickets for
+             value: selected_status" class="input-medium"></select> tickets for
             <select id="ticket-query-select-type" data-bind="options: $root.report.ticket_type_options,
-         value: selected_type" class="input-large"></select> services, and
+             value: selected_type" class="input-large"></select> services, and
             <select id="ticket-query-cart-type" data-bind="options: cart_type_options,
-        value: selected_cart_type" class="input-medium"></select> cart type(s), and
+            value: selected_cart_type" class="input-medium"></select> cart type(s), and
             <select id="ticket-query-cart-type-size" data-bind="options: cart_size_options,
-        value: selected_cart_size" class="input-small"></select> gallon cart(s).
+            value: selected_cart_size" class="input-small"></select> gallon cart(s).
             <button id="on_screen" class="run_query btn-primary"> Go <i class="icon-arrow-right"></i></button>
             <button id="download_csv" class="run_query btn btn-success">
                 <i class="icon-download pull-right" title="Download"></i></button>
@@ -25,13 +25,24 @@
                 </button>
 
                 <div id="ticket-query-advanced-options" class="collapse">
-                    Route Type: <select id="ticket-query-select-route-day" data-bind="options: $root.report.route_types,
+                    Created within the last:
+                   <select  id="ticket-query-search-days" data-bind="options:$root.report.search_days,
+                     optionsText:'display', value:$root.report.selected_search_days"> </select>
+                    or exactly: <input type="text"
+                                data-bind="value:$root.report.selected_search_days().value"> day(s).
+                    <br><br>
+                    Route Type:
+                    <select id="ticket-query-select-route-type" data-bind="options: $root.report.route_types,
                     value: $root.report.selected_route_type"> </select>
-                    Route Day: <select id="ticket-query-select-route-day" data-bind="options: $root.report.route_days,
+                    Route Day:
+                    <select id="ticket-query-select-route-day" data-bind="options: $root.report.route_days,
                     value: $root.report.selected_route_day"> </select>
-                    Route: <select id="ticket-query-select-route" data-bind="options: $root.report.filtered_routes,
+                    Route:
+                    <select id="ticket-query-select-route" data-bind="options: $root.report.filtered_routes,
                     optionsText:'route', value: $root.report.selected_route"> </select>
+
                 </div>
+
             </div>
         </div>
     </div>

@@ -10,7 +10,7 @@ from django_rq import enqueue
 from cascade.libs.uploads import process_upload_records
 
 from cascade.libs.mixins import LoginSiteRequiredMixin
-from cascade.apps.cartmanager.models import Cart, CartsUploadFile, CustomersUploadFile, \
+from cascade.apps.cartmanager.models import Cart, CartsUploadFile, CustomersUploadFile,\
     TicketsCompleteUploadFile, RouteUploadFile, DataErrors, Site
 
 

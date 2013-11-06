@@ -325,12 +325,22 @@ body { height: 100%; margin: 0; padding: 0 }
 #ticket-query select{
     font-size: 1.1em;
     height: 1.3em;
-    padding: 0;
+    padding: 1px;
     margin: 0;
+    vertical-align: middle;
+
 }
+
 
 #ticket-query-advanced, #ticket-query-advanced-options{
     margin-top: 1%;
+}
+
+#ticket-query-advanced-options input{
+   font-size: 1.1em;
+   height: 1.3em;
+   width: 5em;
+
 }
 
 
@@ -524,34 +534,6 @@ body { height: 100%; margin: 0; padding: 0 }
 
 }
 
-
-/*table.table-sorter thead tr .sort-header{
-    background: url(../img/bg.gif) no-repeat;
-    background-position: right;
-    padding-right: 25px;
-
-}
-
-table.table-sorter thead tr th:hover{
-    background-color: #A8E3F9;
-    cursor: pointer;
-}
-
-
-table.table-sorter thead tr .sort-down{
-    background: url(../img/desc.gif) no-repeat;
-    background-color: #A8E3F9;
-    background-position: right;
-    padding-right: 25px;
-}
-
-
-table.table-sorter thead tr .sort-up{
-    background: url(../img/asc.gif) no-repeat;
-    background-color: #A8E3F9;
-    background-position: right;
-    padding-right: 25px;
-}*/
 
 .modal .modal-body {
     max-height: 90%;

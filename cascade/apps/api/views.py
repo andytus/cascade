@@ -3,6 +3,7 @@
 ######################################################################################################################
 
 import csv
+from datetime import datetime, timedelta
 import cStringIO as StringIO
 
 from django.db.models import Q
@@ -28,6 +29,7 @@ from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, Car
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
 import ho.pisa as pisa
+
 
 
 def write_pdf(template_src, context_dict, file_name):
@@ -133,6 +135,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         route_type = self.request.QUERY_PARAMS.get('route_type', 'ALL')
         route_day = self.request.QUERY_PARAMS.get('route_day', 'ALL')
         route = self.request.QUERY_PARAMS.get('route', 'ALL')
+        search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -146,6 +149,10 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = Ticket.on_site.order_by(sort_by)
             else:
                 query = Ticket.on_site.all()
+
+            if search_days != 'ALL':
+                search_date = datetime.now() - timedelta(days=int(search_days))
+                query = query.filter(date_created__gt=search_date)
 
             if cart_serial:
                 query = query.filter(
