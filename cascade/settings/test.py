@@ -60,6 +60,8 @@ RQ_QUEUES = {
 PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
+#enable pipeline
+PIPELINE = True
 
 EMAIL_SUBJECT_PREFIX = '[Staging]'
 
