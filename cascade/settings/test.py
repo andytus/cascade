@@ -37,7 +37,7 @@ SOUTH_DATABASE_ADAPTERS ={
 }
 
 
-DEBUG = False
+#DEBUG = True
 
 
 RQ_QUEUES = {
