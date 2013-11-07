@@ -227,7 +227,7 @@ PIPELINE_JS = {
             'js/vendor/knockout/koUtilities.js'
 
         ),
-        'output_filename': 'compress/js/vendor_common.js',
+        'output_filename': 'compress/vendor_common.js',
     },
     'vendor_jquery_uploads': {
         'source_filenames': (
