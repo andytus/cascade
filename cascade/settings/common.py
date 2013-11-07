@@ -429,4 +429,6 @@ SERVER_EMAIL = os.environ['MANDRILL_USERNAME']
 EMAIL_USE_TLS = True
 MANDRILL_API_KEY = os.environ['MANDRILL_APIKEY']
 
+ALLOWED_HOSTS = ['.gocartlogic.com']
+
 SITE_ID = 2
