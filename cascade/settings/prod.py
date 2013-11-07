@@ -33,7 +33,7 @@ SOUTH_DATABASE_ADAPTERS ={
 'default': "south.db.postgresql_psycopg2"
 }
 
-DEBUG = True
+DEBUG = False
 
 #heroku set by redis-to-go addon
 redis_url = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
