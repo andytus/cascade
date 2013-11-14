@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 def save_error(e, line, site):
-    error_message = e
+    error_message = ""
     if hasattr(e, 'message_dict'):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), ','.join(str(value)))
