@@ -41,7 +41,6 @@
         self.routes = ko.observableArray([]);
 
         if(data){
-
             self.id(data.info.properties.id);
             self.property_type(data.info.properties.property_type);
             self.house_number(data.info.properties.house_number);
@@ -53,8 +52,9 @@
             self.carts(data.info.properties.carts);
             self.latitude(null);
             self.longitude(null);
+
             var routes = $.map(data.info.routes, function(item){
-                return new cartlogic.Route(item)
+                return new cartlogic.Route(item);
             });
 
             self.routes(routes);

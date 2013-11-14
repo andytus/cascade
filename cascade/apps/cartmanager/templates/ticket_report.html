@@ -2,7 +2,7 @@
 {% block title %}Ticket Reports (Download){% endblock %}
 {% block main_content %}
 
-    <div class="box-info" >
+    <div class="box-info">
         <div id="ticket-query" class="well search-queries" data-bind="with: $root.report">
             Show <select id="ticket-query-select-status" data-bind="options: ticket_status_options,
              value: selected_status" class="input-medium"></select> tickets for
@@ -13,12 +13,12 @@
             <select id="ticket-query-cart-type-size" data-bind="options: cart_size_options,
             value: selected_cart_size" class="input-small"></select> gallon cart(s).
             <button id="on_screen" class="run_query btn-primary"> Go <i class="icon-arrow-right"></i></button>
-            <div id="ticket-query-download" class="pull-right">
-             Downloads:
-            <button id="download_csv" class="run_query btn btn-success" title="Download CSV">
-                <i class="icon-th pull-right">CSV</i></button>
-            <button id="download_pdf" class="run_query btn btn-success" title="Download PDF">
-                <i class="icon-file">PDF</i></button>
+            <div id="ticket-query-download">
+                Downloads:
+                <button id="download_csv" class="run_query btn btn-success" title="Download CSV">
+                    <i class="icon-th">CSV</i></button>
+                <button id="download_pdf" class="run_query btn btn-success" title="Download PDF">
+                    <i class="icon-file">PDF</i></button>
             </div>
 
             <div id="ticket-query-advanced">
@@ -28,24 +28,38 @@
                 </button>
 
                 <div id="ticket-query-advanced-options" class="collapse">
-                    Created within the last:
-                   <select  id="ticket-query-search-days" data-bind="options:$root.report.search_days,
+                    <div>
+                        <label for="ticket-query-search-days">Created within the last:</label>
+                        <select id="ticket-query-search-days" data-bind="options:$root.report.search_days,
                      optionsText:'display', value:$root.report.selected_search_days"> </select>
-                    or exactly: <input type="text"
-                                data-bind="value:$root.report.selected_search_days().value"> day(s).
-                    <br><br>
-                    Route Type:
-                    <select id="ticket-query-select-route-type" data-bind="options: $root.report.route_types,
+                        <label for="ticket-query-search-days-input">or exactly:</label>
+                        <input id="ticket-query-search-days-input" type="text"
+                               data-bind="value:$root.report.selected_search_days().value"> <label>day(s).</label>
+                    </div>
+                    <div>
+                        <label for="ticket-query-select-route-type">Route Type:</label>
+                        <select id="ticket-query-select-route-type" data-bind="options: $root.report.route_types,
                     value: $root.report.selected_route_type"> </select>
-                    Route Day:
-                    <select id="ticket-query-select-route-day" data-bind="options: $root.report.route_days,
+                        <label for="ticket-query-select-route-day">Route Day:</label>
+                        <select id="ticket-query-select-route-day" data-bind="options: $root.report.route_days,
                     value: $root.report.selected_route_day"> </select>
-                    Route:
-                    <select id="ticket-query-select-route" data-bind="options: $root.report.filtered_routes,
+                        <label for="ticket-query-select-route">Route:</label>
+                        <select id="ticket-query-select-route" data-bind="options: $root.report.filtered_routes,
                     optionsText:'route', value: $root.report.selected_route"> </select>
+                    </div>
+                    <br>
 
+                    <!-- ko if: ($root.report.service_charge_options().length > 0) -->
+                    <div>
+                        <label for="ticket-query-select-charge">Charge is:</label>
+                        $<select id="ticket-query-select-charge" data-bind="options: $root.report.service_charge_options,
+                    value: $root.report.selected_charge"></select>
+                        <label for="ticket-query-select-remove-no-charge">Remove no charge </label>
+                        <input id="ticket-query-select-remove-no-charge"
+                               value=1 data-bind="checked:$root.report.no_charges" type="checkbox">
+                    </div>
+                    <!-- /ko -->
                 </div>
-
             </div>
         </div>
     </div>
@@ -80,6 +94,7 @@
         var cart_type_api = "{% url "cart_type_api" %}";
         var cart_app_profile_url = "{% url "cart_app_profile" %}";
         var route_search_api_url = "{% url "route_search_api" %}";
+        var cart_service_charge_api_url = "{% url "cart_service_charge_api" %}";
         var ticketsReport = {
             report: new cartlogic.TicketsReportViewModel,
             tickets: new cartlogic.TicketsListViewModel(null, null, tickets_api_download)

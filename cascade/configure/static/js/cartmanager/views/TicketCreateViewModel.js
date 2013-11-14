@@ -16,6 +16,8 @@
         self.service_type = ko.observable("None");
         self.cart_serial_number = ko.observable(cart_serial_number);
         self.cartSerialList = ko.observableArray([]);
+        self.service_charge = ko.observable(0.00);
+        self.service_charge_options = ko.observableArray([]);
 
         //Use if cart id was sent from a cart profile page
         self.cart_id = ko.observable(cart_id);
@@ -118,19 +120,37 @@
                     return "Select Cart type:"
                 }
 
-            ) });//#todo put a computed obserable for the message ... i.e. if size is not selected ... say u must!
+            ) });
 
         self.stepModels.splice(-2, 0, cart_size_step);
         self.stepModels.splice(-2, 0, cart_type_step);
 
-        //same logic in Cart Profile view model, only grabs all options
-        self.getCartTypeOptions = function () {
+        self.getServiceCharges = function(){
+           $.getJSON(cart_service_charge_api_url, function(data){
+               if (data.length){
+                   var service_charge_step = new cartlogic.FormStep(9, "Select Service Charge", "SelectServiceCharge",{
+                       service_charges: self.service_charges,
+                       message: "Select a Service Charge"
+                       });
+                  self.stepModels.splice(-2, 0, service_charge_step);
+                }
+                var serviceChargesList = $.map(data, function(item){
+                   return new cartlogic.ServiceCharge(item)
+                });
+               self.service_charge_options(serviceChargesList);
+          });
+        }
+
+       self.getServiceCharges();
+
+       //same logic in Cart Profile view model, only grabs all options
+       self.getCartTypeOptions = function () {
             $.getJSON(cart_type_options_api_url, function (data) {
                     var cartTypeList = $.map(data, function (item) {
                         return  new cartlogic.CartTypeOption(item)
                     });
                     self.cart_type_options(cartTypeList);
-                }
+               }
             )
         };
 
@@ -187,8 +207,6 @@
 
 
         //Gets the typed address from the server
-        //#TODO Not very DRY, I have abstracted to LocationSearchViewModel, which should be mixed into the view (html)
-        //#TODO in the near future.
         self.searchAddress = function () {
             if (self.cart_address_search() && self.cart_address_search().length == 5) {
 
@@ -264,7 +282,6 @@
 
         self.createNewTicket = function () {
             //If serial_number = new, then this function will create a new ticket
-            //#TODO Should do validation before sending to server, if any of the above observables where not completed ,... return fix first
             var data = {'service_type': self.service_type(), 'house_number': self.cart_house_number(), 'street_name': self.cart_street_name()};
 
             if (self.cart_unit() && self.cart_unit() != " ") {
@@ -282,6 +299,10 @@
             if (self.service_type() == 'Remove' || self.service_type() == 'Exchange') {
                 data.cart_serial_number = self.cart_serial_number();
 
+            }
+
+            if (self.service_type() != 0.00) {
+                data.service_charge = self.service_charge();
             }
 
             $.ajax(ticket_api + 'New', {

@@ -4,10 +4,15 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from models import CartServiceType, CartStatus, CartType, TicketStatus,\
-    AdminDefaults, ZipCodes, ServiceReasonCodes, Route, CollectionAddress, Cart, Ticket, CollectionCustomer
+    AdminDefaults, ZipCodes, ServiceReasonCodes, Route, CollectionAddress, Cart, Ticket, CollectionCustomer,\
+    CartServiceCharge
 
 
 from cascade.apps.cartmanager.models import UserAccountProfile, InventoryAddress
+
+
+class CartServiceChargeAdmin(admin.ModelAdmin):
+    search_fields = ['amount', 'description']
 
 
 class CollectionCustomerAdmin(admin.ModelAdmin):
@@ -56,3 +61,4 @@ admin.site.register(CollectionAddress, CollectionAddressAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(CollectionCustomer, CollectionCustomerAdmin)
+admin.site.register(CartServiceCharge, CartServiceChargeAdmin)

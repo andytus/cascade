@@ -25,6 +25,8 @@
         self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
         self.search_days = ko.observable('ALL');
+        self.charge = ko.observable('ALL');
+        self.no_charges = ko.observable(false);
 
 
         self.cart_serial_number = ko.observable(cart_serial_number);
@@ -58,6 +60,8 @@
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
                 data.search_days = self.search_days();
+                data.charge = self.charge();
+                data.no_charges = self.no_charges();
             }
 
             $.ajax(tickets_api_download, {
@@ -97,6 +101,8 @@
             self.route_day(context.$data.selected_route_day());
             self.route(context.$data.selected_route().route());
             self.search_days(context.$data.selected_search_days().value);
+            self.charge(context.$data.selected_charge());
+            self.no_charges(context.$data.no_charges());
 
             self.route(context.$data.selected_search_days().value)
 
@@ -111,6 +117,8 @@
                 data.route_day = self.route_day();
                 data.route = self.route();
                 data.search_days = self.search_days();
+                data.charge = self.charge();
+                data.no_charges = self.no_charges();
                 window.location = tickets_api_download + "?format=" + this.id.slice(9) + "&" + jQuery.param(data);
             } else {
                 self.getPagedDataAsync();
@@ -153,10 +161,13 @@
             + ticket_app_profile_url + '\' + $data.getProperty($parent)}, text: ' +
             '\'Open: \' +  $data.getProperty($parent)">Open</a>';
 
-        self.columns = [
+       self.money_format ='<span data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt\'}"></span>';
+
+       self.columns = [
             {field: 'id', displayName: "Open", cellTemplate: self.ticket_profile_cell_open_template, width: 110},
             {field: 'status__service_status', displayName: 'Status'},
             {field: 'service_type__code', displayName: 'Type'},
+            {field: 'charge', displayName: 'Charge', cellTemplate: self.money_format},//'<span data-bind="text:"$data.getProperty($parent)> </span>'},
             {field: 'cart_type__name', displayName: 'Cart Type'},
             {field: 'cart_type__size', displayName: 'Size'},
             {field: 'success_attempts', displayName: 'Tries', width: 50},

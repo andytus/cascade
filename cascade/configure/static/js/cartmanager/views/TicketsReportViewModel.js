@@ -20,12 +20,15 @@
         self.selected_route_type = ko.observable();
         self.selected_route_day = ko.observable();
         self.selected_search_days = ko.observable();
+        self.selected_charge = ko.observable();
+        self.no_charges = ko.observable(false);
 
         //options for select drop downs
         self.ticket_type_options = ko.observableArray([]);
         self.ticket_status_options = ko.observableArray([]);
         self.cart_type_options = ko.observableArray([]);
         self.cart_size_options = ko.observableArray([]);
+        self.service_charge_options = ko.observableArray([]);
         self.routes = ko.observableArray([]);
         self.route_days = ko.observableArray([]);
         self.route_types = ko.observableArray([]);
@@ -77,6 +80,7 @@
            return filtered_routes;
         });
 
+
          self.getServiceTypeOptions = function () {
             $.getJSON(ticket_service_type_api, function (data) {
                 var serviceTypeOptions = $.map(data, function (item) {
@@ -94,6 +98,20 @@
             });
         };
 
+
+       self.getServiceCharges = function(){
+           $.getJSON(cart_service_charge_api_url, function(data){
+               var serviceChargesOptions = $.map(data, function(item){
+                   return item.amount
+                });
+               self.service_charge_options(serviceChargesOptions);
+               self.service_charge_options.unshift('ALL');
+               var type_match = ko.utils.arrayFirst(self.service_charge_options(), function(item){
+                  return item == 'ALL'
+               });
+               self.selected_charge(type_match);
+           })
+       }
 
         self.getServiceStatusOptions = function () {
             $.getJSON(ticket_status_api, function (data) {
@@ -185,6 +203,7 @@
         self.getServiceStatusOptions();
         self.getCartTypeOptions();
         self.getRouteOptions();
+        self.getServiceCharges();
 
 
     }

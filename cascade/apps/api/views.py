@@ -25,7 +25,7 @@ from cascade.libs.renderers import CSVRenderer, PDFRenderer
 from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, CartSearchSerializer, \
     CartProfileSerializer, CustomerProfileSerializer, CartStatusSerializer, CartTypeSerializer, \
     CartServiceTicketSerializer, AdminLocationDefaultSerializer, UploadFileSerializer, TicketStatusSerializer, \
-    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer
+    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, CartServiceChargeSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
 import ho.pisa as pisa
@@ -136,6 +136,8 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         route_day = self.request.QUERY_PARAMS.get('route_day', 'ALL')
         route = self.request.QUERY_PARAMS.get('route', 'ALL')
         search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
+        charge = self.request.QUERY_PARAMS.get('charge', 'ALL')
+        no_charges = self.request.QUERY_PARAMS.get('no_charges', 'false')
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -149,6 +151,14 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = Ticket.on_site.order_by(sort_by)
             else:
                 query = Ticket.on_site.all()
+
+            if no_charges == 'true':
+                print no_charges, "in no charges"
+                query = query.filter(charge__gt=0.00)
+
+            if charge != 'ALL':
+                print charge
+                query = query.filter(charge=float(charge))
 
             if search_days != 'ALL':
                 search_date = datetime.now() - timedelta(days=int(search_days))
@@ -461,6 +471,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('address_unit', None)
+                service_charge = json_data.get('service_charge', 0.00)
 
                 #excepts both location id and address for the Collection Address
                 #client built for address information, we want this flexibility as I may not know the address_id
@@ -498,18 +509,22 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 #TODO put repair or audits in here
                 if expected_cart_serial_number:
                     expected_cart = Cart.on_site.get(serial_number=expected_cart_serial_number)
+                    remove_ticket = Ticket(created_by=request.user, location=location,
+                                           status=requested_ticket_status,
+                                           expected_cart=expected_cart,
+                                           cart_type=expected_cart.cart_type,
+                                           charge=service_charge)
+
                     if requested_service_type == 'Exchange' or 'Remove':
                         if requested_service_type == 'Exchange':
                             service_type_remove = CartServiceType.on_site.get(code='EX-REM')
+                            remove_ticket.service_type = service_type_remove
+                            remove_ticket.charge = 0.00
+                            #Explictly make a $0.00 charge, since charges are applied to
+                            #the exchange delivery side of the exchange ticket pair.
                         else:
                             service_type_remove = CartServiceType.on_site.get(code='REM')
-
-                        remove_ticket = Ticket(created_by=request.user, location=location,
-                                               status=requested_ticket_status,
-                                               expected_cart=expected_cart,
-                                               service_type=service_type_remove,
-                                               cart_type=expected_cart.cart_type)
-
+                            remove_ticket.service_type = service_type_remove
                         if route:
                             remove_ticket.route = route
 
@@ -524,7 +539,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
                     delivery_ticket = Ticket(created_by=request.user, location=location, service_type=service_type,
                                              status=requested_ticket_status,
-                                             cart_type=cart_type)
+                                             cart_type=cart_type, charge=service_charge)
 
                     if route:
                         delivery_ticket.route = route
@@ -538,7 +553,7 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                     cart_type = CartType.on_site.get(name=cart_type_name, size=size)
                     exchange_del_ticket = Ticket(created_by=request.user, location=location, service_type=service_type,
                                                  status=requested_ticket_status,
-                                                 cart_type=cart_type)
+                                                 cart_type=cart_type, charge=service_charge)
                     if route:
                         exchange_del_ticket.route = route
 
@@ -730,6 +745,12 @@ class TicketServiceTypeAPI(ListAPIView):
 
     def get_queryset(self):
         return CartServiceType.on_site.all()
+
+
+class CartServiceChargesAPI(ListAPIView):
+    model = CartServiceCharge
+    serializer_class = CartServiceChargeSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
 
 
 class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):

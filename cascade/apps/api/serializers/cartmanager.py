@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
-    Ticket, AdminDefaults, TicketStatus, TicketComments, CartServiceType, Route
+    Ticket, AdminDefaults, TicketStatus, TicketComments, CartServiceType, Route, CartServiceCharge
 
 #Monkey patch on django rest framework for supporting nulls:
 # https://github.com/tomchristie/django-rest-framework/issues/384
@@ -87,6 +87,12 @@ class LocationInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
         fields = ('info',)
         ############################################
 
+
+class CartServiceChargeSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    class Meta:
+        model = CartServiceCharge
+        exclude = ('site', )
+
 class CartStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = CartStatus
@@ -133,7 +139,6 @@ class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
-
     serviced_cart__serial_number = CleanRelatedField(source='serviced_cart.serial_number')
     serviced_cart__id = CleanRelatedField(source='serviced_cart.id')
     serviced_cart__cart_type__name = CleanRelatedField(source='serviced_cart.cart_type.name')
@@ -166,7 +171,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
 
     class Meta:
         model = Ticket
-        fields = ('id', 'service_type__code', 'service_type__service', 'success_attempts',
+        fields = ('id', 'service_type__code', 'service_type__service', 'success_attempts', 'charge',
                   'serviced_cart__serial_number', 'serviced_cart__id', 'serviced_cart__cart_type__size',
                   'serviced_cart__cart_type__name', 'expected_cart__serial_number', 'status__service_status',
                   'status__level', 'reason_code__description', 'processed', 'date_completed', 'date_created',

@@ -28,6 +28,7 @@ function Ticket(data) {
     self.status__service_status = ko.observable();
     self.status__level = ko.observable();
     self.reason_code__description = ko.observable();
+    self.charge = ko.observable();
 
 
     //location of ticket
@@ -78,6 +79,7 @@ function Ticket(data) {
 
         self.status__service_status(data.status__service_status);
         self.status__level(data.status__level);
+        self.charge(data.charge);
         self.reason_code__description(data.reason_code__description);
 
 

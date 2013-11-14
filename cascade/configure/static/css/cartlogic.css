@@ -322,13 +322,12 @@ body { height: 100%; margin: 0; padding: 0 }
 
    }
 
-#ticket-query select{
+
+#ticket-query select, input{
     font-size: 1.1em;
     height: 1.3em;
     padding: 1px;
     margin: 0;
-    vertical-align: middle;
-
 }
 
 
@@ -336,11 +335,20 @@ body { height: 100%; margin: 0; padding: 0 }
     margin-top: 1%;
 }
 
-#ticket-query-advanced-options input{
+#ticket-query-advanced-options input, select{
    font-size: 1.1em;
    height: 1.3em;
-   width: 5em;
+   width: 2em;
+   display:inline-block;
+}
 
+#ticket-query-advanced-options div{
+    padding-top: 14px;
+}
+
+#ticket-query-advanced-options label{
+   font-size: 1.1em;
+   display:inline-block;
 }
 
 
@@ -586,4 +594,6 @@ body { height: 100%; margin: 0; padding: 0 }
 #ticket-query-download{
     margin-top: 1%;
     margin-bottom: 1%;
+    display: inline-block;
+
 }

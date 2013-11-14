@@ -184,12 +184,28 @@ class TicketStatus(models.Model):
         verbose_name_plural = "Ticket Status"
 
 
+class CartServiceCharge(models.Model):
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=50, default='US Dollars')
+    description = models.CharField(max_length=120, blank=True)
+
+    def get_info(self):
+        return {'amount': self.amount, 'description': self.description}
+
+    def __unicode__(self):
+        return str(self.amount)
+
+
 class CartServiceType(models.Model):
-    SERVICE_CODE = (('EX-DEL', 'EX-DEL'), ('EX-REM', 'EX-REM'), ('DEL','DEL'), ('REM', 'REM'), ('REPAIR', 'REPAIR'), ('AUDIT', 'AUDIT'))
+    SERVICE_CODE = (('EX-DEL', 'EX-DEL'), ('EX-REM', 'EX-REM'),
+                   ('DEL', 'DEL'), ('REM', 'REM'),
+                   ('REPAIR', 'REPAIR'), ('AUDIT', 'AUDIT'))
+
     service = models.CharField(max_length=25)
     code = models.CharField(max_length=15, choices=SERVICE_CODE)
     description = models.TextField(max_length=300, null=True)
     complete_cart_status_change = models.ForeignKey(CartStatus)
+    default_charge = models.ForeignKey(CartServiceCharge, related_name='default_charge', blank=True, null=True)
 
     #model Managers:
     site = models.ManyToManyField(Site)
@@ -201,7 +217,6 @@ class CartServiceType(models.Model):
 
     def __unicode__(self):
         return self.service
-
 
 
 class ServiceReasonCodes(models.Model):
@@ -235,8 +250,6 @@ class Route(models.Model):
 
     class meta:
         unique_together = (('route', 'route_day', 'route_type'))
-
-
 
 
 class Address(models.Model):
@@ -376,6 +389,7 @@ class InventoryAddress(Address):
     class Meta:
         verbose_name_plural = "Inventory Address"
 
+
 class Cart(models.Model):
 
     """
@@ -434,6 +448,7 @@ class Ticket(models.Model):
     service_type = models.ForeignKey(CartServiceType, null=True, blank=True, related_name="service_type")
     cart_type = models.ForeignKey(CartType, null=True, blank=True, related_name="cart_type")
     status = models.ForeignKey(TicketStatus, null=True, blank=True, related_name="status")
+    charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
     #date information
     date_completed = models.DateTimeField(null=True)

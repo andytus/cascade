@@ -39,12 +39,12 @@
             </div>
             <!-- /ko -->
             <br>
-            <div id="ticket-info-device-name" data-bind="html: '<b>Device Name</b> ' + device_name(), visible: device_name" ></div>
+           <div id="ticket-info-device-name" data-bind="html: '<b>Device Name</b> ' + device_name(), visible: device_name" ></div>
             <div id="ticket-info-processed" data-bind="html: '<b>Processed:</b> ' + processed()"></div>
             <div id="ticket-info-attempts" data-bind="html: 'Attempts: ' + success_attempts()"></div>
             <br>
 
-
+            <div id="ticket-info-charge" data-bind="html: '<b>Charge:</b> $' + charge()"></div>
             <div data-bind="html: '<b>Date Created:</b> ' + date_created()"></div>
             <!-- ko if not: date_completed -->
             <div data-bind="html: '<b>Date Completed: </b> ' + date_completed()"></div>
@@ -134,6 +134,7 @@
     {% compressed_js 'models_ticket' %}
     {% compressed_js 'models_comments' %}
     {% compressed_js 'models_ticket_status' %}
+    {% compressed_js 'models_location' %}
 
 
     <script type="text/javascript">
@@ -143,7 +144,7 @@
         var ticket_status_api = '{% url "ticket_status_api" %}';
         var ticket_comment_api = '{% url "ticket_comment_api" %}';
         var ticketProfile = {
-            profile:new cartlogic.TicketsProfileViewModel()
+            profile: new cartlogic.TicketsProfileViewModel()
         };
 
         ko.applyBindings(ticketProfile, document.getElementById('main'));

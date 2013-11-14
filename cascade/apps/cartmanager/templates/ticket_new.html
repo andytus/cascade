@@ -46,7 +46,6 @@
 
 </script>
 
-
 <script id="SearchAddress" type="text/html">
 
     <p data-bind="html: message"></p>
@@ -68,6 +67,7 @@
 
            </label>
             <br>
+        </div>
 
     </div>
 </script>
@@ -128,6 +128,21 @@
     </div>
 </script>
 
+<script id="SelectServiceCharge" type="text/html">
+    <p data-bind="html: message"></p>
+    <p data-bind="text: '$' + $root.create.service_charge()" class="pull-left new-selected"></p>
+    <div data-bind="foreach: $root.create.service_charge_options" class="pull-right new-radio">
+        <label>
+            <input type="radio" name="service_charge" data-bind="id: $data, value: $data.amount,
+            checked:$root.create.service_charge">
+            <span data-bind="text:'$' + $data.amount"></span>
+        </label>
+    </div>
+</script>
+
+
+
+
 
 <script id="ConfirmTicket" type="text/html">
     <p data-bind="text: message"></p>
@@ -146,6 +161,7 @@
         <!-- ko if: ($root.create.service_type() == 'Exchange' || $root.create.service_type() == 'Remove') -->
         <p><b>Create one Removal or Removal Exchange Ticket:</b></p>
         <p data-bind="html:'CART SERIAL:  '+ $root.create.cart_serial_number()"></p>
+        <p data-bind="html:'CHARGE: ' + $root.create.service_charge()"></p>
         <!-- /ko -->
 
 </script>
@@ -157,15 +173,13 @@
 
 </script>
 
-
 {% load compressed %}
 {% compressed_js 'views_ticket_create' %}
 {% compressed_js 'models_form_steps' %}
 {% compressed_js 'models_cart_type_options' %}
 {% compressed_js 'models_location' %}
 {% compressed_js 'models_route' %}
-
-
+{% compressed_js 'models_service_charges' %}
 
 
 <script type="text/javascript">
@@ -182,6 +196,7 @@
     var ticket_api = '{% url "ticket_api" %}';
     var location_api_search = "{% url "location_api_search"  %}";
     var cart_type_options_api_url = "{% url "cart_type_api" %}";
+    var cart_service_charge_api_url = "{% url "cart_service_charge_api" %}";
     var ticketCreate = {
         create:new cartlogic.TicketCreateViewModel
     };
