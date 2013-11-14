@@ -15,7 +15,7 @@ def save_error(e, line, site):
     error_message = ""
     if hasattr(e, 'message_dict'):
         for key, value in e.message_dict.iteritems():
-            error_message += "%s: %s " % (str(key).upper(), ','.join(str(value)))
+            error_message += "%s: %s " % (str(key).upper(), (str(value)))
     Site.objects.clear_cache()
     error = DataErrors(error_message=error_message, error_type=e.__class__.__name__,
                        failed_data=line, site=site)
