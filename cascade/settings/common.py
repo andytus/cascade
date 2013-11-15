@@ -407,6 +407,15 @@ PIPELINE_JS = {
         ),
         'output_filename': 'compress/ticket_services.js',
     },
+
+    'models_service_charges': {
+        'source_filenames': (
+            'js/cartmanager/models/service_charge.js',
+        ),
+        'output_filename': 'compress/service_charge.js',
+    },
+
+
     'models_ticket_status': {
         'source_filenames': (
             'js/cartmanager/models/ticket_status.js',
