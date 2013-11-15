@@ -153,11 +153,9 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 query = Ticket.on_site.all()
 
             if no_charges == 'true':
-                print no_charges, "in no charges"
                 query = query.filter(charge__gt=0.00)
 
             if charge != 'ALL':
-                print charge
                 query = query.filter(charge=float(charge))
 
             if search_days != 'ALL':
