@@ -20,16 +20,24 @@ RQ_QUEUES = {
         }
 }
 
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'redis_cache.cache.RedisCache',
+#         'LOCATION': 'localhost:6379',
+#         'OPTIONS': {'DB': 0},
+#     }
+#
+# }
+
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.cache.RedisCache',
-        'LOCATION': 'localhost:6379',
-        'OPTIONS': {'DB': 0},
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
-
 }
 
 
+
 PIPELINE_ENABLED = False
+PIPELINE = False
 
 EMAIL_SUBJECT_PREFIX = '[CartLogic-Dev]'

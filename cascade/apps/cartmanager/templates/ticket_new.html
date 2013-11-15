@@ -3,7 +3,9 @@
     <div id="new_ticket" data-bind="template: {name: 'CurrentTemplate', data: create.currentStep }">
     </div>
     <div class="modal-footer">
-        <button class="btn btn-large pull-left" data-dismiss="modal" aria-hidden="true" data-bind="visible: !(create.isCompleteStep())">Cancel</button>
+        <button class="btn btn-large pull-left" data-dismiss="modal" aria-hidden="true"
+                data-bind="visible: !(create.isCompleteStep())">Cancel
+        </button>
         <button class="btn btn-large" data-bind="click: create.goPrevious, visible: create.canGoPrevious"><i
                 class="icon-caret-left"> </i>Previous
         </button>
@@ -11,10 +13,13 @@
                 class="icon-caret-right"></i>
         </button>
 
-        <button class="btn btn-large" data-bind="visible: create.isCompleteStep" data-dismiss="modal" aria-hidden="true">Close
+        <button class="btn btn-large" data-bind="visible: create.isCompleteStep" data-dismiss="modal"
+                aria-hidden="true">Close
         </button>
 
-        <button class="btn btn-large btn-primary" data-bind="visible: create.isConfirmStep, click: create.createNewTicket">Save changes</button>
+        <button class="btn btn-large btn-primary"
+                data-bind="visible: create.isConfirmStep, click: create.createNewTicket">Save changes
+        </button>
     </div>
 </div>
 
@@ -39,8 +44,9 @@
 
     <div data-bind="foreach: $root.create.service_type_options" class="pull-right new-radio">
         <label>
-        <input type="radio" name="service_type" data-bind="id: $data, value: $data, checked: $root.create.service_type">
-        <span data-bind="text: $data" ></span>
+            <input type="radio" name="service_type"
+                   data-bind="id: $data, value: $data, checked: $root.create.service_type">
+            <span data-bind="text: $data"></span>
         </label>
     </div>
 
@@ -54,18 +60,19 @@
 
         <p data-bind="text: cart_address"></p>
 
-        <input type="text" data-bind="value: cart_address_search, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
+        <input type="text"
+               data-bind="value: cart_address_search, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
 
 
         <div data-bind="foreach: addressList" class="address-list">
 
             <label>
 
-            <input type="radio" data-bind="attr:{id: id, value: full_address, name: 'full_address' }, checked: $root.create.cart_address_search,
+                <input type="radio" data-bind="attr:{id: id, value: full_address, name: 'full_address' }, checked: $root.create.cart_address_search,
                    click: function(data, event){$root.create.set_address_cart_list(data, event); return true}, clickBubble: false"/>
                 <span data-bind="text: full_address"></span>
 
-           </label>
+            </label>
             <br>
         </div>
 
@@ -82,22 +89,24 @@
 
 <script id="SelectSerial" type="text/html">
     <p data-bind="html: message"></p>
-   <div data-bind="visible: $root.create.cartSerialList().length == 0" class="text-error">
-        <p> <i>No carts at this Address.</i> <br> Are you sure you want to create a Service Type of
+
+    <div data-bind="visible: $root.create.cartSerialList().length == 0" class="text-error">
+        <p><i>No carts at this Address.</i> <br> Are you sure you want to create a Service Type of
             <u><b><span data-bind=" text: $root.create.service_type"></span></b></u>  </span> <br>
             <b>Please click Cancel and Start Over</b></p>
     </div>
 
     <div data-bind="foreach: $root.create.cartSerialList, visible: $root.create.cartSerialList().length > 0">
-         <label>
-        <input type="radio" name="address"
-               data-bind="id: serial_number, value: serial_number, checked: $root.create.cart_serial_number" />
-        <span data-bind="text: 'Cart Serial: ' + serial_number"></span>
+        <label>
+            <input type="radio" name="address"
+                   data-bind="id: serial_number, value: serial_number, checked: $root.create.cart_serial_number"/>
+            <span data-bind="text: 'Cart Serial: ' + serial_number"></span>
         </label>
     </div>
 </script>
 
 <script id="ConfirmSerial" type="text/html"><b>Please click Cancel and Start Over</b>
+
     <p data-bind="html: message"></p>
 
     <p data-bind="text: $root.create.cart_serial_number"></p>
@@ -111,37 +120,46 @@
 
     <div data-bind="foreach: $root.create.cart_type_unique_sizes" class="pull-right new-radio">
         <label>
-        <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
-        <span data-bind="text: $data"></span>
+            <input type="radio" name="cart_size" data-bind="id: $data, value: $data, checked: $root.create.cart_size">
+            <span data-bind="text: $data"></span>
         </label>
     </div>
 </script>
 
 <script id="SelectCartType" type="text/html">
     <p data-bind="html: message"></p>
+
     <p data-bind="text: $root.create.cart_type" class="pull-left new-selected"></p>
+
     <div data-bind="foreach: $root.create.cart_type_unique_type" class="pull-right new-radio">
         <label>
-        <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
-         <span data-bind="text: $data"></span>
+            <input type="radio" name="cart_type" data-bind="id: $data, value: $data, checked: $root.create.cart_type">
+            <span data-bind="text: $data"></span>
         </label>
     </div>
 </script>
 
 <script id="SelectServiceCharge" type="text/html">
     <p data-bind="html: message"></p>
+
     <p data-bind="text: '$' + $root.create.service_charge()" class="pull-left new-selected"></p>
-    <div data-bind="foreach: $root.create.service_charge_options" class="pull-right new-radio">
+
+    <div class="pull-right">
+    <div data-bind="foreach: $root.create.service_charge_options" class="new-radio">
         <label>
             <input type="radio" name="service_charge" data-bind="id: $data, value: $data.amount,
             checked:$root.create.service_charge">
             <span data-bind="text:'$' + $data.amount"></span>
         </label>
     </div>
+         <div>
+        <label for="service_charge_prorated">
+            Override\Prorated:
+        </label>
+        $<input type="text" style="width: 2em;" name="service_charge_prorated" data-bind="value: $root.create.service_charge">
+    </div>
+   </div>
 </script>
-
-
-
 
 
 <script id="ConfirmTicket" type="text/html">
@@ -152,23 +170,28 @@
 
 
     <p data-bind="html: 'SERVICE TYPE: <b>' + $root.create.service_type() + '</b>' "></p><br>
-        <!-- ko if: ($root.create.service_type() == 'Delivery' || $root.create.service_type() == 'Exchange') -->
-         <p><b>Create one Delivery or Delivery Exchange Ticket:</b></p>
-         <p data-bind="html: 'CART SIZE:  ' + $root.create.cart_size()"></p>
-         <p data-bind="html: 'CART TYPE:  ' + $root.create.cart_type()"></p>
-         <!-- /ko -->
+    <!-- ko if: ($root.create.service_type() == 'Delivery' || $root.create.service_type() == 'Exchange') -->
+    <p><b>Create one Delivery or Delivery Exchange Ticket:</b></p>
 
-        <!-- ko if: ($root.create.service_type() == 'Exchange' || $root.create.service_type() == 'Remove') -->
-        <p><b>Create one Removal or Removal Exchange Ticket:</b></p>
-        <p data-bind="html:'CART SERIAL:  '+ $root.create.cart_serial_number()"></p>
-        <p data-bind="html:'CHARGE: ' + $root.create.service_charge()"></p>
-        <!-- /ko -->
+    <p data-bind="html: 'CART SIZE:  ' + $root.create.cart_size()"></p>
+
+    <p data-bind="html: 'CART TYPE:  ' + $root.create.cart_type()"></p>
+    <!-- /ko -->
+
+    <!-- ko if: ($root.create.service_type() == 'Exchange' || $root.create.service_type() == 'Remove') -->
+    <p><b>Create one Removal or Removal Exchange Ticket:</b></p>
+
+    <p data-bind="html:'CART SERIAL:  '+ $root.create.cart_serial_number()"></p>
+
+    <p data-bind="html:'CHARGE: ' + $root.create.service_charge()"></p>
+    <!-- /ko -->
 
 </script>
 
 <script id="Complete" type="text/html">
-     <p data-bind="css:{'text-success': $root.create.server_message_type() == 'Success', 'text-error':
+    <p data-bind="css:{'text-success': $root.create.server_message_type() == 'Success', 'text-error':
       $root.create.server_message_type() == 'Failed'}, text: $root.create.server_message_type"></p>
+
     <p data-bind="text: $root.create.server_message"></p>
 
 </script>
@@ -187,7 +210,7 @@
     var cart_id = '{{ cart_id }}' || null;
     var location_id = '{{ location_id }}' || null;
     var cart_address = '{{ cart_address }}' || null;
-    var cart_address_unit ='{{ cart_address_unit }}' || null;
+    var cart_address_unit = '{{ cart_address_unit }}' || null;
 
     var cart_address_street_name = '{{ cart_address_street_name }}'.replace('&#39;', "'") || null;
 
@@ -198,7 +221,7 @@
     var cart_type_options_api_url = "{% url "cart_type_api" %}";
     var cart_service_charge_api_url = "{% url "cart_service_charge_api" %}";
     var ticketCreate = {
-        create:new cartlogic.TicketCreateViewModel
+        create: new cartlogic.TicketCreateViewModel
     };
 
     ko.applyBindings(ticketCreate, document.getElementById('create_ticket'));

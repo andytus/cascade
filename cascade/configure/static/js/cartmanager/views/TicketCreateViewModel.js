@@ -36,10 +36,10 @@
                 return address
 
             } else {
-                var address = self.cart_house_number() + " " + self.cart_street_name();
+                var address_unit = self.cart_house_number() + " " + self.cart_street_name();
                 if (self.cart_unit) {
-                    address = address + " " + self.cart_unit();
-                    return address
+                    address_unit = address_unit + " " + self.cart_unit();
+                    return address_unit
                 }
             }
         });
@@ -125,6 +125,7 @@
         self.stepModels.splice(-2, 0, cart_size_step);
         self.stepModels.splice(-2, 0, cart_type_step);
 
+        //call get service charge
         self.getServiceCharges = function(){
            $.getJSON(cart_service_charge_api_url, function(data){
                if (data.length){
