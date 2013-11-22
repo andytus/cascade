@@ -236,7 +236,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 header = OrderedDict([('id', 'ID'), ('charge', 'Charge'), ('location.house_number', 'House Number'),
                                       ('location.street_name', 'Street Name'), ('location.unit', 'Unit'),
                                       ('service_type.service', 'Service Type'), ('serviced_cart.rfid', 'Serviced Cart'),
-                                      ('expected_cart.rfid','Expected Cart'), ('cart_type', 'Cart Type'),
+                                      ('expected_cart.rfid','Expected Cart'), ('cart_type.name', 'Cart Type'),
                                       ('cart_type.size', 'Cart Size'), ('date_completed', 'Date Completed'),
                                       ('created_by.username', 'Created By'), ('success_attempts', 'Attempts')])
 
