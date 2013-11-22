@@ -181,6 +181,9 @@ class CartParts(models.Model):
     def get_info(self):
         return {'name': self.name, 'on_hand': self.on_hand, 'description': self.description}
 
+    def __unicode__(self):
+        return "Part: %s, On Hand: %s" % (self.name, self.on_hand)
+
 
 class TicketStatus(models.Model):
 
