@@ -226,7 +226,6 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             header = {}
             if self.report_type == 'service_tickets':
                 #using OrderedDict to maintain column order
-                print "here"
                 header = OrderedDict([('id','ID'), ('location.street_name', 'Street Name'),
                                       ('location.house_number', 'House Number'), ('location.unit', 'Unit'),
                                       ('service_type.code', 'Service'), ('cart_type.size', 'Cart Size'),
@@ -536,7 +535,6 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 #If we have an expected cart serial number it is a remove, exchange, repair or audit
                 #TODO put repair or audits in here
                 if expected_cart_serial_number:
-                    print "expected"
                     expected_cart = Cart.on_site.get(serial_number=expected_cart_serial_number)
                     remove_or_repair_ticket = Ticket(created_by=request.user, location=location,
                                                      status=requested_ticket_status,
@@ -552,14 +550,14 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                             #Explictly make a $0.00 charge, since charges are applied to
                             #the exchange delivery side of the exchange ticket pair.
                         elif requested_service_type == 'Repair':
+                            expected_cart.current_status = CartStatus.objects.get(label='Damaged')
+                            expected_cart.save()
                             service_type_repair = CartServiceType.on_site.get(code='REPAIR')
                             remove_or_repair_ticket.service_type = service_type_repair
                             remove_or_repair_ticket.save()
                             cart_parts = list(json_data.get('cart_parts', None))
-                            print cart_parts
                             for part in cart_parts:
                                 add_part = CartParts.on_site.get(name=part)
-                                print add_part
                                 remove_or_repair_ticket.damaged_parts.add(add_part)
                         else:
                             service_type_remove = CartServiceType.on_site.get(code='REM')
