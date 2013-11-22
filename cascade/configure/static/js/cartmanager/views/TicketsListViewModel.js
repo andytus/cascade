@@ -25,8 +25,10 @@
         self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
         self.search_days = ko.observable('ALL');
+        self.search_days_type = ko.observable('Created');
         self.charge = ko.observable('ALL');
         self.no_charges = ko.observable(false);
+        self.report_type = ko.observable('service_ticket');
 
 
         self.cart_serial_number = ko.observable(cart_serial_number);
@@ -60,6 +62,7 @@
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
                 data.search_days = self.search_days();
+                data.search_days_type = self.search_days_type();
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
             }
@@ -103,6 +106,7 @@
             self.search_days(context.$data.selected_search_days().value);
             self.charge(context.$data.selected_charge());
             self.no_charges(context.$data.no_charges());
+            self.search_days_type(context.$data.search_days_type());
 
             self.route(context.$data.selected_search_days().value)
 
@@ -117,8 +121,12 @@
                 data.route_day = self.route_day();
                 data.route = self.route();
                 data.search_days = self.search_days();
+                data.search_days_type = self.search_days_type();
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
+                //just getting report type directing from TicketsListViewModel
+                //don't need for displayed report
+                data.report_type = self.report_type().report;
                 window.location = tickets_api_download + "?format=" + this.id.slice(9) + "&" + jQuery.param(data);
             } else {
                 self.getPagedDataAsync();

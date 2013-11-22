@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from models import CartServiceType, CartStatus, CartType, TicketStatus,\
     AdminDefaults, ZipCodes, ServiceReasonCodes, Route, CollectionAddress, Cart, Ticket, CollectionCustomer,\
-    CartServiceCharge
+    CartServiceCharge, CartParts
 
 
 from cascade.apps.cartmanager.models import UserAccountProfile, InventoryAddress
@@ -34,6 +34,9 @@ class UserAccountProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name = 'profile'
 
+class CartPartsAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'on_hand']
+
 
 class UserAdmin(UserAdmin):
     inlines = (UserAccountProfileInline,)
@@ -52,6 +55,7 @@ admin.site.register(InventoryAddress)
 admin.site.register(CartServiceType)
 admin.site.register(CartStatus)
 admin.site.register(CartType)
+admin.site.register(CartParts, CartPartsAdmin)
 admin.site.register(TicketStatus)
 admin.site.register(AdminDefaults)
 admin.site.register(ZipCodes)

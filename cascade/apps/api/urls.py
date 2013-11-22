@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from cascade.apps.api.views import TicketSearchAPI, CartProfileAPI, CartSearchAPI, CustomerProfileAPI, \
     LocationSearchAPI, CartStatusAPI, CartTypeAPI, TicketAPI, LocationAPI, AdminDefaultLocation, TicketStatusAPI, \
-    TicketCommentAPI, TicketServiceTypeAPI, FileUploadListAPI, RouteListAPI, CartServiceChargesAPI
+    TicketCommentAPI, TicketServiceTypeAPI, FileUploadListAPI, RouteListAPI, CartServiceChargesAPI, CartPartsAPI
 
 from django.views.decorators.cache import cache_page
 from rest_framework.urlpatterns import format_suffix_patterns
@@ -19,6 +19,7 @@ urlpatterns = patterns('cascade.apps.api.views',
                        url(r'^cart/type/options/$', CartTypeAPI.as_view(), name='cart_type_api'),
                        url(r'^cart/services/charges/$', CartServiceChargesAPI.as_view(),
                            name='cart_service_charge_api'),
+                       url(r'cart/parts/options/$', CartPartsAPI.as_view(), name='cart_parts_api'),
                        url(r'^cart/status/options/$', CartStatusAPI.as_view(), name='cart_status_api'),
                        url(r'^customer/profile/(?P<customer_id>[a-zA-Z0-9]+)?$', CustomerProfileAPI.as_view(),
                            name='customer_api_profile'),

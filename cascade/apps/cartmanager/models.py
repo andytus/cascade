@@ -160,16 +160,32 @@ class CartType(models.Model):
         ordering = ["-name", "-size"]
 
     def get_info(self):
-        return {'name':self.name, 'size': self.size}
+        return {'name': self.name, 'size': self.size}
 
     def __unicode__(self):
-        return "%s" % self.name
+        return "%s, size: %s" % (self.name, self.size)
+
+
+class CartParts(models.Model):
+    name = models.CharField(max_length=50, blank=False)
+    description = models.CharField(max_length=200, blank=True, null=True)
+    on_hand = models.IntegerField(blank=True, null=True)
+
+    site = models.ManyToManyField(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
+    class Meta:
+        verbose_name_plural = ' Cart Parts'
+
+    def get_info(self):
+        return {'name': self.name, 'on_hand': self.on_hand, 'description': self.description}
 
 
 class TicketStatus(models.Model):
 
-    LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
-             ("label-inverse", "Default"), ('label', 'Inverse'))
+    LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"),
+             ("label-success", "Success" ), ("label-inverse", "Default"), ('label', 'Inverse'))
     level = models.CharField(max_length=35, choices=LEVEL)
     service_status = models.CharField(max_length=30)
 
@@ -189,11 +205,15 @@ class CartServiceCharge(models.Model):
     currency = models.CharField(max_length=50, default='US Dollars')
     description = models.CharField(max_length=120, blank=True)
 
+    site = models.ManyToManyField(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
+
     def get_info(self):
         return {'amount': self.amount, 'description': self.description}
 
     def __unicode__(self):
-        return str(self.amount)
+        return "Amount: %s, Currency: %s" % (str(self.amount), self.currency)
 
 
 class CartServiceType(models.Model):
@@ -216,7 +236,7 @@ class CartServiceType(models.Model):
         return {'service': self.service, 'code': self.code, 'description': self.description}
 
     def __unicode__(self):
-        return self.service
+        return "Service: %s, Code: %s" % (self.service, self.code)
 
 
 class ServiceReasonCodes(models.Model):
@@ -225,6 +245,9 @@ class ServiceReasonCodes(models.Model):
 
     class Meta:
         verbose_name_plural = "Service Reason Codes"
+
+    def __unicode__(self):
+        return "Code: %s, Description: %s" % (self.code, self.description)
 
 
 class Route(models.Model):
@@ -355,7 +378,7 @@ class ForeignSystemCustomerID(models.Model):
     on_site = CurrentSiteManager()
 
     def __unicode__(self):
-        return "identity: %s to %s, last updated:%s" %(self.identity, self.system_name, self.last_updated)
+        return "identity: %s to %s, last updated:%s" % (self.identity, self.system_name, self.last_updated)
 
 
 class CollectionAddress(Address):
@@ -449,6 +472,7 @@ class Ticket(models.Model):
     cart_type = models.ForeignKey(CartType, null=True, blank=True, related_name="cart_type")
     status = models.ForeignKey(TicketStatus, null=True, blank=True, related_name="status")
     charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    damaged_parts = models.ManyToManyField(CartParts, null=True, blank=True, related_name="damaged_parts")
 
     #date information
     date_completed = models.DateTimeField(null=True)
@@ -464,7 +488,6 @@ class Ticket(models.Model):
     reason_codes = models.ForeignKey(ServiceReasonCodes, null=True, blank=True)
     processed = models.BooleanField(default=False)
     file_upload = models.ForeignKey(TicketsCompleteUploadFile, null=True, blank=True, related_name="tickets_upload_file")
-
 
     created_by = models.ForeignKey(User, related_name='created_by_user', null=True, blank=True)
     updated_by = models.ForeignKey(User, related_name="updated_by_user", null=True, blank=True)
@@ -527,7 +550,7 @@ class DataErrors(models.Model):
         ordering = ["-error_date"]
 
     def __unicode__(self):
-        return "%s, %s" %(self.error_date, self.error_message)
+        return "%s, %s" % (self.error_date, self.error_message)
 
 
 class TicketsCompletedUploadFileForm(forms.Form):

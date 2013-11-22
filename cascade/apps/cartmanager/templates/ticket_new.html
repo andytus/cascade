@@ -157,9 +157,27 @@
             Override\Prorated:
         </label>
         $<input type="text" style="width: 2em;" name="service_charge_prorated" data-bind="value: $root.create.service_charge">
-    </div>
+        </div>
    </div>
 </script>
+
+
+<script id="SelectParts" type='text/html'>
+    <p data-bind="html: message"></p>
+    <ul class="pull-left" data-bind="foreach: $root.create.selected_cart_parts" style="list-style-type:none">
+        <li data-bind="text: $data" class="new-selected"></li>
+
+    </ul>
+    <div data-bind="foreach: $root.create.cart_parts_options()" class="pull-right new-radio">
+        <label>
+            <input type="checkbox" data-bind="value: $data.name, checked: $root.create.selected_cart_parts" />
+            <span data-bind="text: $data.name"></span>
+        </label>
+    </div>
+
+</script>
+
+
 
 
 <script id="ConfirmTicket" type="text/html">
@@ -203,6 +221,7 @@
 {% compressed_js 'models_location' %}
 {% compressed_js 'models_route' %}
 {% compressed_js 'models_service_charges' %}
+{% compressed_js 'models_parts' %}
 
 
 <script type="text/javascript">
@@ -220,10 +239,10 @@
     var location_api_search = "{% url "location_api_search"  %}";
     var cart_type_options_api_url = "{% url "cart_type_api" %}";
     var cart_service_charge_api_url = "{% url "cart_service_charge_api" %}";
+    var cart_parts_api_url = "{% url "cart_parts_api" %}";
     var ticketCreate = {
         create: new cartlogic.TicketCreateViewModel
     };
-
     ko.applyBindings(ticketCreate, document.getElementById('create_ticket'));
 
 

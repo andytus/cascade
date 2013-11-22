@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
-    Ticket, AdminDefaults, TicketStatus, TicketComments, CartServiceType, Route, CartServiceCharge
+    Ticket, AdminDefaults, TicketStatus, TicketComments, CartServiceType, Route, CartServiceCharge, CartParts
 
 #Monkey patch on django rest framework for supporting nulls:
 # https://github.com/tomchristie/django-rest-framework/issues/384
@@ -146,11 +146,13 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
     expected_cart__serial_number = CleanRelatedField(source='expected_cart.serial_number')
     expected_cart__id = CleanRelatedField(source='expected_cart.id')
 
+
     status__service_status = CleanRelatedField(source='status.service_status')
     status__level = CleanRelatedField(source='status.level')
     service_type__code = CleanRelatedField(source='service_type.code')
     service_type__service = CleanRelatedField(source='service_type.service')
     reason_code__description = CleanRelatedField(source='reason_codes.description')
+    cart_parts = serializers.SlugRelatedField(source='damaged_parts', many=True, slug_field='name')
 
     #Cart Requested Info####################################
     cart_type__name = CleanRelatedField(source='cart_type.name')
@@ -171,7 +173,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
 
     class Meta:
         model = Ticket
-        fields = ('id', 'service_type__code', 'service_type__service', 'success_attempts', 'charge',
+        fields = ('id', 'service_type__code', 'service_type__service', 'success_attempts', 'charge', 'cart_parts',
                   'serviced_cart__serial_number', 'serviced_cart__id', 'serviced_cart__cart_type__size',
                   'serviced_cart__cart_type__name', 'expected_cart__serial_number', 'status__service_status',
                   'status__level', 'reason_code__description', 'processed', 'date_completed', 'date_created',
@@ -237,4 +239,11 @@ class RouteSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = Route
         depth = 1
+        exclude = ('site', )
+
+
+class CartPartsSerializer(serializers.ModelSerializer, NullSerializerPatch):
+
+    class Meta:
+        model = CartParts
         exclude = ('site', )

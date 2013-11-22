@@ -24,11 +24,13 @@ function Ticket(data) {
     self.date_last_attempted = ko.observable();
     self.date_completed = ko.observable("none");
 
+
     //status attributes, level used for css style
     self.status__service_status = ko.observable();
     self.status__level = ko.observable();
     self.reason_code__description = ko.observable();
     self.charge = ko.observable();
+    self.cart_parts = ko.observableArray([]);
 
 
     //location of ticket
@@ -115,7 +117,13 @@ function Ticket(data) {
 
         self.route__route(data.route);
 
-
+        if (data.cart_parts.length > 0) {
+            console.log("evaluating parts")
+        var CartParts = $.map(data.cart_parts, function(item){
+            return item
+         });
+         }
+        self.cart_parts(CartParts);
     }
 
 }

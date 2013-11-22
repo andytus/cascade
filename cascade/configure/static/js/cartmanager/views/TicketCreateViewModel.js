@@ -12,7 +12,7 @@
     function TicketCreateViewModel() {
 
         var self = this;
-        self.service_type_options = ko.observableArray(['Delivery', 'Exchange', 'Remove']);
+        self.service_type_options = ko.observableArray(['Delivery', 'Exchange', 'Remove', 'Repair']);
         self.service_type = ko.observable("None");
         self.cart_serial_number = ko.observable(cart_serial_number);
         self.cartSerialList = ko.observableArray([]);
@@ -44,9 +44,13 @@
             }
         });
 
+        //select parts for repairs
+        self.selected_cart_parts = ko.observableArray([]);
+
         self.addressList = ko.observableArray([]);
         self.cart_size = ko.observable("");
         self.cart_type = ko.observable("None");
+        self.cart_parts_options = ko.observableArray([]);
         self.cart_type_options = ko.observableArray([]);
         //get only the unique sizes from the cart type options
         self.cart_type_unique_sizes = ko.computed(
@@ -155,6 +159,17 @@
             )
         };
 
+       self.getCartPartsOptions = function(){
+           $.getJSON(cart_parts_api_url, function(data){
+               var cartPartsList = $.map(data, function(item){
+                   return new cartlogic.CartParts(item)
+               });
+               self.cart_parts_options(cartPartsList);
+           });
+       };
+
+       self.getCartPartsOptions();
+
         self.getCartTypeOptions();
 
         self.set_address_cart_list = function (data, event) {
@@ -171,13 +186,16 @@
 
         //subscribe to the service type selected and update the wizard as needed:
         self.update_wizard = self.service_type.subscribe(function (service_type) {
-            if (service_type == 'Exchange' || service_type == 'Remove') {
+            //replace service_type_options with service_type so we don't have to manage adding
+            //removing the stepModels added for exchange or remove
+            self.service_type_options([service_type]);
+            if (service_type == 'Exchange' || service_type == 'Remove' || service_type == 'Repair') {
                 if (!cart_serial_number) {
                     //check for serial, if null serial, then insert cart serial select
                     //the list of serial numbers comes from location query in self.searchAddress, Note the Click binding on address input
                     //from ticket_new.html
                     var serial_cart_select = new cartlogic.FormStep(4, "Select Cart Serial Number to <b>Remove " +
-                        "or Exchange</b>", "SelectSerial", {message: ko.observable("Select Cart Serial Number below")});
+                        "Exchange or Repair</b>", "SelectSerial", {message: ko.observable("Select Cart Serial Number below")});
                     self.stepModels.splice(3, 0, serial_cart_select);
 
                 } else {
@@ -188,24 +206,23 @@
                         "<b> Remove or Exchange </b>", "ConfirmSerial", {message: ko.observable("Select Next to Confirm")});
                     self.stepModels.splice(2, 0, confirm_cart_serial);
                 }
-                if (service_type == 'Remove') {
-                    self.service_type_options.remove('Delivery');
-                    self.service_type_options.remove('Exchange');
-                    self.stepModels.remove(cart_size_step);
-                    self.stepModels.remove(cart_type_step);
-                } else {
-                    self.service_type_options.remove('Remove');
-                    self.service_type_options.remove('Delivery');
-                }
+            if(service_type == 'Repair' || service_type == 'Remove'){
 
-            } else {
-                //this is a Delivery remove the Exchange and Remove
-                self.service_type_options.remove('Exchange');
-                self.service_type_options.remove('Remove');
+                self.stepModels.remove(function(item){
+                    return item.id == 5 || item.id == 6;
+                })
+
+                if(service_type == 'Repair'){
+
+                var parts_options_select = new cartlogic.FormStep(10, 'Select Parts', 'SelectParts',
+                                                                 {message:"Select parts to be repaired"});
+                self.stepModels.splice(-2, 0, parts_options_select);
+                }
+            }
+
             }
 
         });
-
 
         //Gets the typed address from the server
         self.searchAddress = function () {
@@ -297,13 +314,17 @@
                 data.cart_type = self.cart_type();
             }
 
-            if (self.service_type() == 'Remove' || self.service_type() == 'Exchange') {
+            if (self.service_type() != 'Delivery') {
                 data.cart_serial_number = self.cart_serial_number();
 
             }
 
             if (self.service_type() != 0.00) {
                 data.service_charge = self.service_charge();
+            }
+
+            if (self.selected_cart_parts().length > 0){
+                data.cart_parts = self.selected_cart_parts();
             }
 
             $.ajax(ticket_api + 'New', {

@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 #from django.db import transaction
 from cascade.apps.cartmanager.models import Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, \
     TicketStatus, TicketComments, CollectionCustomer, CartServiceType, \
-    CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route
+    CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route, CartParts
 from django.utils import timezone
 from datetime import datetime
 
@@ -32,7 +32,6 @@ def save_cart_records(line, file_record):
                     inventory_location=InventoryAddress.objects.get(site=file_record.site, default=True),
                     file_upload=file_record, cart_type=cart_type, current_status=cart_status,
                     born_date=datetime.strptime(born_date.strip(), "%m/%d/%Y"))
-        #TODO work on getting unit logic
 
         cart.full_clean()
         cart.save()
@@ -92,6 +91,7 @@ def save_ticket_records(line, file_record):
                 clean_rfid = rfid.strip('=').strip('"')
                 cart = Cart.on_site.get(rfid__exact=clean_rfid)
             except Cart.DoesNotExist:
+                #if we don't have a cart we should create it
                 cart = Cart(site=file_record.site, rfid=clean_rfid,
                             serial_number=clean_rfid,  #rfid.strip('=').strip('"')[-12:],
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
@@ -108,14 +108,8 @@ def save_ticket_records(line, file_record):
                                                 " -Imported from reader device: %s" % device_name,
                                                 ticket=ticket, created_by=file_record.uploaded_by)
                 ticket_comment.save()
-                #status from the uploaded file
-            if ticket.service_type.code == 'REPAIR':
-                file_record.repair_count += 1
-                ticket.success_attempts += 1
-                ticket.date_completed = datetime.strptime(complete_datetime.strip(), time_format)
-                ticket.serviced_cart = cart
 
-            elif upload_ticket_status.split("-")[0] == "UNSUCCESSFUL":
+            if upload_ticket_status.split("-")[0] == "UNSUCCESSFUL":
                 if "-" in upload_ticket_status:
                     ticket.reason_codes = ServiceReasonCodes.objects.get(description=upload_ticket_status.split("-")[1])
                 file_record.unsuccessful += 1
@@ -140,7 +134,8 @@ def save_ticket_records(line, file_record):
                 #updating current cart status
                 cart.current_status = ticket.service_type.complete_cart_status_change
 
-                if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL':
+                if ticket.service_type.code == 'DEL' or ticket.service_type.code == 'EX-DEL' or \
+                   ticket.service_type.code == 'REPAIR':
                     cart.location = ticket.location
                     #set to not at inventory
                     cart.at_inventory = False
@@ -149,9 +144,22 @@ def save_ticket_records(line, file_record):
                         cart.last_latitude = ticket.latitude
                         cart.last_longitude = ticket.longitude
 
+                    if ticket.service_type.code == "REPAIR":
+                        #For Repairs we need to add the fixed components
+                        #TODO need the ability to fix multiple parts (i.e.for loop)
+                        part = CartParts.on_site.get(name=str(broken_component))
+                        ticket.damaged_parts.add(part)
+                        # check to see if the expected cart is not the same as the serviced cart
+                        # this means the expected cart was removed and should be placed in inventory
+                        if ticket.expected_cart != ticket.serviced_cart:
+                            ticket.expected_cart.location = None
+                            ticket.expected_cart.inventory_location = InventoryAddress.on_site.get(default=True)
+                            ticket.expected_cart.at_inventory = True
+                            ticket.expected_cart.last_latitude = ticket.expected_cart.inventory_location.latitude
+                            ticket.expected_cart.last_longitude = ticket.expected_cart.inventory_location.longitude
+
                 elif ticket.service_type.code == "EX-REM" or ticket.service_type.code == "REM":
                     # check to see if the expected cart is the same as the serviced cart
-                    # In other words, did the correct cart get removed
                     if ticket.expected_cart == ticket.serviced_cart:
                         # check to see if the removed cart is still at the ticket location before removing
                         # because it could have been delivered to another addresss
@@ -163,13 +171,11 @@ def save_ticket_records(line, file_record):
                             cart.at_inventory = True
                             cart.last_latitude = cart.inventory_location.latitude
                             cart.last_longitude = cart.inventory_location.longitude
-
                     else:
                     # else ticket.expected is not equal to ticket.serviced (i.e. picked up the wrong cart)
                     # Check if last update is greater than or equal to 2 days and update location to None
                     # else it has been updated, and most likely it has been processed
                     # as a delivery today, leave it alone.
-                        print "in day check wrong Cart"
                         days_last_updated = (timezone.now() - cart.last_updated).days
                         if days_last_updated >= 2:
                             cart.location = None

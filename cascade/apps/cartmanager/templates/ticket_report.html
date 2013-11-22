@@ -29,7 +29,18 @@
 
                 <div id="ticket-query-advanced-options" class="collapse">
                     <div>
-                        <label for="ticket-query-search-days">Created within the last:</label>
+                        <label for="ticket-query-report-type">Report Download Type</label>
+                        <select id="ticket-query-report-type" data-bind="options: $root.report.ticket_report_options,
+                        optionsText: 'display', value:$root.tickets.report_type">
+
+                        </select>
+                    </div>
+                    <div>
+                        <select id="ticket-query-search-day-type" data-bind="options:$root.report.search_days_type_options,
+                                value:$root.report.search_days_type">
+
+                        </select>
+                        <label for="ticket-query-search-days">within the last:</label>
                         <select id="ticket-query-search-days" data-bind="options:$root.report.search_days,
                      optionsText:'display', value:$root.report.selected_search_days"> </select>
                         <label for="ticket-query-search-days-input">or exactly:</label>

@@ -364,6 +364,12 @@ PIPELINE_JS = {
         ),
         'output_filename': 'compress/cart_type_options.js',
     },
+    'models_parts': {
+      'source_filenames':(
+          'js/cartmanager/models/parts.js',
+      ),
+      'output_filename': 'compress/parts.js',
+    },
     'models_comments': {
         'source_filenames': (
             'js/cartmanager/models/comments.js',

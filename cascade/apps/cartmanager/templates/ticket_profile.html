@@ -49,6 +49,13 @@
             <!-- ko if not: date_completed -->
             <div data-bind="html: '<b>Date Completed: </b> ' + date_completed()"></div>
             <!-- /ko -->
+
+            <div id="ticket-info-parts" data-bind="visible: cart_parts()">
+                <b>Damaged Parts:</b>
+                <div data-bind="foreach: cart_parts">
+                <span data-bind="html:  $data + ', '"></span>
+                </div>
+            </div>
             <br>
 
             <div data-bind="html: '<b>Created by:</b> ' + created_by__username()"></div>

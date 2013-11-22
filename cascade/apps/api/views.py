@@ -21,15 +21,17 @@ from rest_framework import status as django_rest_status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 
-from cascade.libs.renderers import CSVRenderer, PDFRenderer
+
+from cascade.libs.renderers import CSVRenderer, PDFRenderer, KMLRenderer, stream_response_generator
 from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, CartSearchSerializer, \
     CartProfileSerializer, CustomerProfileSerializer, CartStatusSerializer, CartTypeSerializer, \
     CartServiceTicketSerializer, AdminLocationDefaultSerializer, UploadFileSerializer, TicketStatusSerializer, \
-    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, CartServiceChargeSerializer
+    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, \
+    CartServiceChargeSerializer, CartPartsSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
 import ho.pisa as pisa
-
+from collections import OrderedDict
 
 
 def write_pdf(template_src, context_dict, file_name):
@@ -44,10 +46,26 @@ def write_pdf(template_src, context_dict, file_name):
     pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
     if not pdf.err:
         response = StreamingHttpResponse(result.getvalue(), mimetype='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=%s.pdf' % file_name
+        response['Content-Type'] = 'attachment; filename=%s.pdf' % file_name
         return response
     return RestResponse({'details': {'message': "There was a problem, Gremlin's ate your pdf!",
                                      'message_type': 'Failed'}}, status=django_rest_status.HTTP_200_OK)
+
+
+def write_kml(template_src, context_dict, file_name, agent):
+    if agent.split("/")[0] != 'GoogleEarth':
+        print "not google earth"
+        # if not equal to google earth provide the login link
+        template_src = 'kml/login_network_link.kml'
+
+    template = loader.get_template(template_src)
+    context = Context(context_dict)
+    kml = template.render(context)
+    response = StreamingHttpResponse(kml, mimetype='application/vnd.google-earth.kml+xml')
+    response['Content-Type'] = 'application/vnd.google-earth.kml+xml'
+    response['Content-Disposition'] = 'attachment; filename=%s.kml' % file_name
+
+    return response
 
 
 class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
@@ -121,10 +139,12 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, JSONPRenderer,
-                        PDFRenderer, BrowsableAPIRenderer, CSVRenderer)
+                        PDFRenderer, BrowsableAPIRenderer, CSVRenderer, KMLRenderer)
+    report_type = []
     paginate_by = 100
 
     def get_queryset(self):
+        self.report_type = self.request.QUERY_PARAMS.get('report_type', 'service_tickets')
         cart_serial = self.request.QUERY_PARAMS.get('serial_number', None)
         customer_id = self.request.QUERY_PARAMS.get("customer_id", None)
         cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
@@ -138,6 +158,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
         charge = self.request.QUERY_PARAMS.get('charge', 'ALL')
         no_charges = self.request.QUERY_PARAMS.get('no_charges', 'false')
+        search_days_type = self.request.QUERY_PARAMS.get('search_days_type', 'Create')
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -160,7 +181,10 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
 
             if search_days != 'ALL':
                 search_date = datetime.now() - timedelta(days=int(search_days))
-                query = query.filter(date_created__gt=search_date)
+                if search_days_type == 'Created':
+                    query = query.filter(date_created__gt=search_date)
+                else:
+                    query = query.filter(date_completed__gt=search_date, service_type__service='Completed')
 
             if cart_serial:
                 query = query.filter(
@@ -193,37 +217,43 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         except:
             raise Http404
 
-    def csv_out(self, row, index):
-        csvfile = StringIO.StringIO()
-        csv_writer = csv.writer(csvfile)
-        if index == 1:
-            csv_writer.writerow(
-                ['SystemID', 'StreetName', 'HouseNumber', 'UnitNumber', 'ServiceType', 'RFID', 'CartSize', 'CartType'])
-        csv_writer.writerow(
-            [row.id, row.location.street_name, row.location.house_number, row.location.unit, row.service_type.code,
-             str(getattr(row.expected_cart, 'rfid', '')) + '"', row.cart_type.size, row.cart_type])
-        return csvfile.getvalue()
-
-    def stream_response_generator(self, data):
-        index = 0
-        for row in data:
-            index += 1
-            yield self.csv_out(row, index)
-            #time.sleep(0.09)
-
     def list(self, request, *args, **kwargs):
+        response = super(TicketSearchAPI, self).list(request, *args, **kwargs)
         file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
         data = self.get_queryset()
         if self.request.accepted_renderer.format == "csv":
-            response = StreamingHttpResponse(self.stream_response_generator(data), mimetype='text/csv')
+            #TODO abstract report type to model for admin report creation
+            header = {}
+            if self.report_type == 'service_tickets':
+                #using OrderedDict to maintain column order
+                print "here"
+                header = OrderedDict([('id','ID'), ('location.street_name', 'Street Name'),
+                                      ('location.house_number', 'House Number'), ('location.unit', 'Unit'),
+                                      ('service_type.code', 'Service'), ('cart_type.size', 'Cart Size'),
+                                      ('cart_type', 'Cart Type')])
+
+            elif self.report_type == 'service_charges':
+                header = OrderedDict([('id', 'ID'), ('charge', 'Charge'), ('location.house_number', 'House Number'),
+                                      ('location.street_name', 'Street Name'), ('location.unit', 'Unit'),
+                                      ('service_type.service', 'Service Type'), ('serviced_cart.rfid', 'Serviced Cart'),
+                                      ('expected_cart.rfid','Expected Cart'), ('cart_type', 'Cart Type'),
+                                      ('cart_type.size', 'Cart Size'), ('date_completed', 'Date Completed'),
+                                      ('created_by.username', 'Created By'), ('success_attempts', 'Attempts')])
+
+            response = StreamingHttpResponse(stream_response_generator(data, header), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             return response
 
         if self.request.accepted_renderer.format == "pdf":
             context = Context({'tickets': data})
             response = write_pdf('tickets_pdf.html', context, file_name)
-            return response
-        return super(TicketSearchAPI, self).list(request, *args, **kwargs)
+
+        if self.request.accepted_renderer.format == "kml":
+            agent = request.META['HTTP_USER_AGENT']
+            context = Context({'tickets': data})
+            response = write_kml('tickets.kml', context, file_name, agent)
+
+        return response
 
 
 class LocationAPI(LoginSiteRequiredMixin, APIView):
@@ -506,27 +536,38 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                 #If we have an expected cart serial number it is a remove, exchange, repair or audit
                 #TODO put repair or audits in here
                 if expected_cart_serial_number:
+                    print "expected"
                     expected_cart = Cart.on_site.get(serial_number=expected_cart_serial_number)
-                    remove_ticket = Ticket(created_by=request.user, location=location,
-                                           status=requested_ticket_status,
-                                           expected_cart=expected_cart,
-                                           cart_type=expected_cart.cart_type,
-                                           charge=service_charge)
+                    remove_or_repair_ticket = Ticket(created_by=request.user, location=location,
+                                                     status=requested_ticket_status,
+                                                     expected_cart=expected_cart,
+                                                     cart_type=expected_cart.cart_type,
+                                                     charge=service_charge)
 
-                    if requested_service_type == 'Exchange' or 'Remove':
+                    if requested_service_type == 'Exchange' or 'Remove' or 'Repair':
                         if requested_service_type == 'Exchange':
                             service_type_remove = CartServiceType.on_site.get(code='EX-REM')
-                            remove_ticket.service_type = service_type_remove
-                            remove_ticket.charge = 0.00
+                            remove_or_repair_ticket.service_type = service_type_remove
+                            remove_or_repair_ticket.charge = 0.00
                             #Explictly make a $0.00 charge, since charges are applied to
                             #the exchange delivery side of the exchange ticket pair.
+                        elif requested_service_type == 'Repair':
+                            service_type_repair = CartServiceType.on_site.get(code='REPAIR')
+                            remove_or_repair_ticket.service_type = service_type_repair
+                            remove_or_repair_ticket.save()
+                            cart_parts = list(json_data.get('cart_parts', None))
+                            print cart_parts
+                            for part in cart_parts:
+                                add_part = CartParts.on_site.get(name=part)
+                                print add_part
+                                remove_or_repair_ticket.damaged_parts.add(add_part)
                         else:
                             service_type_remove = CartServiceType.on_site.get(code='REM')
-                            remove_ticket.service_type = service_type_remove
+                            remove_or_repair_ticket.service_type = service_type_remove
                         if route:
-                            remove_ticket.route = route
+                            remove_or_repair_ticket.route = route
 
-                        remove_ticket.save()
+                        remove_or_repair_ticket.save()
 
                 #Create service ticket or tickets below, some code repeated but feels more readable
 
@@ -556,6 +597,8 @@ class TicketAPI(LoginSiteRequiredMixin, APIView):
                         exchange_del_ticket.route = route
 
                     exchange_del_ticket.save()
+
+
                 return RestResponse({'details': {
                     'message': 'Success! New %s Ticket(s) created for %s' % (requested_service_type, location),
                     'message_type': 'Success'}}, status=django_rest_status.HTTP_201_CREATED)
@@ -749,6 +792,18 @@ class CartServiceChargesAPI(ListAPIView):
     model = CartServiceCharge
     serializer_class = CartServiceChargeSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
+    def get_queryset(self):
+        return CartServiceCharge.on_site.all()
+
+
+class CartPartsAPI(ListAPIView):
+    model = CartParts
+    serializer_class = CartPartsSerializer
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+
+    def get_queryset(self):
+        return CartParts.on_site.all()
 
 
 class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):

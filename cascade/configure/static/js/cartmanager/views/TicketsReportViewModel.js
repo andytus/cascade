@@ -32,6 +32,8 @@
         self.routes = ko.observableArray([]);
         self.route_days = ko.observableArray([]);
         self.route_types = ko.observableArray([]);
+        self.search_days_type = ko.observable('Created');
+        self.search_days_type_options = ko.observableArray(['Created', 'Completed']);
         self.search_days = ko.observableArray(
             [{'display': 'Day', 'value': 1},
             {'display': 'Three days', 'value': 3},
@@ -41,6 +43,9 @@
             {'display': 'Year', 'value': 365},
             {'display': 'Millennium', 'value': 'ALL'}]
         )
+
+        self.ticket_report_options = ko.observableArray([{'display': "Handheld Tickets", 'report': 'service_tickets'},
+                                                 {'display': 'Service Charges', 'report': 'service_charges'}]);
 
 
         self.filtered_routes = ko.computed(function(){
@@ -78,6 +83,16 @@
                                               'route_type': 'ALL', 'route': 'ALL'});
            filtered_routes.unshift(all_route);
            return filtered_routes;
+        });
+
+        self.search_days_type.subscribe(function(data){
+            console.log(data);
+           if (data == 'Completed'){
+               self.selected_status('Completed');
+           }else{
+               self.selected_status('ALL');
+           }
+
         });
 
 
@@ -119,6 +134,7 @@
                     return item.service_status;
                 });
                 self.ticket_status_options(ticketStatusOptions);
+                self.ticket_status_options.unshift('ALL');
                 var match = ko.utils.arrayFirst(self.ticket_status_options(), function (item) {
                     return item === 'Requested';
                 });
