@@ -184,7 +184,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 if search_days_type == 'Created':
                     query = query.filter(date_created__gt=search_date)
                 else:
-                    query = query.filter(date_completed__gt=search_date, service_type__service='Completed')
+                    query = query.filter(date_completed__gt=search_date, status__service_status='Completed')
 
             if cart_serial:
                 query = query.filter(

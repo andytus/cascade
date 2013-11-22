@@ -95,7 +95,6 @@
 
         });
 
-
          self.getServiceTypeOptions = function () {
             $.getJSON(ticket_service_type_api, function (data) {
                 var serviceTypeOptions = $.map(data, function (item) {
@@ -106,10 +105,7 @@
                 var type_match = ko.utils.arrayFirst(self.ticket_type_options(), function (item) {
                     return item == 'ALL'
                 });
-
                 self.selected_type(type_match);
-
-
             });
         };
 
