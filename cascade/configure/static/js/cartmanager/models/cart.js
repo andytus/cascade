@@ -13,17 +13,42 @@
     function Cart(data) {
         var self = this;
         /** Creates a Cart object returns to the view array **/
-        self.cart_serial = ko.observable((data.cart.serial) || "It's Missing");
-        self.born_date = ko.observable(new cartlogic.DateFormat(data.cart.born_date).full_date);
-        self.current_status = ko.observable(data.cart.current_status__label);
-        self.cart_id = ko.observable((data.cart.id));
-        self.cart_url = ko.observable((cart_url + data.cart.serial));
-        self.cart_type__name = ko.observable((data.cart.cart_type__name));
-        self.cart_type__size = ko.observable((data.cart.cart_type__size) || "?");
-        self.customer_id = ko.observable((data.customer.id) || "");
-        self.customer_name = ko.observable((data.customer.name) || "Not Assigned");
-        self.customer_url = ko.observable((customer_url || "") + self.customer_id());
-        self.current_status__level = ko.observable(data.cart.current_status__level);
+       if(data.cart){
+           self.cart_serial = data.cart.serial || "It's Missing";
+           self.born_date = new cartlogic.DateFormat(data.cart.born_date).full_date;
+           self.current_status = data.cart.current_status__label;
+           self.current_status__level = data.cart.current_status__level;
+
+           self.cart_url = cart_url + data.cart.serial;
+           self.cart_type__name = data.cart.cart_type__name || "?";
+           self.cart_type__size = data.cart.cart_type__size || "?";
+           self.cart_id =data.cart.id;
+           self.cart_image = "cart_image"
+
+       }else{
+           self.cart_serial = "No Carts";
+           self.born_date = ""
+           self.cart_type__name = "";
+           self.cart_type__size = "";
+           self.current_status__level = ""
+           self.current_status = ""
+           self.cart_id = null
+           self.cart_image = "cart_image_ghost"
+       }
+        //Checking for customer information
+        if (data.customer){
+        self.customer_id = data.customer.id || "";
+        self.customer_name = data.customer.name;
+        self.customer_url = customer_url + self.customer_id;
+        } else{
+        self.customer_id = "";
+        self.customer_name = "Not Assigned";
+        self.customer_url = "";
+        }
+
+
+
+        //Checking for location information
         if (data.location) {
             self.address = ko.observable(data.location.properties.house_number + " " + data.location.properties.street_name);
             if (data.location.properties.unit) {

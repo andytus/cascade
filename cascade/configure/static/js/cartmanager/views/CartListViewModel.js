@@ -44,7 +44,6 @@
     };
 
     self.getData = function (params, page) {
-        //#TODO send in a dictionary of values for parameters. Construct in another function ...get existing params values(if linking to page) or set base on search
         // The search_parameters data comes from the source request
         // (placed as a template variable at the top of the cart_search.html).
 
@@ -74,10 +73,10 @@
             data: params,
             dataType: 'json', contentType:"application/json",
             success: function (data) {
-                if (data.count == 1) {
+/*                if (data.count == 1) {
                     //if you get an exact match just forward to the carts profile page
                     window.location.replace(cart_url + data.results[0].cart.serial)
-                }
+                }*/
                 var mappedCarts = $.map(data.results, function (item) {
                     return new cartlogic.Cart(item);
                 });

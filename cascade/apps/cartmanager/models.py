@@ -389,7 +389,7 @@ class CollectionAddress(Address):
 
     def get_info(self):
         info = {"properties": {"url": self.get_absolute_url(), "id": self.id, "property_type": self.property_type,
-                "house_number": self.house_number, "unit": self.unit, "street_name":self.street_name, "city": self.city,
+                "house_number": self.house_number, "unit": self.unit, "street_name": self.street_name, "city": self.city,
                 "state": self.state, "zipcode": self.zipcode, "geocode_type": self.geocode_type,
                 "geocode_status": self.geocode_status, "carts": self.location.values("id", "serial_number",
                 "cart_type__size", "cart_type__name")}, "type": "Feature", "geometry": {"type": "Point", "coordinates":

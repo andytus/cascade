@@ -22,7 +22,7 @@
 
         <!-- Cart search information -->
 
-        <div id="result-header" class="alert alert-info" >
+        <div id="result-header" class="alert alert-info">
             Search for cart <span data-bind="text:search_for_type().replace('_', ' ')"></span>
             <i><span data-bind="text:search_for_value"></span></i>
             returned <b data-bind="text: count() || 'No'"></b> result<span
@@ -43,30 +43,37 @@
         </div>
 
 
-
         <!-- Iterate the results -->
 
         <div id="cart-list" data-bind="foreach: {data:carts, afterRender: Decorator}">
 
             <div class="cart-info box-info">
                 <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
-                    <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial()"></span>
-                    <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
+                    <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial"></span>
+                    <img class="cart-info-img" data-bind="attr:{src: '{{ STATIC_URL }}img/' + cart_image + '.png'}"
+                         src="{{ STATIC_URL }}img/cart_image.png"/>
                 </a>
 
                 <div class="cart-info-text">
-                    <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_type__size()"></span>
+                    <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_type__size"></span>
 
-                        <div class="cart-info-type" data-bind="text: cart_type__name()"></div>
+                        <div class="cart-info-type" data-bind="text: cart_type__name"></div>
 
                     </div>
 
-
+                    <!--ko if: cart_id -->
                     <div class="info-status label" data-bind="text:current_status,  css: current_status__level"></div>
-                   <br> Produced on: <b><div class="cart-info-born_date" data-bind="text: born_date()"></div></b>
+                    <br><br>
+
+
+                    <div class="cart-info-born_date" data-bind="html: 'Produced on:' + '<b>' +  born_date + '</b>'"></div>
+                         <br><br>
+                    <!-- /ko -->
+
+                <div class="cart-info-address"><a data-bind="attr: {href: customer_url}, text:address"></a></div>
                 </div>
-                 <br>
-                 <div class="cart-info-address"><a data-bind="attr: {href: customer_url()}, text:address()"></a></div>
+
+
             </div>
         </div>
 
@@ -108,7 +115,7 @@
     {% compressed_js 'models_cart' %}
     {% compressed_js 'models_location' %}
 
-   <script type="text/javascript">
+    <script type="text/javascript">
         var search_parameters = {{ search_parameters|safe}};
         var customer_url = "{% url "customer_app_profile" %}";
         var cart_url = "{% url "cart_app_profile" %}";

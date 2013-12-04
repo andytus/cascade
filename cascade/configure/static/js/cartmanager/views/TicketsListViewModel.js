@@ -166,27 +166,26 @@
             '\' + $data.getProperty($parent)}, text:  $data.getProperty($parent)"></a>';
 
         self.ticket_profile_cell_open_template = '<a style=\'margin-top: 1px;\' class=\' btn btn-small, btn-info\'data-bind="attr: {\'href\' : \''
-            + ticket_app_profile_url + '\' + $data.getProperty($parent)}, text: ' +
-            '\'Open: \' +  $data.getProperty($parent)">Open</a>';
+            + ticket_app_profile_url + '\' + $data.getProperty($parent)}, text: $data.getProperty($parent)">Open</a>';
 
        self.money_format ='<span data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt\'}"></span>';
 
        self.columns = [
-            {field: 'id', displayName: "Open", cellTemplate: self.ticket_profile_cell_open_template, width: 110},
-            {field: 'status__service_status', displayName: 'Status'},
-            {field: 'service_type__code', displayName: 'Type'},
-            {field: 'charge', displayName: 'Charge', cellTemplate: self.money_format},//'<span data-bind="text:"$data.getProperty($parent)> </span>'},
-            {field: 'cart_type__name', displayName: 'Cart Type'},
-            {field: 'cart_type__size', displayName: 'Size'},
-            {field: 'success_attempts', displayName: 'Tries', width: 50},
-            {field: 'location__house_number', displayName: 'House'},
-            {field: 'location__street_name', displayName: 'Street', width: 165, maxWidth: 400},
-            {field: 'location__unit', displayName: 'Unit', width: 50},
-            {field: 'route__route', displayName: 'Route', width: 60},
-            {field: 'serviced_cart__serial_number', displayName: 'Serviced #', cellTemplate: self.cart_profile_cell_template, width: 100},
-            {field: 'expected_cart__serial_number', displayName: 'Expected #', cellTemplate: self.cart_profile_cell_template, width: 100},
-            {field: 'date_created', displayName: 'Created'},
-            {field: 'date_last_attempted', displayName: 'Last Try'}
+            {field: 'id', displayName: "Open", cellTemplate: self.ticket_profile_cell_open_template, width: 100},
+            {field: 'status__service_status', displayName: 'Status', width:"***"},
+            {field: 'service_type__code', displayName: 'Type', width:"**"},
+            {field: 'charge', displayName: 'Charge', cellTemplate: self.money_format, width:"**"},//'<span data-bind="text:"$data.getProperty($parent)> </span>'},
+            {field: 'cart_type__name', displayName: 'Cart Type', width:"**"},
+            {field: 'cart_type__size', displayName: 'Size', width:"**"},
+            {field: 'success_attempts', displayName: 'Tries', width:"*"},
+            {field: 'location__house_number', displayName: 'House', width:"**"},
+            {field: 'location__street_name', displayName: 'Street', width: "***"},
+            {field: 'location__unit', displayName: 'Unit', width:"**"},
+            {field: 'route__route', displayName: 'Route' , width:"**"},
+            {field: 'serviced_cart__serial_number', displayName: 'Serviced #', cellTemplate: self.cart_profile_cell_template, width: "******"},
+            {field: 'expected_cart__serial_number', displayName: 'Expected #', cellTemplate: self.cart_profile_cell_template, width: "******"},
+            {field: 'date_created', displayName: 'Created', width:"****"},
+            {field: 'date_last_attempted', displayName: 'Last Try', width:100}
 
         ];
 

@@ -72,6 +72,7 @@ class CartLocationCustomerField(serializers.Field):
             return value.customer.get_info()
 
 
+
 class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
 
@@ -93,6 +94,7 @@ class CartServiceChargeSerializer(serializers.ModelSerializer, NullSerializerPat
         model = CartServiceCharge
         exclude = ('site', )
 
+
 class CartStatusSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:
         model = CartStatus
@@ -109,6 +111,7 @@ class CartTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
 class AddressCartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     customer = CustomerInfoSerializer()
+
     class Meta:
         model = CollectionAddress
         depth = 1
@@ -128,14 +131,39 @@ class CartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
 
 class CartSearchSerializer(serializers.ModelSerializer, NullSerializerPatch):
+    """
+    Used to serialize cart searches.
+
+    """
+
     location = GetInfoRelatedField(source='location')
     inventory_location = GetInfoRelatedField(source='inventory_location')
-    customer = CartLocationCustomerField(source='location')
+    customer = GetInfoRelatedField(source='location.customer')
     cart = serializers.Field(source='get_info')
 
     class Meta:
         model = Cart
         fields = ('cart', 'customer', 'location', 'inventory_location')
+
+
+class CartSearchAddressSerializer(serializers.Serializer, NullSerializerPatch):
+    """
+    Used to serializer addresses with no Carts when cart address search return nothing.
+    Not very elegant but allows for a consistent response in the Cart Search view by providing a
+    null cart for the address.
+
+    """
+
+    location = serializers.Field(source='get_info')
+    inventory_location = serializers.SerializerMethodField('get_none')
+    customer = GetInfoRelatedField(source='customer')
+    cart = serializers.SerializerMethodField('get_none')
+
+    class Meta:
+        fields = ('cart', 'customer', 'location', 'inventory_location')
+
+    def get_none(self, obj):
+        return None
 
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
@@ -145,7 +173,6 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
     serviced_cart__cart_type__size = CleanRelatedField(source='serviced_cart.cart_type.size')
     expected_cart__serial_number = CleanRelatedField(source='expected_cart.serial_number')
     expected_cart__id = CleanRelatedField(source='expected_cart.id')
-
 
     status__service_status = CleanRelatedField(source='status.service_status')
     status__level = CleanRelatedField(source='status.level')

@@ -26,8 +26,8 @@ from cascade.libs.renderers import CSVRenderer, PDFRenderer, KMLRenderer, stream
 from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, CartSearchSerializer, \
     CartProfileSerializer, CustomerProfileSerializer, CartStatusSerializer, CartTypeSerializer, \
     CartServiceTicketSerializer, AdminLocationDefaultSerializer, UploadFileSerializer, TicketStatusSerializer, \
-    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, \
-    CartServiceChargeSerializer, CartPartsSerializer
+    TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, CartServiceChargeSerializer, \
+    CartPartsSerializer, CartSearchAddressSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
 import ho.pisa as pisa
@@ -110,6 +110,13 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                         #look for non exact
                         query = Cart.on_site.filter(location__street_name__contains=street_name,
                                                     location__house_number__contains=house_number)
+                        if query.count() == 0:
+                            #Not finding Carts at this address try address search
+                            self.serializer_class = CartSearchAddressSerializer
+                            query = CollectionAddress.on_site.filter(street_name__contains=street_name,
+                                                                     house_number__contains=house_number)
+
+
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))
             elif search_type == 'type':

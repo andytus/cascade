@@ -18,116 +18,15 @@
 </head>
 <body>
 <div id="top" class="row">
-{% block navbar %}
-    <div class="navbar">
-        <div class="navbar-inner">
-            <div class="container-fluid">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+    {% block navbar %}
+        <div class="navbar">
+            <div class="navbar-inner">
+                <a id="menu-title" class="banner" href="{% url "ticket_app_report" %}">
+                    <img src="{{ STATIC_URL }}/img/CartLogicLogo2013_BW.png" align="left" width="7%" height="10%"
+                         style="display: inline; margin-left: 10%; margin-top: .2%; padding-right: 2%">
                 </a>
-                <a id="menu-title" class="brand" href="{% url "ticket_app_report" %}"> Welcome To Cart Logic </a>
 
-                <div class="nav-collapse collapse">
-                    <!-- all will collapse or hide at 940px-->
-                    <form id="cart_search_form" class="navbar-form pull-left" action="{% url "cart_search" %}">
-                        <input id="search_query" name="search_query" type="hidden" data-bind="value: search_query"/>
-
-                        <div class="input-append input-prepend">
-                            <!--Search Button Group-->
-                            <div class="btn-group">
-                                <a tabindex="1" class="btn dropdown-toggle" data-toggle="dropdown">
-                                    <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu pull-left span3">
-                                    <!--dropdown menu links  -->
-                                    <li><a id="serial_number" title="e.g. 9600001" data-bind="click: getSearchInfo"><i
-                                            class="icon-barcode"></i>Serial</a></li>
-                                    <li><a id="address" title="e.g. 201 Market St SW"
-                                           data-bind="click: getSearchInfo"><i class="icon-home"></i>Address</a>
-                                    </li>
-                                    <li><a id="size" title="e.g. 35, 64, 96" data-bind="click: getSearchInfo"><i
-                                            class="icon-trash"></i>Size</a></li>
-                                    <li><a id="type" title="e.g. Recycle, Refuse"
-                                           data-bind="click: getSearchInfo"><i
-                                            class="icon-asterisk"></i>Type</a></li>
-                                    <li><a id="status" title="e.g. Delivered, Produced, Lost, ect.."
-                                           data-bind="click: getSearchInfo"><i
-                                            class="icon-flag"></i>Status</a></li>
-                                </ul>
-                                <input tabindex="2" id="cart_search_input" class="span3" type="text"
-                                       placeholder="Search Carts"
-                                       data-bind="attr:{placeholder: search_placeholder}, value: search_value"/>
-                                <button tabindex="3" class="btn" type="submit"><span class="icon-search"></span>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <ul id="top-menu" class="nav nav-pills pull-left" style="padding: 8px 10px 10px 20px">
-                        {% comment %}     <li class="active">
-                            <a href="#">About</a>
-                        </li>{% endcomment %}
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#tickets">
-                                Tickets
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a id="new-ticket-link" href="{% url "ticket_app_new" %}New"
-                                       data-target="#modal_window"
-                                       data-toggle="modal">New</a></li>
-                                <li><a href="{% url "tickets_completed_upload" %}">Submit Completed (UPLOAD)</a></li>
-                                <li><a href="{% url "ticket_app_report" %}">Reports (DOWNLOAD)</a></li>
-                            </ul>
-                        </li>
-
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
-                                Customer
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url "customer_app_new" %}" data-target="#modal_window"
-                                       data-toggle="modal">New</a></li>
-                                {% if request.user.is_superuser %}
-                                    <li><a href="{% url "customer_app_report" %}">Reports</a></li>
-                                {% endif %}
-                            </ul>
-
-                        </li>
-
-
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
-                                Carts
-                                <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url "cart_app_new" %}" data-target="#modal_window"
-                                       data-toggle="modal">New</a></li>
-                            </ul>
-                        </li>
-
-                        {% if user.is_superuser %}
-
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
-                                    Settings
-                                    <b class="caret"></b>
-                                </a>
-
-                                <ul class="dropdown-menu">
-                                    <li><a href="{% url "admin:index" %}">Admin</a></li>
-                                    <li><a href="{% url "route_uploads" %}">Route upload</a></li>
-                                    <li><a href="{% url "customer_uploads" %}">Customers upload</a></li>
-                                    <li><a href="{% url "cart_uploads" %}">Carts upload</a></li>
-                                </ul>
-
-                            </li>
-                        {% endif %}
-
-                    </ul>
+                <div class="container-fluid">
                     <div id="login_link" class="pull-right">
                         {% if user %}
                             {{ user.username }} | <a href="{% url "django.contrib.auth.views.logout" %}">Logout</a>
@@ -136,14 +35,123 @@
                         {% endif %}
 
                     </div>
+
+
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+
+                    <div class="nav-collapse collapse">
+                        <!-- all will collapse or hide at 940px-->
+                        <form id="cart_search_form" class="navbar-form pull-left" action="{% url "cart_search" %}">
+                            <input id="search_query" name="search_query" type="hidden" data-bind="value: search_query"/>
+
+                            <div class="input-append input-prepend">
+                                <!--Search Button Group-->
+                                <div class="btn-group">
+                                    <a tabindex="1" class="btn dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu pull-left span3">
+                                        <!--dropdown menu links  -->
+                                        <li><a id="serial_number" title="e.g. 9600001" data-bind="click: getSearchInfo"><i
+                                                class="icon-barcode"></i>Serial</a></li>
+                                        <li><a id="address" title="e.g. 201 Market St SW"
+                                               data-bind="click: getSearchInfo"><i class="icon-home"></i>Address</a>
+                                        </li>
+                                        <li><a id="size" title="e.g. 35, 64, 96" data-bind="click: getSearchInfo"><i
+                                                class="icon-trash"></i>Size</a></li>
+                                        <li><a id="type" title="e.g. Recycle, Refuse"
+                                               data-bind="click: getSearchInfo"><i
+                                                class="icon-asterisk"></i>Type</a></li>
+                                        <li><a id="status" title="e.g. Delivered, Produced, Lost, ect.."
+                                               data-bind="click: getSearchInfo"><i
+                                                class="icon-flag"></i>Status</a></li>
+                                    </ul>
+                                    <input tabindex="2" id="cart_search_input" class="span3" type="text"
+                                           placeholder="Search Carts"
+                                           data-bind="attr:{placeholder: search_placeholder}, value: search_value"/>
+                                    <button tabindex="3" class="btn" type="submit"><span class="icon-search"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <ul id="top-menu" class="nav nav-pills pull-left" style="padding: 8px 10px 10px 20px">
+
+                            {% comment %}     <li class="active">
+                            <a href="#">About</a>
+                        </li>{% endcomment %}
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#tickets">
+                                    Tickets
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a id="new-ticket-link" href="{% url "ticket_app_new" %}New"
+                                           data-target="#modal_window"
+                                           data-toggle="modal">New</a></li>
+                                    <li><a href="{% url "tickets_completed_upload" %}">Submit Completed (UPLOAD)</a>
+                                    </li>
+                                    <li><a href="{% url "ticket_app_report" %}">Reports (DOWNLOAD)</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                    Customer
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "customer_app_new" %}" data-target="#modal_window"
+                                           data-toggle="modal">New</a></li>
+                                    {% if request.user.is_superuser %}
+                                        <li><a href="{% url "customer_app_report" %}">Reports</a></li>
+                                    {% endif %}
+                                </ul>
+
+                            </li>
+
+
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                    Carts
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url "cart_app_new" %}" data-target="#modal_window"
+                                           data-toggle="modal">New</a></li>
+                                </ul>
+                            </li>
+
+                            {% if user.is_superuser %}
+
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#Customer">
+                                        Settings
+                                        <b class="caret"></b>
+                                    </a>
+
+                                    <ul class="dropdown-menu">
+                                        <li><a href="{% url "admin:index" %}">Admin</a></li>
+                                        <li><a href="{% url "route_uploads" %}">Route upload</a></li>
+                                        <li><a href="{% url "customer_uploads" %}">Customers upload</a></li>
+                                        <li><a href="{% url "cart_uploads" %}">Carts upload</a></li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                        </ul>
+
+                    </div>
                 </div>
             </div>
+
         </div>
-    </div>
-  </div>
+        </div>
 
-{% endblock %}
-
+    {% endblock %}
 
 
 <!-- Modals -->
@@ -167,7 +175,7 @@
 
         <div class="row-fluid">
 
-            <div id="left" class="span2">
+            <div id="left" class="span1">
                 {#                <img class="logo pull-right" src="{{ STATIC_URL }}img/logos/{{ current_site.name }}.png" />#}
                 {% block left %}
 
@@ -175,7 +183,7 @@
                 {% endblock %}
             </div>
 
-            <div id="main" class="span8">
+            <div id="main" class="span9">
                 {% block main_content %}
                 {% endblock %}
             </div>
