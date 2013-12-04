@@ -75,8 +75,10 @@
                     var cartTickets = $.map(data.results, function (item) {
                         return new cartlogic.Ticket(item);
                     });
+
                     self.tickets(cartTickets);
                     self.pagingOptions.totalServerItems(data.count)
+
                 },
                 error: function (jqXHR) {
                     $("#message").addClass("alert-error").show();
@@ -89,7 +91,7 @@
 
                 }
             });
-
+            
         };
 
         //Listens for a click on a run ticket query and downloads a csv or calls ajax function

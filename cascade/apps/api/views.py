@@ -299,7 +299,7 @@ class LocationAPI(LoginSiteRequiredMixin, APIView):
                 geocode_status = json_data.get('geocode_status', None)
                 location = CollectionAddress(site=get_current_site(self.request), house_number=house_number.strip(),
                                              street_name=street_name.strip().upper(),
-                                             unit=unit, zipcode=zipcode, property_type=property_type, city=city,
+                                             unit=unit.strip(""), zipcode=zipcode, property_type=property_type, city=city,
                                              state=state, latitude=latitude, longitude=longitude,
                                              geocode_status=geocode_status, customer=customer)
                 location.save()
