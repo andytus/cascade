@@ -193,6 +193,11 @@
 
        };
 
+          self.confirmDeleteTicket = function(){
+              $("#confirm_delete_ticket").html("Are you sure you want to delete <b> " + self.ticket().id() + "</b>?" );
+              $("#delete_confirm").modal("show");
+          }
+
 
           self.deleteTicket = function(status){
               $.ajax(ticket_api + ticket_id, {

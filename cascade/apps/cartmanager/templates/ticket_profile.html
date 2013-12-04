@@ -19,27 +19,33 @@
         <div id="ticket-info-display" class="well">
             <div id="ticket-info-status" class="label info-status ticket-info-status "
                  data-bind="css: status__level">
-               <p id="ticket-info-service-status" data-bind="text: status__service_status"></p>
-           <!-- ko if: reason_code__description() != "---" -->
+                <p id="ticket-info-service-status" data-bind="text: status__service_status"></p>
+                <!-- ko if: reason_code__description() != "---" -->
                 <br>
-               <p id="ticket-info-reason-code" data-bind="text: reason_code__description"></p>
-            <!-- /ko -->
-             </div>
-            <div class="ticket-info-address">Location: <a data-bind="text: location_address(), attr:{href: location__customer__get_app_url()}"></a></div>
+
+                <p id="ticket-info-reason-code" data-bind="text: reason_code__description"></p>
+                <!-- /ko -->
+            </div>
+            <div class="ticket-info-address">Location: <a
+                    data-bind="text: location_address(), attr:{href: location__customer__get_app_url()}"></a></div>
             <div class="ticket-info-service-type"
                  data-bind="html: '<u>' + service_type__service() + ' of ' +  + cart_type__size() + ' ' + cart_type__name() + '</u>'"></div>
             <!-- ko if: serviced_cart__serial_number() != "---" -->
-            <div>Serviced Cart: <a data-bind=" text: serviced_cart__serial_number() ,attr:{href:'{% url "cart_app_profile" %}' + serviced_cart__serial_number()}"> </a>,
+            <div>Serviced Cart: <a
+                    data-bind=" text: serviced_cart__serial_number() ,attr:{href:'{% url "cart_app_profile" %}' + serviced_cart__serial_number()}"> </a>,
                 <span data-bind="text: 'Size: ' + serviced_cart__cart_type__size() + ', Type: ' + serviced_cart__cart_type__name()"></span>
             </div>
             <!-- /ko -->
             <!-- ko if: expected_cart__serial_number() != "---" -->
-            <div>Expected Cart: <a data-bind=" text: expected_cart__serial_number() ,attr:{href:'{% url "cart_app_profile" %}' + expected_cart__serial_number()}"> </a>,
+            <div>Expected Cart: <a
+                    data-bind=" text: expected_cart__serial_number() ,attr:{href:'{% url "cart_app_profile" %}' + expected_cart__serial_number()}"> </a>,
                 <span data-bind="text: 'Size: ' + cart_type__size() + ', Type: ' + cart_type__name()"></span>
             </div>
             <!-- /ko -->
             <br>
-           <div id="ticket-info-device-name" data-bind="html: '<b>Device Name</b> ' + device_name(), visible: device_name" ></div>
+
+            <div id="ticket-info-device-name"
+                 data-bind="html: '<b>Device Name</b> ' + device_name(), visible: device_name"></div>
             <div id="ticket-info-processed" data-bind="html: '<b>Processed:</b> ' + processed()"></div>
             <div id="ticket-info-attempts" data-bind="html: 'Attempts: ' + success_attempts()"></div>
             <br>
@@ -52,8 +58,9 @@
 
             <div id="ticket-info-parts" data-bind="visible: cart_parts()">
                 <b>Damaged Parts:</b>
+
                 <div data-bind="foreach: cart_parts">
-                <span data-bind="html:  $data + ', '"></span>
+                    <span data-bind="html:  $data + ', '"></span>
                 </div>
             </div>
             <br>
@@ -70,16 +77,25 @@
                 <!-- ko if: $root.profile.ticket().status__service_status() != 'Completed' -->
                 <div class="control-group">
                     <label class="control-label">Add Serviced Cart:</label>
-                   <br>
+                    <br>
+
                     <div class="controls">
                         <input id="add-serial-number" name="add-serial-number"
-                               data-bind="value: $root.profile.add_serial_number" type="text" placeholder="Type Serial Number"
+                               data-bind="value: $root.profile.add_serial_number" type="text"
+                               placeholder="Type Serial Number"
                                class="input-xlarge search-query" style="height: 2.1em; padding-right: 10%">
-                        <button class="btn btn-primary" data-bind="click:function(){$root.profile.updateTicket('Completed')}">Complete</button>
-                        <button class="btn  btn-info" data-bind="click:function(){$root.profile.updateTicket('Unsuccessful')}"><i class="icon-plus"></i>Attempt</button>
-                        <button class="btn  btn-danger" data-bind="click:function(){$root.profile.deleteTicket()}">Delete</button>
+                        <button class="btn btn-primary"
+                                data-bind="click:function(){$root.profile.updateTicket('Completed')}">Complete
+                        </button>
+                        <button class="btn  btn-info"
+                                data-bind="click:function(){$root.profile.updateTicket('Unsuccessful')}"><i
+                                class="icon-plus"></i>Attempt
+                        </button>
+                        <button class="btn  btn-danger" data-bind="click:function(){$root.profile.confirmDeleteTicket()}">
+                            Delete
+                        </button>
 
-                   </div>
+                    </div>
                     <br>
                     <hr style="border-color: gray">
                 </div>
@@ -125,6 +141,24 @@
 
 
         </div>
+
+        <div id="delete_confirm" style="display: none;" class="modal hide fade" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true">
+
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">×</a>
+
+                <h3>Confirm Delete Ticket</h3>
+            </div>
+            <div class="modal-body" id="confirm_delete_ticket">
+
+            </div>
+            <div class="modal-footer">
+                <button data-bind="click: function(){$root.profile.deleteTicket()}" class="btn btn-danger">Delete</button>
+                <a href="#" class="btn" data-dismiss="modal">Close</a>
+            </div>
+        </div>
+
 
     </div>
 
