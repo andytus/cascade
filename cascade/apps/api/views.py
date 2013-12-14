@@ -241,7 +241,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 header = OrderedDict([('id','ID'), ('location.street_name', 'Street Name'),
                                       ('location.house_number', 'House Number'), ('location.unit', 'Unit'),
                                       ('service_type.code', 'Service'), ('cart_type.size', 'Cart Size'),
-                                      ('cart_type', 'Cart Type')])
+                                      ('cart_type.name', 'Cart Type')])
 
             elif self.report_type == 'service_charges':
                 header = OrderedDict([('id', 'ID'), ('charge', 'Charge'), ('location.house_number', 'House Number'),
