@@ -96,7 +96,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             query = Cart.on_site.filter()
             value = value.strip()
             if search_type == 'address':
-                address = value.split(' ') # e.g. address = ['201', 'MARKET']
+                address = value.split(' ');  # e.g. address = ['201', 'MARKET']
                 if len(address) == 1:
                     #address only contains street name
                     street_name = address[0].strip().upper()
@@ -161,10 +161,16 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         route_type = self.request.QUERY_PARAMS.get('route_type', 'ALL')
         route_day = self.request.QUERY_PARAMS.get('route_day', 'ALL')
         route = self.request.QUERY_PARAMS.get('route', 'ALL')
-        search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
         charge = self.request.QUERY_PARAMS.get('charge', 'ALL')
         no_charges = self.request.QUERY_PARAMS.get('no_charges', 'false')
         search_days_type = self.request.QUERY_PARAMS.get('search_days_type', 'Create')
+        search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
+        search_from_days = self.request.QUERY_PARAMS.get('search_from_days', None)
+        search_to_days = self.request.QUERY_PARAMS.get('search_to_days', None)
+        count = 0
+        count =+ 1
+        print count
+        print search_to_days, search_from_days
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -226,8 +232,8 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super(TicketSearchAPI, self).list(request, *args, **kwargs)
         file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
-        data = self.get_queryset()
         if self.request.accepted_renderer.format == "csv":
+            data = self.get_queryset()
             #TODO abstract report type to model for admin report creation
             header = {}
             if self.report_type == 'service_tickets':

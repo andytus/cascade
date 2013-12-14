@@ -24,6 +24,8 @@
         self.route_day = ko.observable("ALL");
         self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
+        self.search_to_date = ko.observable(null);
+        self.search_from_date = ko.observable(null);
         self.search_days = ko.observable('ALL');
         self.search_days_type = ko.observable('Created');
         self.charge = ko.observable('ALL');
@@ -45,11 +47,11 @@
             data.page = self.pagingOptions.currentPage();
             data.page_size = self.pagingOptions.pageSize();
             data.sort_by = self.sort_by();
-
+            //will grab all the ticket for a specific cart
             if (typeof self.cart_serial_number() != 'undefined' && self.cart_serial_number() != null) {
                 data.serial_number = self.cart_serial_number();
             }
-
+            //will grab all the tickets for a specific customer
             else if (typeof self.customer_id() != 'undefined' && self.customer_id() != null) {
                 data.customer_id = self.customer_id();
             }
@@ -65,6 +67,13 @@
                 data.search_days_type = self.search_days_type();
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
+
+                if (self.search_from_date() !=null && self.search_to_date !=null){
+                    data.search_to_date = self.search_to_date();
+                    data.search_from_date = self.search_from_date()
+                }
+
+
             }
 
             $.ajax(tickets_api_download, {
@@ -96,7 +105,7 @@
 
         //Listens for a click on a run ticket query and downloads a csv or calls ajax function
         $('.run_query').click(function () {
-
+            //set ticket list params
             var context = (ko.contextFor(this));
             self.cart_size(context.$data.selected_cart_size());
             self.cart_type(context.$data.selected_cart_type());
@@ -109,6 +118,8 @@
             self.charge(context.$data.selected_charge());
             self.no_charges(context.$data.no_charges());
             self.search_days_type(context.$data.search_days_type());
+            self.search_to_date(context.search_to_date);
+            self.search_from_date(context.search_from_date);
 
             self.route(context.$data.selected_search_days().value)
 
@@ -124,6 +135,8 @@
                 data.route = self.route();
                 data.search_days = self.search_days();
                 data.search_days_type = self.search_days_type();
+                data.search_to_date = self.search_to_date();
+                data.search_from_date = self. search_from_date();
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
                 //just getting report type directing from TicketsListViewModel
