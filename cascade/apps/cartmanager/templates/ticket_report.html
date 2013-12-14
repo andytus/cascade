@@ -12,12 +12,14 @@
             value: selected_cart_type" class="input-medium"></select> cart type(s), and
             <select id="ticket-query-cart-type-size" data-bind="options: cart_size_options,
             value: selected_cart_size" class="input-small"></select> gallon cart(s).
-            <button id="on_screen" class="run_query btn-primary"> Go <i class="icon-arrow-right"></i></button>
-
-                        <div id="ticket-query-advanced">
+            <div id="ticket-query-advanced">
                 <button type="button" class="btn btn-info" data-toggle="collapse"
                         data-target="#ticket-query-advanced-options">
                     <i class="icon-plus-sign"></i> More Options
+                </button>
+
+                <button id="reset_params" type="button" class="btn btn-info">
+                 <i class="icon-refresh"></i> Reset
                 </button>
 
                 <div id="ticket-query-advanced-options" class="collapse">
@@ -38,11 +40,12 @@
                      optionsText:'display', value:$root.report.selected_search_days"> </select>
                         <label for="ticket-query-search-days-input">or exactly:</label>
                         <input id="ticket-query-search-days-input" type="number"
-                               data-bind="value:$root.report.selected_search_days().value"  min="0" size="4" style=" width: 4em"> <label>day(s).</label>
-                    </div>
-                    <div>
-                    <label>Or From: </label><input id="from_date" class="datepicker" type="text" style=" width: 8em" data-bind="value:$root.search_from_date" /><label>To:
-                    </label><input id="to_date" class="datepicker" type="text" style=" width: 8em" data-bind="value: $root.search_to_date">
+                               data-bind="value:$root.report.selected_search_days().value" min="0" size="4"
+                               style=" width: 4em"> <label>day(s), </label>
+                        <label>or from: </label><input id="from_date" class="datepicker" type="text" style=" width: 8em"
+                                                       data-bind="value:$root.report.search_from_date"/><label>To:
+                    </label><input id="to_date" class="datepicker" type="text" style=" width: 8em"
+                                   data-bind="value: $root.report.search_to_date">
                     </div>
                     <div>
                         <label for="ticket-query-select-route-type">Route Type:</label>
@@ -71,10 +74,9 @@
             </div>
 
 
-
-
             <div id="ticket-query-download">
-                Downloads:
+                <button id="on_screen" class="run_query btn-primary btn-large"> <i class="icon-search">  </i>Search </button><br><br>
+                <i class="icon-download"> </i>Downloads:
                 <button id="download_csv" class="run_query btn btn-success" title="Download CSV">
                     <i class="icon-th">CSV</i></button>
                 <button id="download_pdf" class="run_query btn btn-success" title="Download PDF">
@@ -103,7 +105,7 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css"/>
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
     <script type="text/javascript"
-        src="{{ STATIC_URL }}js/vendor/bootstrap/datetimepicker/bootstrap-datepicker.js"></script>
+            src="{{ STATIC_URL }}js/vendor/bootstrap/datetimepicker/bootstrap-datepicker.js"></script>
 
     <script type="text/javascript">
         var customer_id = null;

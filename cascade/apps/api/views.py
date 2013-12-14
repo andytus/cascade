@@ -165,12 +165,9 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
         no_charges = self.request.QUERY_PARAMS.get('no_charges', 'false')
         search_days_type = self.request.QUERY_PARAMS.get('search_days_type', 'Create')
         search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
-        search_from_days = self.request.QUERY_PARAMS.get('search_from_days', None)
-        search_to_days = self.request.QUERY_PARAMS.get('search_to_days', None)
-        count = 0
-        count =+ 1
-        print count
-        print search_to_days, search_from_days
+        search_from_date = self.request.QUERY_PARAMS.get('search_from_date', None)
+        search_to_date = self.request.QUERY_PARAMS.get('search_to_date', None)
+
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -197,6 +194,14 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                     query = query.filter(date_created__gt=search_date)
                 else:
                     query = query.filter(date_completed__gt=search_date, status__service_status='Completed')
+
+            if search_from_date and search_to_date:
+                search_from_date = datetime.strptime(search_from_date, '%m-%d-%Y')
+                search_to_date = datetime.strptime(search_to_date, '%m-%d-%Y')
+                if search_days_type == 'Created':
+                    query = query.filter(date_created__range=[search_from_date, search_to_date])
+                else:
+                    query = query.filter(date_completed__range=[search_from_date, search_to_date])
 
             if cart_serial:
                 query = query.filter(

@@ -24,8 +24,8 @@
         self.route_day = ko.observable("ALL");
         self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
-        self.search_to_date = ko.observable(null);
-        self.search_from_date = ko.observable(null);
+        self.search_to_date = ko.observable("ALL");
+        self.search_from_date = ko.observable("ALL");
         self.search_days = ko.observable('ALL');
         self.search_days_type = ko.observable('Created');
         self.charge = ko.observable('ALL');
@@ -68,7 +68,8 @@
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
 
-                if (self.search_from_date() !=null && self.search_to_date !=null){
+                if (self.search_from_date() != 'ALL' && self.search_to_date != 'ALL'){
+                    console.log(self.search_from_date())
                     data.search_to_date = self.search_to_date();
                     data.search_from_date = self.search_from_date()
                 }
@@ -118,9 +119,8 @@
             self.charge(context.$data.selected_charge());
             self.no_charges(context.$data.no_charges());
             self.search_days_type(context.$data.search_days_type());
-            self.search_to_date(context.search_to_date);
-            self.search_from_date(context.search_from_date);
-
+            self.search_to_date(context.$data.search_to_date());
+            self.search_from_date(context.$data.search_from_date());
             self.route(context.$data.selected_search_days().value)
 
             if (this.id == 'download_csv' || this.id == 'download_pdf') {

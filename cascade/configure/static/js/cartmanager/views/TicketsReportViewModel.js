@@ -79,7 +79,7 @@
                         return item;
                     }
                 }
-            )
+            );
 
             self.selected_route_type.subscribe(function (data) {
                 self.selected_cart_type(data);
@@ -92,7 +92,6 @@
         });
 
         self.search_days_type.subscribe(function (data) {
-            console.log(data);
             if (data == 'Completed') {
                 self.selected_status('Completed');
             } else {
@@ -100,6 +99,37 @@
             }
 
         });
+
+
+        self.date_change = function () {
+            var day_match = ko.utils.arrayFirst(self.search_days(), function (item) {
+                return item.display == 'Millennium'
+            });
+            ;
+            self.selected_search_days(day_match);
+            self.selected_search_days().value = 'ALL';
+
+            var from = new Date(self.search_from_date());
+            var to = new Date(self.search_to_date());
+
+            if (from > to) {
+                $("#message").addClass("alert-warning").show();
+                $("#message-text").text("Hey Silly...From  date must 'before' To date");
+                $(".close").click(function () {
+                    $("#message").hide();
+                });
+            }
+
+        }
+
+        self.search_from_date.subscribe(function (data) {
+            self.date_change();
+        })
+
+        self.search_to_date.subscribe(function (data) {
+            self.date_change()
+        })
+
 
         self.getServiceTypeOptions = function () {
             $.getJSON(ticket_service_type_api, function (data) {
@@ -217,14 +247,69 @@
             });
         };
 
-       self.addCalendar = function () {
-          //putting in a date and time picker
-                $('.datepicker').datepicker({
-                    format: 'mm-dd-yyyy'
-                });
+        self.addCalendar = function () {
+            //putting in a date and time picker
+            $('.datepicker').datepicker({
+                format: 'mm-dd-yyyy'
+            });
         }
 
+        $('#reset_params').click(function () {
 
+            //Reset all query parameters TODO: refactor to call this at page load
+
+            //Reset Ticket status
+            self.selected_status = ko.observable('Requested');
+            //Reset Ticket type
+            var ticket_type_match = ko.utils.arrayFirst(self.ticket_type_options(), function (item) {
+                return item == 'ALL'
+            });
+            self.selected_type(ticket_type_match);
+            //Reset Cart type
+            var cart_type_match = ko.utils.arrayFirst(self.cart_type_options(), function (item) {
+                return item == 'ALL'
+            });
+            self.selected_cart_type(cart_type_match);
+            //Reset Cart size
+            var size_match = ko.utils.arrayFirst(self.cart_size_options(), function (item) {
+                return item == 'ALL'
+            });
+            self.selected_cart_size(size_match);
+            //Reset report
+            //TODO implement
+
+            //Reset Days
+            var day_match = ko.utils.arrayFirst(self.search_days(), function (item) {
+                return  item.value == 'ALL'
+            });
+            self.selected_search_days(day_match);
+
+            //Reset to and from dates
+            self.search_to_date("");
+            self.search_from_date("");
+
+            //Reset Route day and Type
+            self.selected_route_day('ALL');
+            self.selected_route_type('ALL');
+
+            //Reset Routes
+            var route_match = ko.utils.arrayFirst(self.filtered_routes(), function(item){
+                return item.route() == 'ALL'
+            })
+            self.selected_route(route_match);
+
+
+            //Reset charges
+            var type_match = ko.utils.arrayFirst(self.service_charge_options(), function (item) {
+                return item == 'ALL'
+            });
+            self.selected_charge(type_match);
+
+            //Reset no charges
+            self.no_charges(false)
+
+
+        });
 
 
         self.addCalendar();
