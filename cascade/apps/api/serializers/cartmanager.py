@@ -212,6 +212,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
 
 class TicketCommentSerializer(serializers.ModelSerializer, NullSerializerPatch):
     created_by = CleanRelatedField(source='created_by.username')
+    created_by_mugshot = CleanRelatedField(source='created_by.profile.get_mugshot_url')
 
     class Meta:
         model = TicketComments

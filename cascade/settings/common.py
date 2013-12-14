@@ -4,13 +4,19 @@ __author__ = 'jbennett'
 # Django settings for cascade project.
 import os
 
-from django.conf import settings
+from django.conf import global_settings as settings
 
 ROOT_DIR = os.path.dirname(__file__)
 
 DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
+
+AUTHENTICATION_BACKENDS = (
+    'userena.backends.UserenaAuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -60,12 +66,23 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.abspath(os.path.join(ROOT_DIR, '..', 'configure/media/accounts'))
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
+
+
+#USERENA SETTINGS:
+LOGIN_URL = '/accounts/signin/'
+USERENA_SIGNIN_REDIRECT_URL = '/carts/tickets/report'
+USERENA_MUGSHOT_DEFAULT = 'mm'
+USERENA_MUGSHOT_PATH = '%(username)s/'
+
+LOGIN_REDIRECT_URL = '/carts/tickets/report/'
+
+
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -111,7 +128,7 @@ TEMPLATE_LOADERS = (
 
 
 
-#TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + ( 'cascade.libs.context_processor.current_site',)
+TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + ('cascade.libs.context_processor.current_site',)
 
 
 MIDDLEWARE_CLASSES = (
@@ -143,9 +160,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'django_rq',
     'rest_framework',
@@ -153,8 +168,13 @@ INSTALLED_APPS = (
     'pipeline',
     'storages',
     'djrill',
+    'userena',
+    'guardian',
+    'easy_thumbnails',
+    'cascade.apps.accounts',
     'cascade.apps.api',
     'cascade.apps.cartmanager',
+
 )
 
 # A sample logging configuration. The only tangible logging
@@ -186,9 +206,6 @@ LOGGING = {
     }
 }
 
-LOGIN_URL = '/accounts/login/'
-
-LOGIN_REDIRECT_URL = '/carts/tickets/report/'
 
 #Storage Compression:
 
@@ -445,5 +462,8 @@ EMAIL_USE_TLS = True
 MANDRILL_API_KEY = os.environ['MANDRILL_APIKEY']
 
 ALLOWED_HOSTS = ['.gocartlogic.com', '.herokuapp.com']
+
+ANONYMOUS_USER_ID = -1
+AUTH_PROFILE_MODULE = 'accounts.Profile'
 
 SITE_ID = 2

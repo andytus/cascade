@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Email verification" %}{% endblock %}
+{% block content_title %}<h2>{% trans 'Confirm your new email' %}</h2>{% endblock %}
+
+{% block content %}
+{% block main_content %}
+<div class="box-info middlebox">
+<img src="{{STATIC_URL }}img/CartLogicLogo2013.png" style="width: 40%">
+<br><br>
+<p>{% blocktrans with viewed_user.userena_signup.email_unconfirmed as email %}You have received an email at <b>{{ email }} </b>.{% endblocktrans %}</p>
+<p>{% blocktrans with viewed_user.username as username %}To associate this email address with your account <b>({{ username }})</b> click on the link provided in this email.{% endblocktrans %}</p>
+ </div>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load url from future %}
+
+{% block title %}{% trans "Account setup" %}{% endblock %}
+
+{% block content_title %}<h2>
+    {% blocktrans with profile.user.username as username %}Account &raquo; {{ username }}{% endblocktrans %}
+    </h2>{% endblock %}
+
+{% block content %}
+
+    {% block main_content %}
+        <div class="box-info middlebox">
+            <form action="" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+                <ul id="box-nav" class="nav nav-tabs">
+                    <li class="first"><a
+                            href="{% url 'userena_profile_detail' user.username %}"><span>{% trans 'View profile' %}</span></a>
+                    </li>
+                    <li class="selected"><a
+                            href="{% url 'userena_profile_edit' user.username %}">{% trans "Edit profile" %}</a></li>
+                    <li><a href="{% url 'userena_password_change' user.username %}">{% trans "Change password" %}</a>
+                    </li>
+                    <li class="last"><a
+                            href="{% url 'userena_email_change' user.username %}">{% trans "Change email" %}</a></li>
+                </ul>
+                {% csrf_token %}
+                <fieldset>
+                    <legend>Edit Profile</legend>
+                    {{ form.last_name.label }}
+                    {{ form.last_name }}<br>
+                    {{ form.first_name.label }}
+                    {{ form.first_name }}<br>
+                    {{ form.company.label }}
+                    {{ form.company }}<br>
+                   <br>
+                    <label for="id_mugshot">Photo upload
+                    <input id="id_mugshot" name="mugshot" type="file" class="file-upload">
+                    </label>
+                </fieldset>
+                <br>
+                <input type="submit" value="{% trans "Save changes" %}"  class="btn btn-large btn-primary submit-fix" style="padding: 0"/>
+            </form>
+        </div>
+    {% endblock %}
+{% endblock %}

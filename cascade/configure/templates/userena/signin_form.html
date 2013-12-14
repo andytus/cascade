@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+
+
+{% block title %} Welcome to CartLogic Office for {{ site_name }}  {% endblock %}
+
+
+{% block navbar %}
+
+{% endblock %}
+
+
+{% block main_content %}
+    {% block content %}
+
+        <div id="login_form" class="box-info middlebox">
+            <form method="post" action="">
+                {% csrf_token %}
+                <fieldset>
+                    <legend><img src="{{STATIC_URL }}img/CartLogicLogo2013.png" style="width: 40%"><br>Login</legend>
+                    {{ form.non_field_errors }}
+                    {% for field in form %}
+                        {{ field.errors }}
+                        {% comment %} Displaying checkboxes differently {% endcomment %}
+                        {% if field.name == 'remember_me' %}
+                            <p class="checkbox-inline">
+                                <label for="id_{{ field.name }}">{{ field }}{{ field.label }} </label>
+                            </p>
+                        {% else %}
+                            <p>
+                                {{ field.label_tag }}
+                                {{ field }}
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                </fieldset>
+                <input class="btn btn-large btn-primary submit-fix" type="submit" value="Login" style="padding-top: 0;"/>
+                <br><br>
+
+                <p class="forgot-password"><a href="{% url 'userena_password_reset' %}" title='Forgot your password?'>Forgot your password?</a></p>
+                {% if next %}<input type="hidden" name="next" value="{{ next }}"/>{% endif %}
+            </form>
+        </div>
+    {% endblock %}
+
+{% endblock %}

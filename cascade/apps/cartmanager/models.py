@@ -528,12 +528,12 @@ class TicketComments(models.Model):
         return info
 
 
-class UserAccountProfile(models.Model):
-    user = models.OneToOneField(User)
-    sites = models.ManyToManyField(Site)
-    company = models.CharField(max_length=50, null=True)
-    objects = models.Manager()
-    on_site = CurrentSiteManager()
+# class UserAccountProfile(models.Model):
+#     user = models.OneToOneField(User)
+#     sites = models.ManyToManyField(Site)
+#     company = models.CharField(max_length=50, null=True)
+#     objects = models.Manager()
+#     on_site = CurrentSiteManager()
 
 
 class DataErrors(models.Model):

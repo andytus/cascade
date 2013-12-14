@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Signup almost done!" %}{% endblock %}
+
+{% block content_title %}<h2>{% trans "Signup" %}</h2>{% endblock %}
+{% block main_content %}
+{% block content %}
+     <div class="box-info middlebox">
+<p> Thank you for signing up with us!</p>
+
+{% if userena_activation_required %}
+<p>You have been sent an e-mail with an activation link to the supplied email.</p>
+<p>We will store your signup information for {{ userena_activation_days }} days on our server.</p>
+{% else  %}
+<p>You can now use the supplied credentials to signin.</p>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% endblock %}

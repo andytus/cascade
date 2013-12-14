@@ -108,7 +108,9 @@
                 <div id="ticket-info-comments" data-bind="foreach: $root.profile.ticket_comments">
 
                     <p class="comment alert alert-info">
+                         <img class="mugshot" data-bind="attr:{src: created_by_mugshot()}" alt="Your mugshot" height="10%" width="10%" />
                         <span data-bind="html: '<b>' + created_by() + '</b>  said: ' "></span>
+
                         <br><br>
                         <i class="icon-quote-left"> </i><span data-bind="text:text"></span>
                         <i class="icon-quote-right"> </i>

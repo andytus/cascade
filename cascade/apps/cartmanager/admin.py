@@ -1,19 +1,12 @@
 __author__ = 'jbennett'
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
 from models import CartServiceType, CartStatus, CartType, TicketStatus,\
     AdminDefaults, ZipCodes, ServiceReasonCodes, Route, CollectionAddress, Cart, Ticket, CollectionCustomer,\
-    CartServiceCharge, CartParts
-
-
-from cascade.apps.cartmanager.models import UserAccountProfile, InventoryAddress
-
+    CartServiceCharge, CartParts, InventoryAddress
 
 class CartServiceChargeAdmin(admin.ModelAdmin):
     search_fields = ['amount', 'description']
-
 
 class CollectionCustomerAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name']
@@ -28,18 +21,9 @@ class CartAdmin(admin.ModelAdmin):
     list_filter = ['current_status__label', 'cart_type__name', 'cart_type__size', 'born_date']
 
 
-class UserAccountProfileInline(admin.StackedInline):
-    model = UserAccountProfile
-    filter_horizontal = ('sites',)
-    can_delete = False
-    verbose_name = 'profile'
-
 class CartPartsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'on_hand']
 
-
-class UserAdmin(UserAdmin):
-    inlines = (UserAccountProfileInline,)
 
 
 class TicketAdmin(admin.ModelAdmin):
@@ -49,8 +33,6 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ['service_type__code', 'status__service_status']
 
 
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
 admin.site.register(InventoryAddress)
 admin.site.register(CartServiceType)
 admin.site.register(CartStatus)

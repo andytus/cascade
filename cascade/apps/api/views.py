@@ -96,7 +96,7 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
             query = Cart.on_site.filter()
             value = value.strip()
             if search_type == 'address':
-                address = value.split(' ')
+                address = value.split(' ') # e.g. address = ['201', 'MARKET']
                 if len(address) == 1:
                     #address only contains street name
                     street_name = address[0].strip().upper()
@@ -115,7 +115,6 @@ class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                             self.serializer_class = CartSearchAddressSerializer
                             query = CollectionAddress.on_site.filter(street_name__contains=street_name,
                                                                      house_number__contains=house_number)
-
 
             elif search_type == 'serial_number':
                 query = query.filter(serial_number__contains=str(value))

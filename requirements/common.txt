@@ -29,3 +29,6 @@ django-redis-cache==0.10.0
 reportlab==2.7
 pisa==3.0.33
 html5lib==1.0b3
+django-userena==1.2.4
+django-guardian==1.1.1
+easy_thumbnails==1.4

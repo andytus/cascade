@@ -233,6 +233,12 @@ body { height: 100%; margin: 0; padding: 0 }
 
 }
 
+#login_form input[type=checkbox]{
+    width: 1.5em;
+    margin-right: 1%;
+    margin-bottom: 1%;
+}
+
 /****Cart Profile Page****/
 
 #cart-profile-tab{
@@ -321,7 +327,7 @@ body { height: 100%; margin: 0; padding: 0 }
    }
 
 
-#ticket-query select, input{
+#ticket-query select{
     font-size: 1.1em;
     height: 1.3em;
     padding: 1px;
@@ -333,10 +339,9 @@ body { height: 100%; margin: 0; padding: 0 }
     margin-top: 1%;
 }
 
-#ticket-query-advanced-options input, select{
+#ticket-query-advanced-options select input{
    font-size: 1.1em;
    height: 1.3em;
-   width: 2em;
    display:inline-block;
 }
 
@@ -595,4 +600,14 @@ body { height: 100%; margin: 0; padding: 0 }
     margin-bottom: 1%;
     display: inline-block;
 
+}
+
+#login_link{
+    margin-top: .5%;
+}
+
+#box-nav{
+    margin-left:auto;
+margin-right:auto;
+width:70%;
 }

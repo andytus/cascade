@@ -1,7 +1,9 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
-# Uncomment the next two lines to enable the admin:
+from django.contrib.auth import views as auth_views
 from django.contrib import admin
+from cascade.apps.accounts.forms import CustomEditProfileForm
+from settings import common as settings
 
 from djrill import DjrillAdminSite
 
@@ -11,29 +13,41 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-    (r'^carts/', include('cascade.apps.cartmanager.urls')),
+                       (r'^carts/', include('cascade.apps.cartmanager.urls')),
 
-    (r'^api/', include('cascade.apps.api.urls')),
+                       (r'^api/', include('cascade.apps.api.urls')),
 
-    url(r'^about/', TemplateView.as_view(template_name="about.html") ),
+                       url(r'^about/', TemplateView.as_view(template_name="about.html")),
 
-    url(r'accounts/profile/', TemplateView.as_view(template_name="profile.html")),
+                       url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+                       url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+                       url(r'^accounts/(?P<username>[\.\w-]+)/edit/$',
+                           'userena.views.profile_edit',
+                           {'edit_profile_form': CustomEditProfileForm},
+                           name='userena_profile_edit'),
 
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
+                       (r'^accounts/', include('userena.urls')),
 
-    url(r'^accounts/register/$', 'cascade.libs.views.register_user'),
 
-    url(r'^accounts/register/success/$', 'cascade.libs.views.register_success'),
+
+# url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+#
+# url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
+#
+# url(r'^accounts/register/$', 'cascade.libs.views.register_user'),
+#
+# url(r'^accounts/register/success/$', 'cascade.libs.views.register_success'),
 
 )
 
 urlpatterns += patterns('',
-    (r'^django-rq/', include('django_rq.urls')),
+                        (r'^django-rq/', include('django_rq.urls')),)
 
-)
+if settings.DEBUG:
+# static files (images, css, javascript, etc.)
+    urlpatterns += patterns('',
+                            (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+                                'document_root': settings.MEDIA_ROOT}))
