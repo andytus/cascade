@@ -24,8 +24,8 @@
         self.route_day = ko.observable("ALL");
         self.route = ko.observable('ALL');
         self.sort_by = ko.observable('id');
-        self.search_to_date = ko.observable("ALL");
-        self.search_from_date = ko.observable("ALL");
+        self.search_to_date = ko.observable(null);
+        self.search_from_date = ko.observable(null);
         self.search_days = ko.observable('ALL');
         self.search_days_type = ko.observable('Created');
         self.charge = ko.observable('ALL');
@@ -68,8 +68,7 @@
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
 
-                if (self.search_from_date() != 'ALL' && self.search_to_date != 'ALL'){
-                    console.log(self.search_from_date())
+                if (self.search_from_date() != 'undefined' && self.search_from_date() != null) {
                     data.search_to_date = self.search_to_date();
                     data.search_from_date = self.search_from_date()
                 }
@@ -101,7 +100,7 @@
 
                 }
             });
-            
+
         };
 
         //Listens for a click on a run ticket query and downloads a csv or calls ajax function
@@ -121,8 +120,9 @@
             self.search_days_type(context.$data.search_days_type());
             self.search_to_date(context.$data.search_to_date());
             self.search_from_date(context.$data.search_from_date());
-            self.route(context.$data.selected_search_days().value)
+            self.route(context.$data.selected_search_days().value);
 
+            //TODO refactor for redundancy....
             if (this.id == 'download_csv' || this.id == 'download_pdf') {
                 //if it is a csv format just load in the window (no ajax needed).
                 var data = {};
@@ -135,8 +135,10 @@
                 data.route = self.route();
                 data.search_days = self.search_days();
                 data.search_days_type = self.search_days_type();
-                data.search_to_date = self.search_to_date();
-                data.search_from_date = self. search_from_date();
+                if (self.search_from_date() != 'undefined' && self.search_from_date() != null) {
+                    data.search_to_date = self.search_to_date();
+                    data.search_from_date = self.search_from_date();
+                }
                 data.charge = self.charge();
                 data.no_charges = self.no_charges();
                 //just getting report type directing from TicketsListViewModel
@@ -183,24 +185,24 @@
         self.ticket_profile_cell_open_template = '<a style=\'margin-top: 1px;\' class=\' btn btn-small, btn-info\'data-bind="attr: {\'href\' : \''
             + ticket_app_profile_url + '\' + $data.getProperty($parent)}, text: $data.getProperty($parent)">Open</a>';
 
-       self.money_format ='<span data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt\'}"></span>';
+        self.money_format = '<span data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt\'}"></span>';
 
-       self.columns = [
+        self.columns = [
             {field: 'id', displayName: "Open", cellTemplate: self.ticket_profile_cell_open_template, width: 100},
-            {field: 'status__service_status', displayName: 'Status', width:"***"},
-            {field: 'service_type__code', displayName: 'Type', width:"**"},
-            {field: 'charge', displayName: 'Charge', cellTemplate: self.money_format, width:"**"},//'<span data-bind="text:"$data.getProperty($parent)> </span>'},
-            {field: 'cart_type__name', displayName: 'Cart Type', width:"**"},
-            {field: 'cart_type__size', displayName: 'Size', width:"**"},
-            {field: 'success_attempts', displayName: 'Tries', width:"*"},
-            {field: 'location__house_number', displayName: 'House', width:"**"},
+            {field: 'status__service_status', displayName: 'Status', width: "***"},
+            {field: 'service_type__code', displayName: 'Type', width: "**"},
+            {field: 'charge', displayName: 'Charge', cellTemplate: self.money_format, width: "**"},//'<span data-bind="text:"$data.getProperty($parent)> </span>'},
+            {field: 'cart_type__name', displayName: 'Cart Type', width: "**"},
+            {field: 'cart_type__size', displayName: 'Size', width: "**"},
+            {field: 'success_attempts', displayName: 'Tries', width: "*"},
+            {field: 'location__house_number', displayName: 'House', width: "**"},
             {field: 'location__street_name', displayName: 'Street', width: "***"},
-            {field: 'location__unit', displayName: 'Unit', width:"**"},
-            {field: 'route__route', displayName: 'Route' , width:"**"},
+            {field: 'location__unit', displayName: 'Unit', width: "**"},
+            {field: 'route__route', displayName: 'Route', width: "**"},
             {field: 'serviced_cart__serial_number', displayName: 'Serviced #', cellTemplate: self.cart_profile_cell_template, width: "******"},
             {field: 'expected_cart__serial_number', displayName: 'Expected #', cellTemplate: self.cart_profile_cell_template, width: "******"},
-            {field: 'date_created', displayName: 'Created', width:"****"},
-            {field: 'date_last_attempted', displayName: 'Last Try', width:100}
+            {field: 'date_created', displayName: 'Created', width: "****"},
+            {field: 'date_last_attempted', displayName: 'Last Try', width: 100}
 
         ];
 
