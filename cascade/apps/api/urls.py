@@ -6,6 +6,7 @@ from cascade.apps.api.views import TicketSearchAPI, CartProfileAPI, CartSearchAP
 from django.views.decorators.cache import cache_page
 from rest_framework.urlpatterns import format_suffix_patterns
 
+
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
 urlpatterns = patterns('cascade.apps.api.views',
                        url(r'^location/profile/(?P<location_id>[a-zA-Z0-9]+)?$', LocationAPI.as_view(),
@@ -32,7 +33,7 @@ urlpatterns = patterns('cascade.apps.api.views',
                        url(r'^ticket/status/options/$', TicketStatusAPI.as_view(), name='ticket_status_api'),
                        url(r'^ticket/service/options/$', TicketServiceTypeAPI.as_view(),
                            name='ticket_service_type_api'),
-                       url(r'^route/search/$', RouteListAPI.as_view(), name='route_search_api')
+                       url(r'^route/search/$', RouteListAPI.as_view(), name='route_search_api'),
                        )
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -164,6 +164,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django_rq',
     'rest_framework',
+    'rest_framework.authtoken',
     'south',
     'pipeline',
     'storages',

@@ -31,6 +31,8 @@ urlpatterns = patterns('',
 
                        (r'^accounts/', include('userena.urls')),
 
+                    url(r'^api/token/$', 'rest_framework.authtoken.views.obtain_auth_token'),
+
 
 
 # url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
