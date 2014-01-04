@@ -16,10 +16,16 @@ AUTHENTICATION_BACKENDS = (
     'userena.backends.UserenaAuthenticationBackend',
     'guardian.backends.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
-    'rest_framework.authentication.BasicAuthentication',
-    'rest_framework.authentication.TokenAuthentication',
-
 )
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -34,8 +40,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'cartlogictest', # Or path to database file if using sqlite3.
         'USER': 'admin_cartlogic', # Not used with sqlite3.
-        'PASSWORD': 'charlize20', # Not used with sqlite3.
-        'HOST': 'localhost', # Set to empty string for localhost. Not used with sqlite3.
+        'PASSWORD': 'charlize20',  # Not used with sqlite3.
+        'HOST': 'localhost',  #Set to empty string for localhost. Not used with sqlite3.
         'PORT': '5432', # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -470,4 +476,3 @@ ALLOWED_HOSTS = ['.gocartlogic.com', '.herokuapp.com']
 ANONYMOUS_USER_ID = -1
 AUTH_PROFILE_MODULE = 'accounts.Profile'
 
-SITE_ID = 2

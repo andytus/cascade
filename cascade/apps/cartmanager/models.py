@@ -16,7 +16,7 @@ def get_upload_path(instance, filename):
 
     """
     #Note: os.path.dirname(__file__) used to upload files into the app directory
-    return os.path.join(os.path.dirname(__file__), 'uploads', instance.site.domain, instance.file_kind, filename)
+    return os.path.join('uploads', instance.site.domain, instance.file_kind, filename)
 
 
 class UploadFile(models.Model):

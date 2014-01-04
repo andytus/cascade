@@ -9,6 +9,7 @@ from cascade.apps.cartmanager.models import Cart, CartStatus, CartType, Inventor
     CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route, CartParts
 from django.utils import timezone
 from datetime import datetime
+from django.conf import settings
 
 
 def save_error(e, line, site):
@@ -343,6 +344,8 @@ def save_route_records(line, file_record):
 
 def process_upload_records(file_model, file_id):
     file_record = file_model.objects.get(pk=file_id)
+    #need to set the site to same as the file uploaded site
+    settings.SITE_ID = file_record.site.pk
     file = file_record.file_path
     #Read use the first header row:
     file.readline()
