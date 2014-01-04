@@ -10,6 +10,10 @@ from cascade.apps.cartmanager.models import Cart, CartStatus, CartType, Inventor
 from django.utils import timezone
 from datetime import datetime
 from django.conf import settings
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 def save_error(e, line, site):
@@ -20,6 +24,8 @@ def save_error(e, line, site):
     Site.objects.clear_cache()
     error = DataErrors(error_message=error_message, error_type=e.__class__.__name__,
                        failed_data=line, site=site)
+    logger.error("Error Message: %s, Error Type: %s, Failed Data: %s, Site: %s" % (error_message, e.__class__.__name__,
+                                                                                   line, site))
     error.save()
 
 
@@ -59,7 +65,7 @@ def save_cart_records(line, file_record):
             else:
                 cart.at_inventory = True
         except Exception as e:
-            print e
+            logger.error(e)
             #cant find address,  put the cart in inventory
             cart.at_inventory = True
 
@@ -93,6 +99,7 @@ def save_ticket_records(line, file_record):
                 cart = Cart.on_site.get(rfid__exact=clean_rfid)
             except Cart.DoesNotExist:
                 #if we don't have a cart we should create it
+                logger.info("Cart %s does not exist...creating one now" % clean_rfid)
                 cart = Cart(site=file_record.site, rfid=clean_rfid,
                             serial_number=clean_rfid,  #rfid.strip('=').strip('"')[-12:],
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
@@ -329,7 +336,8 @@ def save_route_records(line, file_record):
                                                                    street_name=street_name.strip().upper())
                 collection_address.route.add(route)
             except CollectionAddress.DoesNotExist:
-                pass
+                logger.info("In save_route_records collection address: %s %s, does not exist" %
+                            (house_number, street_name))
 
         route.save()
         file_record.num_good += 1
