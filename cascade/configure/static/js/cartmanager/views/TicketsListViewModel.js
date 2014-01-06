@@ -187,7 +187,7 @@
             + ticket_app_profile_url + '\' + $data.getProperty($parent)}, text: $data.getProperty($parent)">Open</a>';
 
         self.money_format = '<p  data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt \' + $index()}"></p>';
-        self.money_format2 = ""
+
 
         self.time_format = '<span data-bind= "text: new cartlogic.TimeFormat($parent.entity[\'date_last_attempted\'])></span>'
 
