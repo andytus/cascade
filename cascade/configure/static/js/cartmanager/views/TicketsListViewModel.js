@@ -179,13 +179,17 @@
 
         });
 
-        self.cart_profile_cell_template = '<a data-bind=" attr:{ \'href\' : \'' + cart_app_profile_url +
-            '\' + $data.getProperty($parent)}, text:  $data.getProperty($parent)"></a>';
+        self.cart_profile_cell_template = '<p data-bind="attr: { \'class\': \'kgCellText colt \' + $index()}">' +
+            '<a data-bind=" attr:{ \'href\' : \'' + cart_app_profile_url +
+            '\' + $data.getProperty($parent)}, text:  $data.getProperty($parent)"></a></p>';
 
-        self.ticket_profile_cell_open_template = '<a style=\'margin-top: 1px;\' class=\' btn btn-small, btn-info\'data-bind="attr: {\'href\' : \''
+        self.ticket_profile_cell_open_template = '<a style=\'margin-top: 1px;\' class=\' btn btn-small, btn-info \'data-bind="attr: {\'href\' : \''
             + ticket_app_profile_url + '\' + $data.getProperty($parent)}, text: $data.getProperty($parent)">Open</a>';
 
-        self.money_format = '<span data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt\'}"></span>';
+        self.money_format = '<p  data-bind= "text: \'$\' + $parent.entity[\'charge\'](), attr: { \'class\': \'kgCellText colt \' + $index()}"></p>';
+        self.money_format2 = ""
+
+        self.time_format = '<span data-bind= "text: new cartlogic.TimeFormat($parent.entity[\'date_last_attempted\'])></span>'
 
         self.columns = [
             {field: 'id', displayName: "Open", cellTemplate: self.ticket_profile_cell_open_template, width: 100},
@@ -201,8 +205,9 @@
             {field: 'route__route', displayName: 'Route', width: "**"},
             {field: 'serviced_cart__serial_number', displayName: 'Serviced #', cellTemplate: self.cart_profile_cell_template, width: "******"},
             {field: 'expected_cart__serial_number', displayName: 'Expected #', cellTemplate: self.cart_profile_cell_template, width: "******"},
-            {field: 'date_created', displayName: 'Created', width: "****"},
-            {field: 'date_last_attempted', displayName: 'Last Try', width: 100}
+            {field: 'date_last_attempted', displayName: 'Last Try', width: 120},
+            {field: 'date_created', displayName: 'Created', width: "****"}
+
 
         ];
 

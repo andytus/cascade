@@ -73,7 +73,7 @@ function Ticket(data) {
         self.device_name(data.device_name);
         self.success_attempts(data.success_attempts);
         self.date_created(new cartlogic.DateFormat(data.date_created).full_date);
-        self.date_last_attempted(new cartlogic.DateFormat(data.date_last_attempted).full_date);
+        self.date_last_attempted(new cartlogic.DateFormat(data.date_last_attempted).full_date_time);
 
         if (data.date_completed){
             self.date_completed(new cartlogic.DateFormat(data.date_completed).full_date);

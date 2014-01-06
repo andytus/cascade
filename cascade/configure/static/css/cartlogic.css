@@ -611,3 +611,7 @@ body { height: 100%; margin: 0; padding: 0 }
 margin-right:auto;
 width:70%;
 }
+
+.fixcolumn{
+   margin-bottom: -13px;
+}
