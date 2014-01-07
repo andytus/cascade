@@ -21,10 +21,13 @@
     {% block navbar %}
         <div class="navbar">
             <div class="navbar-inner">
-                <a id="menu-title" class="banner" href="{% url "ticket_app_report" %}">
-                   <img src="{{ STATIC_URL }}img/CartLogicLogo2013_BW.png" align="left" width="7%" height="10%"
-                         style="display: inline; margin-left: 10%; margin-top: .2%; padding-right: 2%">
+                <span style="float: left; margin-left: 2%; margin-top: .9%; font-size: 1.2em "> {{ current_site.name }}</span>
+                 <a id="menu-title" class="banner" href="{% url "ticket_app_report" %}">
+                    <img src="{{ STATIC_URL }}img/CartLogicLogo2013_BW.png" align="left" width="7%" height="10%"
+                         style="display: inline; margin-left: 2%; margin-top: .2%; padding-right: 2%">
+
                 </a>
+
 
                 <div class="container-fluid">
                     <div id="login_link" class="pull-right">
