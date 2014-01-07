@@ -143,10 +143,12 @@ background-color: white;
 }
 
 .cart-info-img{
-    margin-top: -50px;
+   margin-top: -50px;
 }
 
 .cart-info-serial{
+    display: block;
+    text-align:center;
     position: relative;
     top: 40px;
     left: 65px;
@@ -159,7 +161,7 @@ background-color: white;
 
     color: white;
     float: left;
-    font-size: .9em;
+    font-size: .8em;
     font-weight: bold;
     text-shadow: black 0.1em 0.09em 0.09em;
 }

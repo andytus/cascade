@@ -35,10 +35,10 @@
         $('.cart-info-link').popover({
             trigger:'hover',
             placement:'bottom',
-            title:'Cart Serial',
+            title:'<b>CLICK</b> to view Cart Profile',
             html:true,
             content:function () {
-                return '<h3>' + $(this).text() + '</h3>'
+                return '<h3>' + $(this).text() + '</h3>' +'<p style="font-size: 1.1em"> NOTE: Only last 12 digits of the serial number or RFID tag are shown.</p>'
             }
         });
     };

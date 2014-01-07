@@ -14,7 +14,7 @@
     self.status = ko.observable(data.status);
     self.size = ko.observable(parseFloat(data.size/1024).toFixed(2));
     self.uploaded_by = ko.observable(data.uploaded_by);
-    self.date_uploaded = ko.observable(new cartlogic.DateFormat(data.date_start_processing).full_date);
+    self.date_uploaded = ko.observable(new cartlogic.DateFormat(data.date_uploaded).full_date_time);
     self.file_path =  ko.observable(data.file_path);
     self.num_records = ko.observable(data.num_records);
     self.num_good = ko.observable(data.num_good);
@@ -23,6 +23,6 @@
     }
 
 //add to cartlogic name space
-    cartlogic.File = File ;
+    cartlogic.File = File;
 
 }(window.cartlogic));

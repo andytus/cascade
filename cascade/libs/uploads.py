@@ -32,7 +32,7 @@ def save_error(e, line, site):
 def save_cart_records(line, file_record):
     try:
         rfid, serial, size, cart_type, born_date, status, house, street, unit, date_delivered = line.split(',')
-        # get cart type by name
+         # get cart type by name
         cart_type = CartType.objects.get(name=cart_type, size=size)
         cart_status = CartStatus.objects.get(label=status)
         cart = Cart(site=file_record.site, rfid=rfid, updated_by=file_record.uploaded_by, serial_number=serial,
@@ -74,6 +74,9 @@ def save_cart_records(line, file_record):
     except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         file_record.status = "FAILED"
         file_record.num_error += 1
+        logger.error(e)
+        test = 0
+        test = test / 10
         save_error(e, line, file_record.site)
 
 
@@ -105,6 +108,8 @@ def save_ticket_records(line, file_record):
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
                             updated_by=file_record.uploaded_by)
             cart.save()
+        else:
+            raise ValidationError(message="RFID: %s is not valid" % rfid)
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
@@ -197,6 +202,7 @@ def save_ticket_records(line, file_record):
             file_record.num_good += 1
 
     except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
+        logger.error(e)
         file_record.status = "FAILED"
         file_record.num_error += 1
         save_error(e, line, file_record.site)
@@ -314,6 +320,7 @@ def save_customer_records(line, file_record):
 
     except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         file_record.status = "FAILED"
+        logger.error(e)
         file_record.num_error += 1
         save_error(e, line, file_record.site)
         #error = DataErrors(site=file_record.site, error_message=e, error_type=e.__class__.__name__, failed_data=line)
@@ -352,6 +359,8 @@ def save_route_records(line, file_record):
 
 def process_upload_records(file_model, file_id):
     file_record = file_model.objects.get(pk=file_id)
+    file_record.status = 'PENDING'
+    file_record.save()
     #need to set the site to same as the file uploaded site
     settings.SITE_ID = file_record.site.pk
     file = file_record.file_path

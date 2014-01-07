@@ -48,13 +48,14 @@
         <div id="cart-list" data-bind="foreach: {data:carts, afterRender: Decorator}">
 
             <div class="cart-info box-info">
-                <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
-                    <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial"></span>
-                    <img class="cart-info-img" data-bind="attr:{src: '{{ STATIC_URL }}img/' + cart_image + '.png'}"
-                         src="{{ STATIC_URL }}img/cart_image.png"/>
+
+                 <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
+                      <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial.substring(12,24)">
+                     </span>
+                   <img class="cart-info-img" data-bind="attr:{src: '{{ STATIC_URL }}img/' + cart_image + '.png'}" />
                 </a>
 
-                <div class="cart-info-text">
+                  <div class="cart-info-text">
                     <div class="cart-info-header"><span class="cart-info-size" data-bind="text: cart_type__size"></span>
 
                         <div class="cart-info-type" data-bind="text: cart_type__name"></div>
@@ -66,7 +67,7 @@
                     <br><br>
 
 
-                    <div class="cart-info-born_date" data-bind="html: 'Produced on:' + '<b>' +  born_date + '</b>'"></div>
+                    <div class="cart-info-born_date" data-bind="html: 'Produced on: ' + '<b>' +  born_date + '</b>'"></div>
                          <br><br>
                     <!-- /ko -->
 

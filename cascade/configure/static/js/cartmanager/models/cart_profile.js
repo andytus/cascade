@@ -23,6 +23,7 @@ function CartProfile(data){
     self.cart_type__name = ko.observable(data.cart_type.name);
     self.cart_type__id = ko.observable(data.cart_type.id);
 
+
     self.last_updated = ko.observable(new cartlogic.DateFormat(data.last_updated).full_date);
 
     if(data.born_date != null){

@@ -204,8 +204,10 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                     query = query.filter(date_completed__range=[search_from_date, search_to_date])
 
             if cart_serial:
+                cart = Cart.on_site.get(serial_number=cart_serial)
                 query = query.filter(
-                    Q(expected_cart__serial_number=cart_serial) | Q(serviced_cart__serial_number=cart_serial))
+                    Q(expected_cart=cart) | Q(serviced_cart=cart))
+
             if customer_id:
                 customer = CollectionCustomer.on_site.get(pk=customer_id)
                 #get all tickets where the location is equal to a customers location
@@ -237,8 +239,8 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super(TicketSearchAPI, self).list(request, *args, **kwargs)
         file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
+        data = self.get_queryset()
         if self.request.accepted_renderer.format == "csv":
-            data = self.get_queryset()
             #TODO abstract report type to model for admin report creation
             header = {}
             if self.report_type == 'service_tickets':

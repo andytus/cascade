@@ -125,7 +125,7 @@
                         cart_type__name:document.getElementById('cart-info-edit-type').value,
                         cart_type__size: self.cart().cart_type__size()
                         };
-            console.log(data);
+
             self.saveCartData(data);
         };
 

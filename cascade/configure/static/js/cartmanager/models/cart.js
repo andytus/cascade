@@ -15,7 +15,13 @@
         /** Creates a Cart object returns to the view array **/
        if(data.cart){
            self.cart_serial = data.cart.serial || "It's Missing";
-           self.born_date = new cartlogic.DateFormat(data.cart.born_date).full_date;
+           if (data.cart.born_date != null){
+                self.born_date = new cartlogic.DateFormat(data.cart.born_date).full_date;
+
+           }else{
+               self.born_date = 'unknown'
+           }
+
            self.current_status = data.cart.current_status__label;
            self.current_status__level = data.cart.current_status__level;
 

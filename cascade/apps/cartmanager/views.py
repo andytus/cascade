@@ -310,7 +310,7 @@ class UploadFormView(TemplateView):
             upload_file.save()
             #Here the records are processed
             if process:
-                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.id))
+                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.id), timeout=5000)
             return HttpResponse(simplejson.dumps({'details': {'message': "Saved %s" % self.FILE,
                                                               'file_id': upload_file.id, 'message_type': 'Success'}}),
                                 content_type="application/json")

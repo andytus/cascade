@@ -14,7 +14,7 @@ class CollectionCustomerAdmin(admin.ModelAdmin):
 
 class CollectionAddressAdmin(admin.ModelAdmin):
     search_fields = ['house_number', 'street_name']
-    list_filter = ['route__route_day', 'route__route_type', 'route__route']
+    list_filter = ['route__route_day', 'route__route_type', 'route__route', 'city']
 
 class CartAdmin(admin.ModelAdmin):
     search_fields = ['serial_number', 'rfid', 'location__street_name', 'location__house_number']
