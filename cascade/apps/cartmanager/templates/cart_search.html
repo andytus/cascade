@@ -50,7 +50,7 @@
             <div class="cart-info box-info">
 
                  <a class="cart-info-link pull-right" data-bind="attr: {href: cart_url}">
-                      <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial.length < 12 ? cart_serial : cart_serial().substring(12,24)">
+                      <span class="cart-info-serial" rel="tooltip" data-bind="text: cart_serial.length < 12 ? cart_serial : cart_serial.substring(12,24)">
                      </span>
                    <img class="cart-info-img" data-bind="attr:{src: '{{ STATIC_URL }}img/' + cart_image + '.png'}" />
                 </a>
