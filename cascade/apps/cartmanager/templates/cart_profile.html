@@ -25,7 +25,7 @@
             <div class="well" id="cart-info-display">
 
                 <a class="cart-info-link pull-left" data-bind="attr: {href: cart_app_profile_url + cart_serial_number}">
-                    <span class="cart-info-serial" data-bind="text: serial_number().length < 12 ? serial_number : serial_number().substring(12,24)"></span>
+                    <span class="cart-info-serial" data-bind="text: serial_number().length <= 12 ? serial_number : serial_number().substring(12,24)"></span>
                     <img class="cart-info-img" src="{{ STATIC_URL }}img/cart_image.png"/>
                 </a>
 
