@@ -22,27 +22,41 @@
         <div class="navbar">
             <div class="navbar-inner">
                 <span style="float: left; margin-left: 2%; margin-top: .9%; font-size: 1.2em "> {{ current_site.name }}</span>
-                 <a id="menu-title" class="banner" href="{% url "ticket_app_report" %}">
+                <a id="menu-title" class="banner" href="{% url "ticket_app_report" %}">
                     <img src="{{ STATIC_URL }}img/CartLogicLogo2013_BW.png" align="left" width="7%" height="10%"
                          style="display: inline; margin-left: 2%; margin-top: .2%; padding-right: 2%">
 
                 </a>
 
-
                 <div class="container-fluid">
+
                     <div id="login_link" class="pull-right">
                         {% if user %}
-                            <a href="{% url 'userena_profile_detail' user %}">
-                            <img class="mugshot" src="{{ user.get_profile.get_mugshot_url }}" alt="Your mugshot" height="15%" width="15%" />
-                            {{ user.username }} | <a href="{% url "userena_signout" %}">Logout</a>
-                            </a>
+                            <ul class="nav nav-pills">
 
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#sites">
+                                        Sites
+                                        <b class="caret"></b>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        {% for site in user.get_profile.sites.all %}
+
+                                            <li><a>{{ site.name }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+                            <a href="{% url 'userena_profile_detail' user %}">
+                                <img class="mugshot" src="{{ user.get_profile.get_mugshot_url }}" alt="Your mugshot"
+                                     height="15%" width="15%"/>
+                                {{ user.username }} | <a href="{% url "userena_signout" %}">Logout</a>
+                            </a>
                         {% else %}
                             <a href="{% url "django.contrib.auth.views.login" %}">Login</a>
                         {% endif %}
 
                     </div>
-
 
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                         <span class="icon-bar"></span>
@@ -148,7 +162,6 @@
                                     </ul>
                                 </li>
                             {% endif %}
-
                         </ul>
 
                     </div>
