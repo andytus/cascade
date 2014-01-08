@@ -443,7 +443,7 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
                     converted_date = datetime.strptime(born_date, '%m-%d-%Y')
                     cart.born_date = converted_date
                 cart.current_status = CartStatus.objects.get(label='Inventory')
-                cart.inventory_location = InventoryAddress.objects.get(default=True)
+                cart.inventory_location = InventoryAddress.objects.get(default=True, site=get_current_site(request))
 
             else:
                 cart = self.get_object(serial_number)
