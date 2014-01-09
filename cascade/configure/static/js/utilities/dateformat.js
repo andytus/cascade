@@ -17,7 +17,14 @@
         self.curr_year = self.d.getFullYear();
         self.full_date = self.curr_month + "-" + self.curr_date + "-" + self.curr_year;
         self.am_pm = self.d.getHours() < 12 ? "am" : "pm";
+        if (self.d.getHours() > 12){
         self.hours = self.d.getHours() - 12;
+        }else if (self.d.getHours() == 0){
+        self.hours = 12;
+        } else{
+        self.hours = self.d.getHours();
+        }
+
         self.minutes = self.d.getMinutes();
         if (self.minutes < 10) {
             self.minutes = "0" + self.minutes;

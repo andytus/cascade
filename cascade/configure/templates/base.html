@@ -11,7 +11,12 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome.min.css">
 
     {% block styles %}
-
+   <style>
+   .circle-img{
+       background: url({{ user.get_profile.get_mugshot_url }} ) no-repeat center;
+       background-size: contain;
+   }
+   </style>
     {% endblock %}
 
     <title>  {% block title %}{% endblock %} </title>
@@ -23,14 +28,15 @@
             <div class="navbar-inner">
                 <span style="float: left; margin-left: 2%; margin-top: .9%; font-size: 1.2em "> {{ current_site.name }}</span>
                 <a id="menu-title" class="banner" href="{% url "ticket_app_report" %}">
-                    <img src="{{ STATIC_URL }}img/CartLogicLogo2013_BW.png" align="left" width="7%" height="10%"
-                         style="display: inline; margin-left: 2%; margin-top: .2%; padding-right: 2%">
-
+                    <div>
+                        <img src="{{ STATIC_URL }}img/CartLogicLogo2013_BW.png" align="left" width="7%" height="10%"
+                             style="display: inline; margin-left: 2%; margin-top: .2%; padding-right: 2%;">
+                    </div>
                 </a>
 
                 <div class="container-fluid">
 
-                    <div id="login_link" class="pull-right">
+                    <div id="login_link" class="pull-right span4">
                         {% if user %}
                             <ul class="nav nav-pills">
 
@@ -41,17 +47,20 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         {% for site in user.get_profile.sites.all %}
-
-                                            <li><a>{{ site.name }}</a></li>
+                                            <li><a href="http://{{ site.domain }}/carts/tickets/report/">{{ site.name }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </li>
                             </ul>
-                            <a href="{% url 'userena_profile_detail' user %}">
-                                <img class="mugshot" src="{{ user.get_profile.get_mugshot_url }}" alt="Your mugshot"
-                                     height="15%" width="15%"/>
-                                {{ user.username }} | <a href="{% url "userena_signout" %}">Logout</a>
-                            </a>
+                            <div>
+
+                                 <a href="{% url 'userena_profile_detail' user %}">
+                                <img class="circle-img-display circle-img-small circle-img"  alt="profile" width="40" height="40"/>
+
+                                  {{ user.username }}
+                                    </a>|<a href="{% url "userena_signout" %}">Logout</a>
+                            </div>
+
                         {% else %}
                             <a href="{% url "django.contrib.auth.views.login" %}">Login</a>
                         {% endif %}
