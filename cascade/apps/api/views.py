@@ -247,7 +247,7 @@ class TicketSearchAPI(LoginSiteRequiredMixin, ListAPIView):
                 #using OrderedDict to maintain column order
                 header = OrderedDict([('id','ID'), ('location.street_name', 'Street Name'),
                                       ('location.house_number', 'House Number'), ('location.unit', 'Unit'),
-                                      ('service_type.code', 'Service'), ('cart_type.size', 'Cart Size'),
+                                      ('service_type.code', 'Service'),('expected_cart.rfid', 'RFID'), ('cart_type.size', 'Cart Size'),
                                       ('cart_type.name', 'Cart Type')])
 
             elif self.report_type == 'service_charges':
