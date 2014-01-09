@@ -23,7 +23,8 @@
         <!-- Cart search information -->
 
         <div id="result-header" class="alert alert-info">
-            Search for cart <span data-bind="text:search_for_type().replace('_', ' ')"></span>
+
+           Search for cart </i><b><span id="result-type" data-bind="text: '&ldquo;' + search_for_type().replace('_', ' ') + '&rdquo;'"></b></span>
             <i><span data-bind="text:search_for_value"></span></i>
             returned <b data-bind="text: count() || 'No'"></b> result<span
                 data-bind="visible:count() == 0 || count() > 1">s</span>:
