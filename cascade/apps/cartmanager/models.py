@@ -98,10 +98,11 @@ class AdminDefaults(models.Model):
 
     def get_info(self):
         return {'city': self.city, 'state': self.state, "account_admin": self.account_admin,
-                     'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
+                'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
 
     def get_location_info(self):
-        return {'city': self.city, 'state': self.state, 'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
+        return {'city': self.city, 'state': self.state,
+                'zipcodes': self.default_zipcodes.values('zipcode', 'plus_four')}
 
     def __unicode__(self):
         return "%s, %s" % (self.city, self.state)
