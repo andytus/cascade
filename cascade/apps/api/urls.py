@@ -7,8 +7,10 @@ from django.views.decorators.cache import cache_page
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
+
 #Note the regex pattern (?:/(?P<pk>\d+)?$ is used to make this optional, added a default view to accommodate.
 urlpatterns = patterns('cascade.apps.api.views',
+
                        url(r'^location/profile/(?P<location_id>[a-zA-Z0-9]+)?$', LocationAPI.as_view(),
                            name='location_api_profile'),
                        url(r'^location/search/$',
