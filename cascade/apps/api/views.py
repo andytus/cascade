@@ -15,10 +15,11 @@ from django.http import HttpResponse, StreamingHttpResponse
 import json as simplejson
 from django.template import Context, loader
 
+from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response as RestResponse
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
-from rest_framework.parsers import FileUploadParser
+
 from rest_framework import status as django_rest_status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
