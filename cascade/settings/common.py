@@ -1,6 +1,5 @@
 __author__ = 'jbennett'
 
-
 # Django settings for cascade project.
 import os
 
@@ -28,7 +27,8 @@ REST_FRAMEWORK = {
     ),
 
        'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
+
    ),
 }
 #import rest_framework.permissions
