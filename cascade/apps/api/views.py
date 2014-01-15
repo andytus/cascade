@@ -18,6 +18,7 @@ from django.template import Context, loader
 from rest_framework.response import Response as RestResponse
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer, TemplateHTMLRenderer
+from rest_framework.parsers import FileUploadParser
 from rest_framework import status as django_rest_status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
@@ -33,6 +34,9 @@ from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
 import ho.pisa as pisa
 from collections import OrderedDict
+
+from django_rq import enqueue
+from cascade.libs.uploads import process_upload_records
 
 
 def write_pdf(template_src, context_dict, file_name):
@@ -69,10 +73,11 @@ def write_kml(template_src, context_dict, file_name, agent):
     return response
 
 
-class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
+class AdminDefaultLocation(APIView):
     model = AdminDefaults
     serializer = AdminLocationDefaultSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         default_location = AdminDefaults.on_site.get(site=get_current_site(request).id)
@@ -80,11 +85,12 @@ class AdminDefaultLocation(LoginSiteRequiredMixin, APIView):
         return RestResponse(serializer.data)
 
 
-class CartSearchAPI(LoginSiteRequiredMixin, ListAPIView):
+class CartSearchAPI(ListAPIView):
     model = Cart
     serializer_class = CartSearchSerializer
     paginate_by = 35
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer, CSVRenderer)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self, *args, **kwargs):
         """
@@ -276,10 +282,11 @@ class TicketSearchAPI(ListAPIView):
         return response
 
 
-class LocationAPI(LoginSiteRequiredMixin, APIView):
+class LocationAPI(APIView):
     model = CollectionAddress
     serializer = LocationInfoSerializer
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, CSVRenderer, JSONPRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self, location_id):
         try:
@@ -362,7 +369,9 @@ class LocationAPI(LoginSiteRequiredMixin, APIView):
                                 status=django_rest_status.HTTP_200_OK)
 
 
-class LocationSearchAPI(LoginSiteRequiredMixin, APIView):
+class LocationSearchAPI(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get_queryset(self, address, address_id, customer_id):
         try:
             if address:
@@ -479,10 +488,11 @@ class CartProfileAPI(LoginSiteRequiredMixin, APIView):
                              'message_type': 'Failed', "time": datetime.now()}}, status=django_rest_status.HTTP_200_OK)
 
 
-class TicketAPI(LoginSiteRequiredMixin, APIView):
+class TicketAPI(APIView):
     model = Ticket
     serializer_class = CartServiceTicketSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self, ticket_id):
         try:
@@ -689,6 +699,7 @@ class TicketCommentAPI(APIView):
     model = TicketComments
     serializer_class = TicketCommentSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self, ticket_id):
         try:
@@ -737,10 +748,11 @@ class TicketCommentAPI(APIView):
                                 status=django_rest_status.HTTP_200_OK)
 
 
-class CustomerProfileAPI(APIView, LoginSiteRequiredMixin):
+class CustomerProfileAPI(APIView):
     model = CollectionCustomer
     serializer_class = CustomerProfileSerializer
     renderer_classes = (CSVRenderer, JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self, customer_id):
         try:
@@ -784,6 +796,7 @@ class CartStatusAPI(ListAPIView):
     model = CartStatus
     serializer_class = CartStatusSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return CartStatus.on_site.all()
@@ -793,6 +806,7 @@ class TicketStatusAPI(ListAPIView):
     model = TicketStatus
     serializer_class = TicketStatusSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return TicketStatus.on_site.all()
@@ -802,6 +816,7 @@ class TicketServiceTypeAPI(ListAPIView):
     model = CartServiceType
     serializer_class = CartServiceTypeSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return CartServiceType.on_site.all()
@@ -811,6 +826,7 @@ class CartServiceChargesAPI(ListAPIView):
     model = CartServiceCharge
     serializer_class = CartServiceChargeSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return CartServiceCharge.on_site.all()
@@ -820,15 +836,17 @@ class CartPartsAPI(ListAPIView):
     model = CartParts
     serializer_class = CartPartsSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return CartParts.on_site.all()
 
 
-class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
+class CartTypeAPI(ListAPIView):
     model = CartType
     serializer = CartTypeSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         size = self.request.QUERY_PARAMS.get('size', None)
@@ -840,13 +858,41 @@ class CartTypeAPI(LoginSiteRequiredMixin, ListAPIView):
             return queryset
 
 
-class FileUploadListAPI(LoginSiteRequiredMixin, ListAPIView):
+class FileUploadAPI(APIView):
+    parser_classes = (FileUploadParser,)
+    MODELS = {'Carts': CartsUploadFile, 'Customers': CustomersUploadFile,
+              'Tickets': TicketsCompleteUploadFile}
+
+    def post(self, request, **kwargs):
+        file_type = self.request.POST.get('file_type', None)
+        get_file = self.request.FILES['upload_file']
+
+        model_type = self.MODELS.get(file_type, None)
+        upload_file = model_type()
+
+        if get_file.content_type == "application/vnd.ms-excel" or "text/csv":
+            upload_file.file_path = get_file
+            upload_file.size = get_file.size
+            upload_file.records_processed = False
+            upload_file.file_kind = file_type
+            upload_file.status = 'UPLOADED'
+            upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
+            upload_file.uploaded_by = self.request.user
+            upload_file.save()
+            #Here the records are processed
+            enqueue(func=process_upload_records, args=(model_type, upload_file.id), timeout=50000)
+            return RestResponse({'details': {'message': "Saved %s" % file_type,
+                                                              'file_id': upload_file.id, 'message_type': 'Success'}},
+                                status=django_rest_status.HTTP_200_OK)
+
+
+class FileUploadListAPI(ListAPIView):
     serializer_class = UploadFileSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (permissions.IsAuthenticated,)
     paginate_by = 100
 
     def get_queryset(self):
-
         file_query = None
         file_type = self.request.QUERY_PARAMS.get('file_type', None)
         status = self.request.QUERY_PARAMS.get('file_status', None)
@@ -877,12 +923,13 @@ class FileUploadListAPI(LoginSiteRequiredMixin, ListAPIView):
             raise Http404
 
 
-class RouteListAPI(LoginSiteRequiredMixin, ListAPIView):
+class RouteListAPI(ListAPIView):
     """
     Provides search api for routes
     """
     serializer_class = RouteSerializer
     renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
+    permission_classes = (permissions.IsAuthenticated,)
     paginate_by = 100
 
     def get_queryset(self):

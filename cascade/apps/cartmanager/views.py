@@ -291,29 +291,29 @@ class UploadFormView(TemplateView):
         context['file_type'] = self.KIND
         return self.render_to_response(context)
 
-    def post(self, request, **kwargs):
-        #TODO implement processing option
-        #TODO for now it is just True
-        process = request.POST.get('process', True)
-        self.get_context_data(**kwargs)
-        upload_file = self.MODEL()
-        file = self.request.FILES['upload_file']
-        #looks for csv type file
-        if file.content_type == "application/vnd.ms-excel" or "text/csv":
-            upload_file.file_path = file
-            upload_file.size = file.size
-            upload_file.records_processed = False
-            upload_file.file_kind = self.KIND
-            upload_file.status = 'UPLOADED'
-            upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
-            upload_file.uploaded_by = self.request.user
-            upload_file.save()
-            #Here the records are processed
-            if process:
-                enqueue(func=process_upload_records, args=(self.MODEL, upload_file.id), timeout=50000)
-            return HttpResponse(simplejson.dumps({'details': {'message': "Saved %s" % self.FILE,
-                                                              'file_id': upload_file.id, 'message_type': 'Success'}}),
-                                content_type="application/json")
+    # def post(self, request, **kwargs):
+    #     #TODO implement processing option
+    #     #TODO for now it is just True
+    #     process = request.POST.get('process', True)
+    #     self.get_context_data(**kwargs)
+    #     upload_file = self.MODEL()
+    #     file = self.request.FILES['upload_file']
+    #     #looks for csv type file
+    #     if file.content_type == "application/vnd.ms-excel" or "text/csv":
+    #         upload_file.file_path = file
+    #         upload_file.size = file.size
+    #         upload_file.records_processed = False
+    #         upload_file.file_kind = self.KIND
+    #         upload_file.status = 'UPLOADED'
+    #         upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
+    #         upload_file.uploaded_by = self.request.user
+    #         upload_file.save()
+    #         #Here the records are processed
+    #         if process:
+    #             enqueue(func=process_upload_records, args=(self.MODEL, upload_file.id), timeout=50000)
+    #         return HttpResponse(simplejson.dumps({'details': {'message': "Saved %s" % self.FILE,
+    #                                                           'file_id': upload_file.id, 'message_type': 'Success'}}),
+    #                             content_type="application/json")
 
 
 class RouteUploadView(UploadFormView):
