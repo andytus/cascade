@@ -17,11 +17,15 @@
     <div id="fileupload-wrapper" class="box-info">
         <h1>{{ link }}</h1>
 
-        <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+        <form id="fileupload" action="{% url "upload_file_api" %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+
+         <input id="file_type" type="hidden" name="file_type" value="{{ file_type }}" />
+
         <span id="add-file" class="btn btn-success btn-large fileinput-button">
          <i class="icon-plus icon-white"></i>
         <span>Add File ..</span>
+
         <input id="upload_file" type="file" name="upload_file">
         </span>
             <button id="upload_button" class="btn btn-large btn-info" style="display: none"> Upload Now</button>
@@ -74,8 +78,6 @@
                             i = ++i % 4;
                             $("#message-text").text("Uploading" + Array(i + 1).join("."));
                         }, 300);
-
-
                         $("#add-file").hide();
                         $("#progress").show();
                     });
