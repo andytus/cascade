@@ -31,8 +31,10 @@ from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, Car
     CartServiceTicketSerializer, AdminLocationDefaultSerializer, UploadFileSerializer, TicketStatusSerializer, \
     TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, CartServiceChargeSerializer, \
     CartPartsSerializer, CartSearchAddressSerializer
+from cascade.apps.api.serializers.accounts import ProfileSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
+from cascade.apps.accounts.models import Profile
 import ho.pisa as pisa
 from collections import OrderedDict
 
@@ -954,4 +956,19 @@ class RouteListAPI(ListAPIView):
         return file_query
 
 
+class ProfileAPI(APIView):
+    serializer = ProfileSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    renderer_classes = (JSONPRenderer, JSONRenderer, BrowsableAPIRenderer)
 
+    def get_object(self, user):
+        try:
+            query = Profile.objects.get(user=user)
+            return query
+        except Profile.ObjectDoesNotExist:
+            return Http404
+
+    def get(self, request):
+        user = self.get_object(request.user)
+        serializer = self.serializer(user)
+        return RestResponse(serializer.data)
