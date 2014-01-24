@@ -9,7 +9,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.SlugRelatedField(source='user', read_only=True, slug_field='username')
     class Meta:
         model = Profile
-        fields = ('user', 'sites', 'company', 'mugshot')
+        fields = ('username', 'sites', 'company', 'mugshot')
 
 
 
