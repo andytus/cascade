@@ -9,7 +9,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        from report_builder.models import Format
+        from cascade.apps.report_builder.models import Format
         # Create some initial data
         if sys.version_info > (2,7):
             # Doesn't work in 2.6
