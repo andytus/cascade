@@ -11,6 +11,8 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
+REPORT_BUILDER_MODEL_MANAGER = 'on_site'
+
 AUTHENTICATION_BACKENDS = (
     'userena.backends.UserenaAuthenticationBackend',
     'guardian.backends.ObjectPermissionBackend',
@@ -187,6 +189,7 @@ INSTALLED_APPS = (
     'userena',
     'guardian',
     'easy_thumbnails',
+    'cascade.apps.report_builder',
     'cascade.apps.accounts',
     'cascade.apps.api',
     'cascade.apps.cartmanager',
