@@ -1,17 +1,10 @@
 __author__ = 'jbennett'
-
 from django.contrib import admin
-from django.contrib.sites.models import get_current_site
+from cascade.libs.admin import SiteAdmin
 from models import CartServiceType, CartStatus, CartType, TicketStatus,\
     AdminDefaults, ZipCodes, ServiceReasonCodes, Route, CollectionAddress, Cart, Ticket, CollectionCustomer,\
     CartServiceCharge, CartParts, InventoryAddress
 
-
-class SiteAdmin(admin.ModelAdmin):
-
-    def queryset(self, request):
-        qs = super(SiteAdmin, self).queryset(request)
-        return qs.filter(site=get_current_site(request))
 
 class CartServiceChargeAdmin(admin.ModelAdmin):
     search_fields = ['amount', 'description']
@@ -26,7 +19,7 @@ class CollectionAddressAdmin(admin.ModelAdmin):
     list_filter = ['route__route_day', 'route__route_type', 'route__route', 'city']
     list_display = ['__str__', 'site']
 
-class CartAdmin(SiteAdmin):
+class CartAdmin(admin.ModelAdmin):
     search_fields = ['serial_number', 'rfid', 'location__street_name', 'location__house_number']
     list_filter = ['current_status__label', 'cart_type__name', 'cart_type__size', 'born_date', 'site']
     list_display = ['__str__', 'site']

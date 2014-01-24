@@ -28,7 +28,7 @@ class KMLRenderer(renderers.BaseRenderer):
 
 def csv_out(row, index, header):
     csvfile = StringIO.StringIO()
-    csv_writer = csv.writer(csvfile)
+    csv_writer = csv.writer(csvfile) #give it a stream
     if index == 1:
         #here split the header and take the first name if there is only one, else take the second
         #csv_writer.writerow([col.split(".")[0] if len(col.split(".")) == 1 else col.split(".")[1] for col in header])
@@ -42,9 +42,6 @@ def csv_out(row, index, header):
             #just add the value from the header name
             data.append(str(getattr(row, objs[0])))
         else:
-        #Todo depreciate
-        #elif len(objs) == 2:
-            #get the base object
             base = getattr(row, objs[0])
             if base:
                 # if we have a base object then the attribute from the second element of the header
@@ -54,12 +51,7 @@ def csv_out(row, index, header):
                 data.append("")
 
     csv_writer.writerow(data)
-    #Todo depreciate:
-    #csv_writer.writerow([row.id, row.location.street_name, row.location.house_number, row.location.unit,
-    #                     row.service_type.code, str(getattr(row.expected_cart, 'rfid', '')),
-    #                     row.cart_type.size, row.cart_type])
     return csvfile.getvalue()
-
 
 def stream_response_generator(data, header):
     index = 0

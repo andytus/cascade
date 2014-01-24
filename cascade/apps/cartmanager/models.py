@@ -177,7 +177,7 @@ class CartParts(models.Model):
     on_site = CurrentSiteManager()
 
     class Meta:
-        verbose_name_plural = ' Cart Parts'
+        verbose_name_plural = 'Cart Parts'
 
     def get_info(self):
         return {'name': self.name, 'on_hand': self.on_hand, 'description': self.description}
@@ -444,6 +444,8 @@ class Cart(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
+    #report_builder_model_manager = on_site
+
     def __unicode__(self):
         return "rfid: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)
 
@@ -461,7 +463,6 @@ class Cart(models.Model):
         current_site = Site.objects.get_current()
         self.site = current_site
         super(Cart, self).save(*args, **kwargs)
-
 
 class Ticket(models.Model):
 

@@ -14,7 +14,6 @@ class Profile(UserenaBaseProfile):
     on_site = CurrentSiteManager()
 
 
-
 # class UserAccountProfile(models.Model):
 #     user = models.OneToOneField(User)
 #     sites = models.ManyToManyField(Site)

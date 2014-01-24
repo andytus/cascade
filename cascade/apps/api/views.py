@@ -878,6 +878,8 @@ class FileUploadAPI(APIView):
             upload_file.file_kind = file_type
             upload_file.status = 'UPLOADED'
             upload_file.site = Site.objects.get(id=get_current_site(self.request).id)
+
+
             upload_file.uploaded_by = self.request.user
             upload_file.save()
             #Here the records are processed
