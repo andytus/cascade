@@ -747,22 +747,28 @@ def download_xlsx(request, pk, queryset=None):
         i += 1
 
     objects_list, message = report_to_list(report, request.user, queryset=queryset)
-    for row in objects_list:
-        try:
-            ws.append(row)
-        except ValueError as e:
-            ws.append([e.message])
-        except:
-            ws.append(['Unknown Error'])
-
     myfile = StringIO.StringIO()
-    myfile.write(save_virtual_workbook(wb))
-    response = HttpResponse(
-        #save_virtual_workbook(wb),
+
+    def write_excel():
+        myfile.write(save_virtual_workbook(wb))
+        return myfile.getvalue()
+
+    def write_row():
+        for row in objects_list:
+            try:
+                ws.append(row)
+                yield write_excel()
+            except ValueError as e:
+                ws.append([e.message])
+            except:
+                ws.append(['Unknown Error'])
+
+    #myfile.write(save_virtual_workbook(wb))
+    response = StreamingHttpResponse(
+        write_row(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
-    response['Content-Length'] = myfile.tell()
-    response.write(myfile.getvalue())
+    #response['Content-Length'] = myfile.tell()
     return response
 
 
