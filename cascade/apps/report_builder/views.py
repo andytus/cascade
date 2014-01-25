@@ -755,13 +755,14 @@ def download_xlsx(request, pk, queryset=None):
         except:
             ws.append(['Unknown Error'])
 
-    myfile = StringIO.StringIO()
-    myfile.write(save_virtual_workbook(wb))
+    #myfile = StringIO.StringIO()
+    #myfile.write(save_virtual_workbook(wb))
     response = HttpResponse(
-        save_virtual_workbook(wb),
+        #save_virtual_workbook(wb),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
-    response['Content-Length'] = myfile.tell()
+    #response['Content-Length'] = myfile.tell()
+    response.write(save_virtual_workbook(wb))
     return response
 
 
