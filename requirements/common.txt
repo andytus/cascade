@@ -10,7 +10,6 @@ django-rest==0.0.1
 django-rq==0.4.6
 django-storages==1.1.8
 djangorestframework==2.3.9
-gunicorn==0.17.4
 psycopg2==2.4.6
 python-dateutil==2.1
 pytz==2013b
@@ -34,3 +33,4 @@ django-guardian==1.1.1
 easy_thumbnails==1.4
 openpyxl==1.8.1
 docutils==0.11
+waitress==0.8.8
