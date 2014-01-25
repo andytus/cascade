@@ -719,6 +719,22 @@ class ReportUpdateView(UpdateView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
+
+class FileIterWrapper(object):
+    def __init__(self, flo, chunk_size = 1024**2):
+        self.flo = flo
+        self.chunk_size = chunk_size
+
+    def next(self):
+        data = self.flo.getvalue(self.chunk_size)
+        if data:
+            return data
+        else:
+            raise StopIteration
+
+    def __iter__(self):
+        return self
+
 @staff_member_required
 def download_xlsx(request, pk, queryset=None):
     """ Download the full report in xlsx format
@@ -747,29 +763,24 @@ def download_xlsx(request, pk, queryset=None):
         i += 1
 
     objects_list, message = report_to_list(report, request.user, queryset=queryset)
+    for row in objects_list:
+        try:
+            ws.append(row)
+        except ValueError as e:
+            ws.append([e.message])
+        except:
+            ws.append(['Unknown Error'])
+
     myfile = StringIO.StringIO()
-
-    def write_excel():
-        myfile.write(save_virtual_workbook(wb))
-        return myfile.getvalue()
-
-    def write_row():
-        for row in objects_list:
-            try:
-                ws.append(row)
-                yield write_excel()
-            except ValueError as e:
-                ws.append([e.message])
-            except:
-                ws.append(['Unknown Error'])
-
-    #myfile.write(save_virtual_workbook(wb))
-    response = StreamingHttpResponse(
-        write_row(),
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    myfile.write(save_virtual_workbook(wb))
+    response = StreamingHttpResponse(FileIterWrapper(myfile).next(),
+          content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
-    #response['Content-Length'] = myfile.tell()
+    response['Content-Length'] = myfile.tell()
+    #response.write(myfile.getvalue())
     return response
+
+#def generate_xls()
 
 
 @staff_member_required

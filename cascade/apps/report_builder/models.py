@@ -12,7 +12,15 @@ from django.db.models.signals import post_save
 from cascade.apps.report_builder.unique_slugify import unique_slugify
 from cascade.apps.report_builder.utils import get_model_from_path_string
 from dateutil import parser
+import os
 
+def save_report_to(instance, filename):
+    """
+     gets correct path for an uploaded file
+
+    """
+    #Note: os.path.dirname(__file__) used to upload files into the app directory
+    return os.path.join('reports', instance.site.domain, instance.root_model, filename)
 
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -52,6 +60,8 @@ class Report(models.Model):
     site = models.ManyToManyField(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
+    #last_generated = models.DateField(null=True)
+    #report_generated_to = models.FileField(upload_to=save_report_to, max_length=500)
     
     
     def save(self, *args, **kwargs):
