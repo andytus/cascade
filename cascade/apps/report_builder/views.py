@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields.related import ReverseManyRelatedObjectsDescriptor
 from django.db.models import Q
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import render_to_response, redirect, get_object_or_404, render
 from django.template import RequestContext
 from cascade.apps.report_builder.models import Report, DisplayField, FilterField, Format
@@ -755,14 +755,14 @@ def download_xlsx(request, pk, queryset=None):
         except:
             ws.append(['Unknown Error'])
 
-    #myfile = StringIO.StringIO()
-    #myfile.write(save_virtual_workbook(wb))
+    myfile = StringIO.StringIO()
+    myfile.write(save_virtual_workbook(wb))
     response = HttpResponse(
         #save_virtual_workbook(wb),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
-    #response['Content-Length'] = myfile.tell()
-    response.write(save_virtual_workbook(wb))
+    response['Content-Length'] = myfile.tell()
+    response.write(myfile.getvalue())
     return response
 
 
