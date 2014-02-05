@@ -1,1 +1,1 @@
-rfid, serial, size, cart_type, born_date, status, house, street, unit
+rfid, serial, size, cart_type, born_date, status, house, street, unit, date_delivered
