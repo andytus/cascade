@@ -75,8 +75,6 @@ def save_cart_records(line, file_record):
         file_record.status = "FAILED"
         file_record.num_error += 1
         logger.error(e)
-        test = 0
-        test = test / 10
         save_error(e, line, file_record.site)
 
 
