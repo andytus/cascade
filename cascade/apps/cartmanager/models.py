@@ -444,7 +444,7 @@ class Cart(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
-    #report_builder_model_manager = on_site
+    report_builder_model_manager = on_site
 
     def __unicode__(self):
         return "rfid: %s, Type: %s, PK: %s" % (self.rfid, self.cart_type, self.id)

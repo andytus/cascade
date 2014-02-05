@@ -2,14 +2,9 @@ __author__ = 'jbennett'
 
 # Django settings for cascade project.
 import os
-
 from django.conf import global_settings as settings
 
 ROOT_DIR = os.path.dirname(__file__)
-
-DEBUG = True
-
-TEMPLATE_DEBUG = DEBUG
 
 REPORT_BUILDER_MODEL_MANAGER = 'on_site'
 
@@ -55,7 +50,6 @@ DATABASES = {
 }
 
 
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -87,7 +81,6 @@ MEDIA_ROOT = os.path.abspath(os.path.join(ROOT_DIR, '..', 'configure/media/accou
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
 
@@ -292,12 +285,27 @@ PIPELINE_JS = {
         ),
         'output_filename': 'compress/validators.js',
     },
+    'array_first_index_of': {
+        'source_filenames': (
+            'js/utilities/arrayfirstindexof.js',
+        ),
+        'output_filename': 'compress/arrayfirstindexof.js',
+
+    },
     'views_cart_list': {
         'source_filenames': (
             'js/cartmanager/views/CartListViewModel.js',
         ),
         'output_filename': 'compress/CartListViewModel.js',
     },
+
+    'views_report_file_list':{
+        'source_filenames': (
+            'js/cartmanager/views/ReportFileListViewModel.js',
+        ),
+        'output_filename': 'compress/ReportFileListViewModel.js'
+    },
+
     'views_uploaded_file_report': {
         'source_filenames': (
             'js/cartmanager/views/UploadedFileReportViewModel.js',
@@ -469,6 +477,14 @@ PIPELINE_JS = {
             'js/cartmanager/models/route.js',
         ),
         'output_filename': 'compress/route.js',
+    },
+
+    'models_report_file': {
+        'source_filenames':(
+            'js/cartmanager/models/report_file.js',
+        ),
+        'output_filename': 'compress/route.js',
+
     }
 }
 
@@ -485,3 +501,5 @@ ALLOWED_HOSTS = ['.gocartlogic.com', '.herokuapp.com']
 ANONYMOUS_USER_ID = -1
 AUTH_PROFILE_MODULE = 'accounts.Profile'
 
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG

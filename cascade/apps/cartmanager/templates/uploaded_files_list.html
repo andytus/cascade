@@ -13,9 +13,9 @@
 
     </div>
 
-    <div id="uploaded_files" data-bind="with: files">
-       <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 400px"></div>
-    </div>
+        <div id="uploaded_files" data-bind="with: files">
+           <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 400px"></div>
+        </div>
 
 {% endblock %}
 
@@ -23,7 +23,6 @@
     {% load compressed %}
     {% compressed_js 'views_uploaded_file_report' %}
     {% compressed_js 'models_file' %}
-
    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
 

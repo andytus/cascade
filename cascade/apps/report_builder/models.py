@@ -1,4 +1,5 @@
 from django.contrib.sites.models import Site
+from django.core.files import File
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
@@ -10,7 +11,7 @@ from django.db import models
 from django.db.models import Avg, Min, Max, Count, Sum
 from django.db.models.signals import post_save
 from cascade.apps.report_builder.unique_slugify import unique_slugify
-from cascade.apps.report_builder.utils import get_model_from_path_string
+from cascade.apps.report_builder.utils import get_model_from_path_string, report_to_list
 from dateutil import parser
 import os
 
@@ -20,10 +21,12 @@ def save_report_to(instance, filename):
 
     """
     #Note: os.path.dirname(__file__) used to upload files into the app directory
-    return os.path.join('reports', instance.site.domain, instance.root_model, filename)
+    #TODO add site id .. and look up here
+    return os.path.join('reports', instance.report.name, filename)
 
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 
 class Report(models.Model):
     """ A saved report with queryset and descriptive fields
@@ -60,9 +63,7 @@ class Report(models.Model):
     site = models.ManyToManyField(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
-    #last_generated = models.DateField(null=True)
-    #report_generated_to = models.FileField(upload_to=save_report_to, max_length=500)
-    
+
     
     def save(self, *args, **kwargs):
         if not self.id:
@@ -85,15 +86,18 @@ class Report(models.Model):
         return queryset
 
     
-    def get_query(self):
+    def get_query(self, site=None):
         report = self
         model_class = report.root_model.model_class()
         message= ""
-        if getattr(model_class, 'report_builder_model_manager', False):
-            objects = getattr(model_class, 'report_builder_model_manager').all()
+        if site:
+            objects = model_class.objects.filter(site=site)
         else:
-            manager = report._get_model_manager()
-            objects = getattr(model_class, manager).all()  #changed from model_class.objects.all()
+            if getattr(model_class, 'report_builder_model_manager', False):
+                objects = getattr(model_class, 'report_builder_model_manager').all()
+            else:
+                manager = report._get_model_manager()
+                objects = getattr(model_class, manager).all()  #changed from model_class.objects.all()
 
         # Filters
         # NOTE: group all the filters together into one in order to avoid 
@@ -170,29 +174,53 @@ class Report(models.Model):
     def get_absolute_url(self):
         return ("report_update_view", [str(self.id)])
     
-    def edit(self):
-        return mark_safe('<a href="{0}"><img style="width: 26px; margin: -6px" src="{1}report_builder/img/edit.svg"/></a>'.format(
-            self.get_absolute_url(),
-            getattr(settings, 'STATIC_URL', '/static/')   
-        ))
-    edit.allow_tags = True
-    
-    def download_xlsx(self):
-        return mark_safe('<a href="{0}"><img style="width: 26px; margin: -6px" src="{1}report_builder/img/download.svg"/></a>'.format(
-            reverse('cascade.apps.report_builder.views.download_xlsx', args=[self.id]),
-            getattr(settings, 'STATIC_URL', '/static/'),
-        ))
-    download_xlsx.short_description = "Download"
-    download_xlsx.allow_tags = True
-    
+    def generate_report(self, user, site):
+        import cStringIO as StringIO
+        from openpyxl.workbook import Workbook
+        from openpyxl.writer.excel import save_virtual_workbook
+        from openpyxl.cell import get_column_letter
+        import re
 
-    def copy_report(self):
-        return '<a href="{0}"><img style="width: 26px; margin: -6px" src="{1}report_builder/img/copy.svg"/></a>'.format(
-            reverse('cascade.apps.report_builder.views.create_copy', args=[self.id]),
-            getattr(settings, 'STATIC_URL', '/static/'),
-        )
-    copy_report.short_description = "Copy"
-    copy_report.allow_tags = True
+        report = self
+        wb = Workbook()
+        ws = wb.worksheets[0]
+        ws.title = re.sub(r'\W+', '', report.name)[:30]
+        filename = re.sub(r'\W+', '', report.name) + "_" + site.name+ '.xlsx'
+
+        i = 0
+        for field in report.displayfield_set.all():
+            cell = ws.cell(row=0, column=i)
+            cell.value = field.name
+            cell.style.font.bold = True
+            ws.column_dimensions[get_column_letter(i + 1)].width = field.width
+            i += 1
+
+        objects_list, message = report_to_list(report, user, site, queryset=None)
+        for row in objects_list:
+            try:
+                ws.append(row)
+            except ValueError as e:
+                ws.append([e.message])
+            except:
+                ws.append(['Unknown Error'])
+
+        myfile = StringIO.StringIO()
+        myfile.write(save_virtual_workbook(wb))
+
+        # a unique file will be related to this report, file_extension, and site
+        report_file, created = ReportFiles.objects.get_or_create(report=self, file_extension='xlsx', site=site)
+        if created:
+            report_file.save()
+        else:
+            report_file.file_path.delete()
+
+        report_file.file_path.save(filename, File(myfile))
+        report_file.update_in_progress = 'No'
+        report_file.save()
+
+    def generate_report_sites(self, user):
+        for s in self.site.all():
+            self.generate_report(user, s)
 
     def check_report_display_field_positions(self):
         """ After report is saved, make sure positions are sane
@@ -202,6 +230,20 @@ class Report(models.Model):
                 display_field.position = i+1
                 display_field.save()
 
+class ReportFiles(models.Model):
+    FILE_TYPE = (('xlsx', 'xlsx'), ('csv', 'csv'))
+    """
+    Holds path and meta data for all report files on all sites
+    """
+    report = models.ForeignKey(Report, related_name='report_file')
+    file_extension = models.CharField(choices=FILE_TYPE, default="xlsx", max_length=8)
+    file_path = models.FileField(upload_to=save_report_to, null=True)
+    last_generated = models.DateTimeField(auto_now=True)
+    last_generated_by = models.ForeignKey(AUTH_USER_MODEL, blank=True, null=True)
+    update_in_progress = models.CharField(choices=(('Yes', 'Yes'), ('No', 'No')), default='No', max_length=4)
+    site = models.ForeignKey(Site)
+    objects = models.Manager()
+    on_site = CurrentSiteManager()
 
 class Format(models.Model):
     """ A specifies a Python string format for e.g. `DisplayField`s. 
@@ -334,4 +376,3 @@ class FilterField(models.Model):
 
     def __unicode__(self):
         return self.field
-    

@@ -53,4 +53,6 @@ if settings.DEBUG:
 # static files (images, css, javascript, etc.)
     urlpatterns += patterns('',
                             (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-                                'document_root': settings.MEDIA_ROOT}))
+                                'document_root': settings.MEDIA_ROOT}),
+                            (r'^404/$', TemplateView.as_view(template_name="404.html"))
+                            )

@@ -32,8 +32,10 @@ from cascade.apps.api.serializers.cartmanager import LocationInfoSerializer, Car
     TicketCommentSerializer, CartServiceTypeSerializer, RouteSerializer, CartServiceChargeSerializer, \
     CartPartsSerializer, CartSearchAddressSerializer
 from cascade.apps.api.serializers.accounts import ProfileSerializer
+from cascade.apps.api.serializers.report_builder import ReportFileSerializer
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import *
+from cascade.apps.report_builder.models import ReportFiles
 from cascade.apps.accounts.models import Profile
 import ho.pisa as pisa
 from collections import OrderedDict
@@ -956,6 +958,21 @@ class RouteListAPI(ListAPIView):
         return file_query
 
 
+class ReportFileListAPI(ListAPIView):
+    model = ReportFiles
+    serializer_class = ReportFileSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+    renderer_classes = (JSONPRenderer, JSONPRenderer, BrowsableAPIRenderer)
+    paginate_by = 100
+
+
+    def get_queryset(self):
+        report_type = str(self.kwargs['report_type'])
+        from django.contrib.contenttypes.models import ContentType
+        query_set = self.model.on_site.filter(report__root_model=ContentType.objects.get(model=report_type))
+        return query_set
+
+
 class ProfileAPI(APIView):
     serializer = ProfileSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -972,3 +989,4 @@ class ProfileAPI(APIView):
         user = self.get_object(request.user)
         serializer = self.serializer(user)
         return RestResponse(serializer.data)
+

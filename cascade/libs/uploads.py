@@ -226,7 +226,7 @@ def save_customer_records(line, file_record):
                                       last_name=last_name[:50].upper(), email=email.strip(), phone_number=phone)
 
 
-               #full_clean checks for the correct data
+        #full_clean checks for the correct data
         customer.full_clean()
         customer.save()
 

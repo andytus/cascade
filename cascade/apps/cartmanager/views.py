@@ -1,17 +1,11 @@
-from django.utils import simplejson
-from django.contrib.sites.models import get_current_site
-
 from django.template import Context, loader
 from django.views.generic import TemplateView, ListView, View
 from django.http import Http404
 from django.http import HttpResponse
 
-from django_rq import enqueue
-from cascade.libs.uploads import process_upload_records
-
 from cascade.libs.mixins import LoginSiteRequiredMixin
 from cascade.apps.cartmanager.models import Cart, CartsUploadFile, CustomersUploadFile,\
-    TicketsCompleteUploadFile, RouteUploadFile, DataErrors, Site
+    TicketsCompleteUploadFile, RouteUploadFile, DataErrors
 
 
 class GetUploadTemplate(LoginSiteRequiredMixin, View):
@@ -23,7 +17,6 @@ class GetUploadTemplate(LoginSiteRequiredMixin, View):
     """
 
     def get(self, request, **kwargs):
-        print kwargs['type']
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % kwargs['type']
         t = loader.get_template('%s.csv' % kwargs['type'])
@@ -174,7 +167,7 @@ class FileUploadListView(LoginSiteRequiredMixin, TemplateView):
     for example, ?file_id=1&file_status=UPLOADED&file_type=Tickets
 
     """
-    template_name = 'uploaded_files.html'
+    template_name = 'uploaded_files_list.html'
 
     def get_context_data(self, **kwargs):
         context = super(FileUploadListView, self).get_context_data(**kwargs)
@@ -354,6 +347,11 @@ class TicketsCompletedUploadView(UploadFormView):
     FILE = 'ticket_file'
     KIND = 'Tickets'
     LINK = 'Ticket Upload'
+
+
+class ReportListView(LoginSiteRequiredMixin, TemplateView):
+    template_name = 'report_files_list.html'
+
 
 
 class UploadErrorsView(ListView):

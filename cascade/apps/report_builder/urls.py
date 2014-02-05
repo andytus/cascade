@@ -12,5 +12,7 @@ urlpatterns = patterns('',
     url('^ajax_preview/$', views.ajax_preview),
     url('^report/(?P<pk>\d+)/add_star/$', views.ajax_add_star),
     url('^report/(?P<pk>\d+)/create_copy/$', views.create_copy),
+    url('^report/(?P<pk>\d+)/generate_report/admin$', views.generate_reports_admin),
+    url('^report/(?P<pk>\d+)?', views.generate_report, name='report_generate'),
     url('^export_to_report/$', views.export_to_report),
 )

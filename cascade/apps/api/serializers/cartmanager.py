@@ -1,68 +1,7 @@
 from rest_framework import serializers
 from cascade.apps.cartmanager.models import Cart, CollectionAddress, CollectionCustomer, CartStatus, CartType, \
     Ticket, AdminDefaults, TicketStatus, TicketComments, CartServiceType, Route, CartServiceCharge, CartParts
-
-#Monkey patch on django rest framework for supporting nulls:
-# https://github.com/tomchristie/django-rest-framework/issues/384
-
-
-class NullSerializerPatch(serializers.BaseSerializer):
-
-    def field_to_native(self, obj, field_name):
-
-        if obj is None:
-            return None
-        val = getattr(obj, self.source or field_name, None)
-
-        if self.source:
-            val = obj
-            for component in self.source.split('.'):
-                val = getattr(val, component, None)
-
-        if val is None:
-            return None
-
-        return super(NullSerializerPatch, self).field_to_native(obj, field_name)
-
-
-class GetInfoManyRelatedField(serializers.ManyRelatedField):
-    """
-    Gets information from a model's (get_info method). Used to
-    customize the serializers ManyRelatedField. Otherwise we only
-    get a __unicode__ response. Must define get_info method on
-    the model to use it.
-
-    """
-    def to_native(self, obj):
-        if obj:
-            return obj.get_info()
-        else:
-            return None
-
-
-class GetInfoRelatedField(serializers.RelatedField):
-    def to_native(self, obj):
-        if obj:
-            return obj.get_info()
-        else:
-            return None
-
-
-class CleanRelatedField(serializers.Field):
-    def field_to_native(self, obj, field_name):
-        if obj is None:
-            return '---'
-        val = getattr(obj, self.source or field_name, None)
-
-        if self.source:
-            val = obj
-            for component in self.source.split('.'):
-                val = getattr(val, component, None)
-        if val is None:
-            return '---'
-
-        return super(CleanRelatedField,self).field_to_native(obj, field_name)
-
+from utilities import NullSerializerPatch, GetInfoRelatedField, CleanRelatedField
 
 class CartLocationCustomerField(serializers.Field):
     def to_native(self, value):
@@ -162,9 +101,8 @@ class CartSearchAddressSerializer(serializers.Serializer, NullSerializerPatch):
     class Meta:
         fields = ('cart', 'customer', 'location', 'inventory_location')
 
-    def get_none(self, obj):
-        return None
-
+    #def get_none(self, obj):
+     #   return None
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
     serviced_cart__serial_number = CleanRelatedField(source='serviced_cart.serial_number')

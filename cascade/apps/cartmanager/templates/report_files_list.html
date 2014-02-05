@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Report Files{% endblock %}
+
+{% block main_content %}
+     <div id="report_files" data-bind="with: reports">
+       <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 400px"></div>
+    </div>
+
+{% endblock %}
+
+{% block page_scripts %}
+    {% load compressed %}
+    {% compressed_js 'views_report_file_list' %}
+    {% compressed_js 'models_report_file' %}
+    {% compressed_js 'array_first_index_of' %}
+
+   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
+   <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
+   <script type="text/javascript">
+    var report_type = '{{ report_type }}' || null;
+    var report_list_api_url = '{% url "report_list_api" %}' || null;
+    var report_generate_url = '{% url "report_generate" %}' || null;
+
+    var ReportFileList = {
+        reports: new cartlogic.ReportFileListViewModel(report_type, report_list_api_url,report_generate_url)
+    }
+    ko.applyBindings(ReportFileList, document.getElementById('main'));
+    ReportFileList.reports.getPagedDataAsync();
+   </script>
+{% endblock %}

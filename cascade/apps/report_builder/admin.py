@@ -7,6 +7,8 @@ from django.http import HttpResponseRedirect
 from cascade.apps.report_builder.models import DisplayField, Report, FilterField, Format
 from django.conf import settings
 from cascade.libs.admin import SiteAdmin
+from django.utils.safestring import mark_safe
+from django_rq import enqueue
 
 static_url = getattr(settings, 'STATIC_URL', '/static/')
 
@@ -21,17 +23,66 @@ class StarredFilter(SimpleListFilter):
         if self.value() == 'Starred':
             return queryset.filter(starred=request.user)
 
-
 class ReportAdmin(SiteAdmin):
-    list_display = ('ajax_starred', 'edit', 'name', 'description', 'root_model', 'created', 'modified', 'user_created', 'download_xlsx','copy_report',)
+    list_display = ('ajax_starred', 'edit', 'name', 'description', 'root_model', 'created', 'modified', 'user_created',
+                    'download_xlsx','copy_report', "run_report_generate", 'last_generated')
     readonly_fields = ['slug']
     fields = ['name', 'description', 'root_model', 'slug', 'site']
     search_fields = ('name', 'description')
     list_filter = (StarredFilter, 'root_model', 'created', 'modified', 'root_model__app_label')
     list_display_links = ['name']
+    actions = ['generate_reports_action']
 
     class Media:
-        js = [ static_url+'report_builder/js/jquery-1.8.2.min.js', static_url+'report_builder/js/report_list.js',]
+        js = [static_url+'report_builder/js/jquery-1.8.2.min.js', static_url+'report_builder/js/report_list.js',]
+
+    def generate_reports_action(self, request, queryset):
+        for obj in queryset:
+            enqueue(func=obj.generate_report_sites, args=(request.user,), timeout=50000)
+        self.message_user(request, "Generating reports now: (may take a while depending on amount of data and sites)")
+    generate_reports_action.short_description = "Generate reports for all sites"
+
+    def last_generated(self, obj):
+        #grab the last file generated and present as last_generated
+        generated = obj.report_file.all().order_by('-last_generated')
+        if generated.count() > 0:
+            last_generated = generated[0].last_generated
+            return last_generated
+        else:
+            return "No Files"
+
+    def download_xlsx(self, obj):
+        return mark_safe('<a href="{0}"><img style="width: 26px; margin: -6px" src="{1}report_builder/img/download.svg"/></a>'.format(
+            reverse('cascade.apps.report_builder.views.download_xlsx', args=[obj.id]),
+            getattr(settings, 'STATIC_URL', '/static/'),
+        ))
+    download_xlsx.short_description = "Download"
+    download_xlsx.allow_tags = True
+
+    def edit(self, obj):
+        return mark_safe('<a href="{0}"><img style="width: 26px; margin: '
+                         '-6px" src="{1}report_builder/img/edit.svg"/></a>'.format(
+            obj.get_absolute_url(), getattr(settings, 'STATIC_URL', '/static/')
+        ))
+    edit.allow_tags = True
+
+    def run_report_generate(self, obj):
+        return mark_safe('<a href="{0}"><img style="width: 26px; margin -6px" '
+                         'src="{1}report_builder/img/refresh-icon.png"/></a>'.format(
+                          reverse('cascade.apps.report_builder.views.generate_reports_admin', args=[obj.id]),
+                          getattr(settings, 'STATIC_URL', '/static/'),
+        ))
+    run_report_generate.short_description = "Generate"
+    run_report_generate.allow_tags = True
+
+    def copy_report(self, obj):
+        return '<a href="{0}"><img style="width: 26px; margin: -6px" ' \
+               'src="{1}report_builder/img/copy.svg"/></a>'.format(
+               reverse('cascade.apps.report_builder.views.create_copy', args=[obj.id]),
+               getattr(settings, 'STATIC_URL', '/static/'),
+        )
+    copy_report.short_description = "Copy"
+    copy_report.allow_tags = True
 
     def response_add(self, request, obj, post_url_continue=None):
         if '_easy' in request.POST:
