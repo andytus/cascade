@@ -90,7 +90,7 @@ USERENA_SIGNIN_REDIRECT_URL = '/carts/tickets/report'
 USERENA_MUGSHOT_DEFAULT = 'mm'
 USERENA_MUGSHOT_PATH = '%(username)s/'
 
-LOGIN_REDIRECT_URL = '/carts/tickets/report/'
+LOGIN_REDIRECT_URL = '/carts/tickets/download/'
 
 
 
