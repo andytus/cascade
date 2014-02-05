@@ -51,7 +51,7 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         {% for site in user.get_profile.sites.all %}
-                                            <li><a href="http://{{ site.domain }}/carts/tickets/report/">{{ site.name }}</a></li>
+                                            <li><a href="http://{{ site.domain }}/carts/tickets/download/">{{ site.name }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </li>
