@@ -119,16 +119,17 @@
                         </li>{% endcomment %}
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#tickets">
-                                    Tickets
+                                    Service Tickets
                                     <b class="caret"></b>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a id="new-ticket-link" href="{% url "ticket_app_new" %}New"
                                            data-target="#modal_window"
                                            data-toggle="modal">New</a></li>
-                                    <li><a href="{% url "tickets_completed_upload" %}">Submit Completed (UPLOAD)</a>
+                                    <li><a href="{% url "tickets_completed_upload" %}"><b>Upload</b> (completed)</a>
                                     </li>
-                                    <li><a href="{% url "ticket_app_report" %}">Reports (DOWNLOAD)</a></li>
+                                    <li><a href="{% url "ticket_app_report" %}"><b>Download</b> (mobile) </a></li>
+                                    <li><a href="{% url 'report_list' %}ticket">Reports</a></li>
                                 </ul>
                             </li>
 
@@ -140,9 +141,8 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "customer_app_new" %}" data-target="#modal_window"
                                            data-toggle="modal">New</a></li>
-                                    {% if request.user.is_superuser %}
-                                        <li><a href="{% url "customer_app_report" %}">Reports</a></li>
-                                    {% endif %}
+                                           <li><a href="{% url 'report_list' %}collectioncustomer">Reports</a></li>
+
                                 </ul>
 
                             </li>
@@ -156,6 +156,7 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "cart_app_new" %}" data-target="#modal_window"
                                            data-toggle="modal">New</a></li>
+                                    <li><a href="{% url 'report_list' %}cart">Reports</a></li>
                                 </ul>
                             </li>
 

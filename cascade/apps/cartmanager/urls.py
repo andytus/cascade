@@ -13,9 +13,6 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
                        url(r'^cart/search/$',
                            cache_page(60 * 3)(CartSearch.as_view()), name='cart_search'),
 
-                       url(r'^cart/report/$',
-                           cache_page(60 * 3)(CartReport.as_view()), name='cart_app_report'),
-
                        url(r'^cart/profile/(?P<serial_number>[a-zA-Z0-9]+)?$',
                            cache_page(60 * 3)(CartProfile.as_view()),
                            name='cart_app_profile'),
@@ -41,7 +38,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
                        url(r'^upload/files/$',
                            cache_page(60 * 3)(FileUploadListView.as_view()), name='upload_file_list'),
 
-                       url(r'^tickets/report/$',
+                       url(r'^tickets/download/$',
                            TicketReport.as_view(), name='ticket_app_report'),
 
                        url(r'^ticket/(?P<ticket_id>[a-zA-Z0-9]+)?$',
