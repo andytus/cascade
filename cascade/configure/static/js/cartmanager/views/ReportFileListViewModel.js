@@ -86,8 +86,7 @@
                 url: report_generate_url + self.report_file_list()[report_file_index].report__id,
                 data: {'generate': generate},
                 success: function (data) {
-                    console.log(data.update_in_progress)
-                    if (data.update_in_progress == 'No'){
+                  if (data.update_in_progress == 'No'){
                         self.getPagedDataAsync();
                         self.report_file_list()[report_file_index].update_in_progress('No');
                         self.report_file_list()[report_file_index].last_generated(

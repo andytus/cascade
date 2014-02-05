@@ -483,7 +483,7 @@ PIPELINE_JS = {
         'source_filenames':(
             'js/cartmanager/models/report_file.js',
         ),
-        'output_filename': 'compress/route.js',
+        'output_filename': 'compress/report_file.js',
 
     }
 }
