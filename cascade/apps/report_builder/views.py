@@ -474,10 +474,8 @@ def generate_reports_admin(request, pk):
 def generate_report(request, pk):
     report = Report.on_site.get(pk=int(pk))
     generate = request.GET['generate']
-
     site = get_current_site(request)
     report_file = report.report_file.get(site=site, file_extension='xlsx')
-    print report_file.update_in_progress
     if generate == 'true':
         report_file.update_in_progress = 'Yes'
         report_file.save()
