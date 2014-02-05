@@ -101,7 +101,7 @@
                     } else {
                     $("#message-type").text("Success: ");
                     $("#message-text").text(self.report_file_list()[report_file_index].report__name +
-                                            " report refresh complete.");
+                                            "report refresh complete.");
                     $('.close').click(function() {
                         $('#message').hide();
                     });

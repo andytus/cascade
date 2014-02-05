@@ -4,13 +4,16 @@ from django.contrib.contenttypes.models import ContentType
 from django import forms
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from cascade.apps.report_builder.models import DisplayField, Report, FilterField, Format
+from cascade.apps.report_builder.models import Report, Format, ReportFiles
 from django.conf import settings
 from cascade.libs.admin import SiteAdmin
 from django.utils.safestring import mark_safe
 from django_rq import enqueue
 
 static_url = getattr(settings, 'STATIC_URL', '/static/')
+
+class ReportFilesAdmin(SiteAdmin):
+    list_display = ('report', 'file_path', 'last_generated')
 
 class StarredFilter(SimpleListFilter):
     title = 'Your starred reports'
@@ -123,6 +126,9 @@ class ReportAdmin(SiteAdmin):
 
 admin.site.register(Report, ReportAdmin)
 admin.site.register(Format)
+admin.site.register(ReportFiles, ReportFilesAdmin)
+
+
 
 def export_to_report(modeladmin, request, queryset):
     admin_url = request.get_full_path()

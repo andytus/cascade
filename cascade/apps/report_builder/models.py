@@ -230,6 +230,9 @@ class Report(models.Model):
                 display_field.position = i+1
                 display_field.save()
 
+    def __unicode__(self):
+        return "%s : %s" % (self.name, self.root_model)
+
 class ReportFiles(models.Model):
     FILE_TYPE = (('xlsx', 'xlsx'), ('csv', 'csv'))
     """
@@ -244,6 +247,9 @@ class ReportFiles(models.Model):
     site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
+
+    class Meta:
+        verbose_name_plural = "Report Files"
 
 class Format(models.Model):
     """ A specifies a Python string format for e.g. `DisplayField`s. 
