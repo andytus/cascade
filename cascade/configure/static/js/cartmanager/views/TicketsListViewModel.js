@@ -120,7 +120,7 @@
             self.search_days_type(context.$data.search_days_type());
             self.search_to_date(context.$data.search_to_date());
             self.search_from_date(context.$data.search_from_date());
-            self.route(context.$data.selected_search_days().value);
+
 
             //TODO refactor for redundancy....
             if (this.id == 'download_csv' || this.id == 'download_pdf') {

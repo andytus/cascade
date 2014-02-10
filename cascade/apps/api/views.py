@@ -244,7 +244,6 @@ class TicketSearchAPI(ListAPIView):
                 routes = Route.on_site.filter(route=route)
             if routes:
                 query = query.filter(route__in=routes)
-            #get only the distinct tickets
             return query
         except:
             raise Http404
