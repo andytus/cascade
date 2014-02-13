@@ -22,6 +22,7 @@ STATICFILES_STORAGE = 'cascade.libs.storage.S3PipelineStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJYAYIRX5I4M2KBYQ'
 AWS_SECRET_ACCESS_KEY = "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"
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_BUCKET']  #adding storage location from environmental variable
+AWS_PRELOAD_METADATA = True
 AWS_QUERYSTRING_AUTH = False
 STATIC_URL = "http://%s.s3-website-us-east-1.amazonaws.com/" % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
