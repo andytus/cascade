@@ -204,13 +204,6 @@ def save_ticket_records(line, file_record):
         file_record.status = "FAILED"
         file_record.num_error += 1
         save_error(e, line, file_record.site)
-        # error_message = e.message
-        # if hasattr(e, 'message_dict'):
-        #     for key, value in e.message_dict.iteritems():
-        #         error_message += "%s: %s " % (str(key).upper(), ','.join(value))
-        # error = DataErrors(site=file_record.site, error_message=error_message, error_type=type(e), failed_data=line)
-        # error.save()
-
 
 def save_customer_records(line, file_record):
     try:
@@ -222,7 +215,6 @@ def save_customer_records(line, file_record):
 
         customer = CollectionCustomer(site=file_record.site, first_name=first_name[:25].upper(),
                                       last_name=last_name[:50].upper(), email=email.strip(), phone_number=phone)
-
 
         #full_clean checks for the correct data
         customer.full_clean()

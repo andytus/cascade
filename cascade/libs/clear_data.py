@@ -43,7 +43,7 @@ class RemoveData:
 
     def remove_data_error(self):
         data_error = DataErrors.objects.filter(site=self.site)
-        print "Deleting: %s routes" % data_error.count()
+        print "Deleting: %s data errors" % data_error.count()
         data_error.delete()
 
     def remove_uploaded_files(self):

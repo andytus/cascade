@@ -11,7 +11,6 @@
 (function (cartlogic){
 
    function ReportFile(data){
-
        this.id = data.id;
        this.file = data.file;
        this.report__id = data.report__id;

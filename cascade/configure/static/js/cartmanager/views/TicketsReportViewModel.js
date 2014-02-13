@@ -13,7 +13,7 @@
         var self = this;
 
         self.selected_type = ko.observable();
-        self.selected_status = ko.observable('Requested');
+        self.selected_status = ko.observableArray(['Requested']);
         self.selected_cart_type = ko.observable();
         self.selected_cart_size = ko.observable();
         self.selected_route = ko.observable();
@@ -55,9 +55,7 @@
 
 
         self.filtered_routes = ko.computed(function () {
-
             var filtered_routes = ko.utils.arrayFilter(self.routes(), function (item) {
-
                     //check if cart type (i.e. same as route) is ALL
                     if (self.selected_route_type() == 'ALL') {
                         //then check if route day is also ALL and return all routes
@@ -166,11 +164,12 @@
                     return item.service_status;
                 });
                 self.ticket_status_options(ticketStatusOptions);
-                self.ticket_status_options.unshift('ALL');
                 var match = ko.utils.arrayFirst(self.ticket_status_options(), function (item) {
                     return item === 'Requested';
                 });
                 self.selected_status(match);
+
+                 $('.multiselect').multiselect({ includeSelectAllOption: true }).multiselect('select', 'Requested');
 
             });
         };

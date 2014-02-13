@@ -17,12 +17,11 @@ import os
 
 def save_report_to(instance, filename):
     """
-     gets correct path for an uploaded file
-
+     Gets correct path for an uploaded file.
+     Will upload to the media folder../reports/<site__name>, report name, file_name
     """
-    #Note: os.path.dirname(__file__) used to upload files into the app directory
-    #TODO add site id .. and look up here
-    return os.path.join('reports', instance.report.name, filename)
+
+    return os.path.join('reports', instance.site.name, instance.report.name, filename)
 
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
@@ -173,7 +172,45 @@ class Report(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ("report_update_view", [str(self.id)])
-    
+
+    def generate_report_xlwt(self, user, site):
+        import xlwt
+        import cStringIO as StringIO
+        import re
+
+        report = self
+        wb = xlwt.Workbook()
+        ws = wb.add_sheet(report.name)
+        filename = re.sub(r'\W+', '', report.name) + "_" + site.name+ '.xlsx'
+
+        i = 0
+        for field in report.displayfield_set.all():
+            ws.write(0, i, field.name, xlwt.easyxf("font: bold on"))
+            i += 1
+        objects_list, message = report_to_list(report, user, site, queryset=None)
+
+        r = 1
+        for row in objects_list:
+            c = 0
+            for value in row:
+                ws.write(r, c, value)
+                c += 1
+            r += 1
+
+        myfile = StringIO.StringIO()
+        wb.save(myfile)
+
+        # a unique file will be related to this report, file_extension, and site
+        report_file, created = ReportFiles.objects.get_or_create(report=self, file_extension='xlsx', site=site)
+        if created:
+            report_file.save()
+        else:
+            report_file.file_path.delete()
+
+        report_file.file_path.save(filename, File(myfile))
+        report_file.update_in_progress = 'No'
+        report_file.save()
+
     def generate_report(self, user, site):
         import cStringIO as StringIO
         from openpyxl.workbook import Workbook
@@ -185,7 +222,7 @@ class Report(models.Model):
         wb = Workbook()
         ws = wb.worksheets[0]
         ws.title = re.sub(r'\W+', '', report.name)[:30]
-        filename = re.sub(r'\W+', '', report.name) + "_" + site.name+ '.xlsx'
+        filename = re.sub(r'\W+', '', report.name) + "_" + site.name + '.xlsx'
 
         i = 0
         for field in report.displayfield_set.all():

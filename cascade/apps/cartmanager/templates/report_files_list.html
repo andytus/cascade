@@ -6,7 +6,6 @@
      <div id="report_files" data-bind="with: reports">
        <div id="ticket-table" class="gridStyle box-info" data-bind="koGrid: $data.gridOptions" style="height: 400px"></div>
     </div>
-
 {% endblock %}
 
 {% block page_scripts %}
@@ -18,6 +17,7 @@
    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/vendor/knockout/kogrid/KoGrid.css" />
    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
    <script type="text/javascript">
+
     var report_type = '{{ report_type }}' || null;
     var report_list_api_url = '{% url "report_list_api" %}' || null;
     var report_generate_url = '{% url "report_generate" %}' || null;

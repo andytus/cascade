@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
+
+{% block add_styles %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-multiselect.css">
+{% endblock %}
 {% block title %}Ticket Reports (Download){% endblock %}
 {% block main_content %}
 
     <div class="box-info">
         <div id="ticket-query" class="well search-queries" data-bind="with: $root.report">
             Show <select id="ticket-query-select-status" data-bind="options: ticket_status_options,
-             value: selected_status" class="input-medium"></select> tickets for
+             selectedOptions: selected_status" multiple="multiple" class="multiselect btn-lg"></select> tickets for
             <select id="ticket-query-select-type" data-bind="options: $root.report.ticket_type_options,
              value: selected_type" class="input-large"></select> services, and
             <select id="ticket-query-cart-type" data-bind="options: cart_type_options,
@@ -19,7 +23,7 @@
                 </button>
 
                 <button id="reset_params" type="button" class="btn btn-info">
-                 <i class="icon-refresh"></i> Reset
+                    <i class="icon-refresh"></i> Reset
                 </button>
 
                 <div id="ticket-query-advanced-options" class="collapse">
@@ -75,12 +79,10 @@
 
 
             <div id="ticket-query-download">
-                <button id="on_screen" class="run_query btn-primary btn-large"> <i class="icon-search">  </i>Search </button><br><br>
-                <i class="icon-download"> </i>Downloads:
-                <button id="download_csv" class="run_query btn btn-success" title="Download CSV">
-                    <i class="icon-th">CSV</i></button>
-                <button id="download_pdf" class="run_query btn btn-success" title="Download PDF">
-                    <i class="icon-file">PDF</i></button>
+                <button id="on_screen" class="run_query btn-primary btn-large"><i class="icon-search"> </i>Search
+                </button>
+                <button id="download_csv" class="run_query btn btn-large btn-success" title="Download CSV">
+                    <i class="icon-download"> </i>Download</button>
             </div>
         </div>
     </div>
@@ -106,6 +108,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/knockout/kogrid/koGrid-2.1.1.js"></script>
     <script type="text/javascript"
             src="{{ STATIC_URL }}js/vendor/bootstrap/datetimepicker/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap/multiselect/bootstrap-multiselect.js"></script>
 
     <script type="text/javascript">
         var customer_id = null;
@@ -119,7 +122,7 @@
         var route_search_api_url = "{% url "route_search_api" %}";
         var cart_service_charge_api_url = "{% url "cart_service_charge_api" %}";
         var ticketsReport = {
-            report:  new cartlogic.TicketsReportViewModel,
+            report: new cartlogic.TicketsReportViewModel,
             tickets: new cartlogic.TicketsListViewModel(null, null, tickets_api_download)
         };
 
@@ -127,6 +130,6 @@
 
         ticketsReport.tickets.getPagedDataAsync();
 
-    </script>
+     </script>
 
 {% endblock %}

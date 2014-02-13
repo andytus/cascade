@@ -169,6 +169,7 @@ class TicketSearchAPI(ListAPIView):
         cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
         cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
+        print service_status
         service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
         processed = self.request.QUERY_PARAMS.get('processed', 'True')
         route_type = self.request.QUERY_PARAMS.get('route_type', 'ALL')
@@ -180,7 +181,6 @@ class TicketSearchAPI(ListAPIView):
         search_days = self.request.QUERY_PARAMS.get('search_days', 'ALL')
         search_from_date = self.request.QUERY_PARAMS.get('search_from_date', None)
         search_to_date = self.request.QUERY_PARAMS.get('search_to_date', None)
-
 
         sort_by = self.request.QUERY_PARAMS.get('sort_by', None)
         page_size = self.request.QUERY_PARAMS.get('page_size', None)
@@ -227,7 +227,8 @@ class TicketSearchAPI(ListAPIView):
                 locations = customer.customer_location.all()
                 query = query.filter(location__in=locations)
             if service_status != 'ALL':
-                query = query.filter(status__service_status=service_status)
+                print simplejson.loads(service_status)
+                query = query.filter(status__service_status__in=simplejson.loads(service_status))
             if cart_type != 'ALL':
                 query = query.filter(cart_type__name=cart_type)
             if cart_size != 'ALL':
@@ -251,8 +252,9 @@ class TicketSearchAPI(ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super(TicketSearchAPI, self).list(request, *args, **kwargs)
         file_name = self.request.QUERY_PARAMS.get('file_name', 'cart_logic_%s' % str(datetime.now().isoformat()))
-        data = self.get_queryset()
+
         if self.request.accepted_renderer.format == "csv":
+            data = self.get_queryset()
             #TODO abstract report type to model for admin report creation
             header = {}
             if self.report_type == 'service_tickets':
@@ -273,15 +275,6 @@ class TicketSearchAPI(ListAPIView):
             response = StreamingHttpResponse(stream_response_generator(data, header), mimetype='text/csv')
             response['Content-Disposition'] = 'attachment; filename=%s.csv' % file_name
             return response
-
-        if self.request.accepted_renderer.format == "pdf":
-            context = Context({'tickets': data})
-            response = write_pdf('tickets_pdf.html', context, file_name)
-
-        if self.request.accepted_renderer.format == "kml":
-            agent = request.META['HTTP_USER_AGENT']
-            context = Context({'tickets': data})
-            response = write_kml('tickets.kml', context, file_name, agent)
 
         return response
 

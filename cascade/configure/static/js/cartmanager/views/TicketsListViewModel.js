@@ -16,7 +16,7 @@
         self.sortOnServer = ko.observable(false);
         self.sortInfo = ko.observable();
 
-        self.status = ko.observable("Requested");
+        self.status = ko.observableArray(["Requested"]);
         self.service = ko.observable("ALL");
         self.cart_type = ko.observable("ALL");
         self.cart_size = ko.observable("ALL");
@@ -123,13 +123,14 @@
 
 
             //TODO refactor for redundancy....
-            if (this.id == 'download_csv' || this.id == 'download_pdf') {
+            if (this.id == 'download_csv') {
                 //if it is a csv format just load in the window (no ajax needed).
                 var data = {};
+                data.status = [];
                 data.cart_size = self.cart_size();
                 data.cart_type = self.cart_type();
                 data.service = self.service();
-                data.status = self.status();
+                data.status.push(self.status());
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
                 data.route = self.route();
@@ -144,7 +145,7 @@
                 //just getting report type directing from TicketsListViewModel
                 //don't need for displayed report
                 data.report_type = self.report_type().report;
-                window.location = tickets_api_download + "?format=" + this.id.slice(9) + "&" + jQuery.param(data);
+                window.location = tickets_api_download + "?format=csv&" + jQuery.param(data);
             } else {
                 self.getPagedDataAsync();
             }

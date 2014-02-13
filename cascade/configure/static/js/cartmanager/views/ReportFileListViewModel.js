@@ -10,7 +10,7 @@
 
     function ReportFileListViewModel(report_type, report_list_api_url, report_generate_url) {
         var self = this;
-        self.sort_by = ko.observable('report__name'); //TODO add default sort
+        self.sort_by = ko.observable('report__name');
         self.report_type = ko.observable(report_type);
         self.report_file_list = ko.observableArray([]);
         self.sortInfo = ko.observable();
@@ -32,7 +32,6 @@
             data.sort_by = self.sort_by();
 
             if (self.report_type() != null) {
-                console.log(report_type);
                 data.report_type = self.report_type();
             }
             $.ajax({
@@ -97,11 +96,12 @@
                 },
                 complete: function () {
                     if (self.report_file_list()[report_file_index].update_in_progress() == 'Yes') {
-                        setTimeout(function(){self.getReportFileInfo(report_file_index, false)}, 5000)
+                        $("#loading-message").hide();
+                        setTimeout(function(){self.getReportFileInfo(report_file_index, false)}, 10000)
                     } else {
                     $("#message-type").text("Success: ");
                     $("#message-text").text(self.report_file_list()[report_file_index].report__name +
-                                            "report refresh complete.");
+                                            " refresh complete.");
                     $('.close').click(function() {
                         $('#message').hide();
                     });
@@ -119,7 +119,7 @@
         }
 
         self.generateFile = function (data) {
-            $('#' + data + "_refresh").toggleClass('active');
+           // $('#' + data + "_refresh").toggleClass('active');
             var generate = true;
             var report_file_index = cartlogic.arrayFirstIndexOf(self.report_file_list(), function (item) {
                 return data == item.id;
@@ -128,19 +128,14 @@
             self.getReportFileInfo(report_file_index, generate)
         }
 
-
-        //       <button class="btn-success has-spinner">
-        //   <span class="spinner"><i class="icon-spin icon-refresh"></i></span>
-        //   Foo
-        // </button>
-
         self.report_download_cell_template = '<a style=\'margin-top: 2px;\' class=\'btn btn-small, btn-info\' ' +
             'data-bind="attr: {\'href\': $data.getProperty($parent)}"><i class=\'icon-download\'> </i>Save</a>';
 
         self.report_generate_report_cell_template = '<button style=\'margin-top: 2px;\' class=\' btn-small ' +
-            'btn-success has-spinner\' data-bind=" attr:{\'id\': $data.getProperty($parent) + \'_refresh\' } , click: function(data, event) ' +
-            '{$userViewModel.generateFile($data.getProperty($parent))}"><span class=\'spinner\'><i class=\'icon-spin icon-refresh\'> ' +
-            '</i></span> Refresh</button>';
+            'btn-success has-spinner\' data-bind=" attr:{\'id\': $data.getProperty($parent) + \'_refresh\' }, ' +
+            'click: function(data, event){$userViewModel.generateFile($data.getProperty($parent))}, ' +
+            'css: {active: $parent.entity[\'update_in_progress\']() == \'Yes\'}">' +
+            '<span class=\'spinner\'><i class=\'icon-spin icon-refresh\'> </i></span> Refresh</button>';
 
         self.columns = [
 

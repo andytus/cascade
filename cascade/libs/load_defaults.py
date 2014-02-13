@@ -1,7 +1,7 @@
 __author__ = 'jbennett'
 
 from django.contrib.sites.models import Site
-from cascade.apps.cartmanager.models import CartStatus, CartType, TicketStatus, CartServiceType
+from cascade.apps.cartmanager.models import CartStatus, CartType, TicketStatus, CartServiceType, ServiceReasonCodes
 
 
 class LoadData:
@@ -36,6 +36,18 @@ class LoadData:
                               {'level': 'Alert', 'service_status': 'Unsuccessful'},
                               {'level': 'Info', 'service_status': 'Uploaded'},
                               ]
+
+        self.reason_codes = [{'code': 'Vacant Lot', 'description': 'Vacant Lot'},
+                             {'code': 'Unoccupied', 'description': 'Unoccupied'},
+                             {'code': 'Owner Refused', 'description': 'Owner Refused'},
+                             {'code': 'Data Error', 'description': 'Data Error'},
+                             {'code': 'Commercial', 'description': 'Commercial'},
+                             {'code': 'Cannot Find Address', 'description': 'Cannot Find Address'}]
+
+    def load_reason_codes(self):
+        for record in self.reason_codes:
+            reason_code = ServiceReasonCodes(code=record['code'], description=record['description'])
+            reason_code.save()
 
     def load_cart_types(self):
         for record in self.cart_types:
