@@ -283,7 +283,7 @@
             });
             self.selected_search_days(day_match);
 
-            //Reset to and from dates
+            //Reset search to and from dates
             self.search_to_date("");
             self.search_from_date("");
 
