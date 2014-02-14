@@ -31,7 +31,7 @@
         self.no_charges = ko.observable(false);
         self.report_type = ko.observable('service_ticket');
 
-
+        //
         self.cart_serial_number = ko.observable(cart_serial_number);
         self.customer_id = ko.observable(customer_id);
         self.pagingOptions = {
