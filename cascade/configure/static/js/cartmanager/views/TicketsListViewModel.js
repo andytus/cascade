@@ -15,8 +15,7 @@
         self.tickets = ko.observableArray([]);
         self.sortOnServer = ko.observable(false);
         self.sortInfo = ko.observable();
-
-        self.status = ko.observableArray(["Requested"]);
+        self.status = ko.observableArray(['Requested']);
         self.service = ko.observable("ALL");
         self.cart_type = ko.observable("ALL");
         self.cart_size = ko.observable("ALL");
@@ -59,7 +58,7 @@
                 data.cart_size = self.cart_size();
                 data.cart_type = self.cart_type();
                 data.service = self.service();
-                data.status = self.status();
+                data.status = ko.toJSON(self.status());
                 data.route = self.route();
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();

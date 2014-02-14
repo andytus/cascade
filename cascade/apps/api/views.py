@@ -133,7 +133,6 @@ class CartSearchAPI(ListAPIView):
             elif search_type == 'type':
                 query = query.filter(cart_type__name=value)
             elif search_type == 'size':
-                print value
                 query = query.filter(cart_type__size=int(value))
             elif search_type == 'status':
                 query = query.filter(current_status__label=value)
@@ -169,7 +168,6 @@ class TicketSearchAPI(ListAPIView):
         cart_size = self.request.QUERY_PARAMS.get('cart_size', 'ALL')
         cart_type = self.request.QUERY_PARAMS.get('cart_type', 'ALL')
         service_status = self.request.QUERY_PARAMS.get('status', 'ALL')
-        print service_status
         service_type = self.request.QUERY_PARAMS.get('service', 'ALL')
         processed = self.request.QUERY_PARAMS.get('processed', 'True')
         route_type = self.request.QUERY_PARAMS.get('route_type', 'ALL')
@@ -227,7 +225,6 @@ class TicketSearchAPI(ListAPIView):
                 locations = customer.customer_location.all()
                 query = query.filter(location__in=locations)
             if service_status != 'ALL':
-                print simplejson.loads(service_status)
                 query = query.filter(status__service_status__in=simplejson.loads(service_status))
             if cart_type != 'ALL':
                 query = query.filter(cart_type__name=cart_type)
