@@ -5,25 +5,29 @@
     {% load compressed %}
     {% compressed_css 'cartlogic' %}
 
+
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="{{ STATIC_URL }}css/font-awesome.min.css">
 
     {% block styles %}
-   <style>
-   .circle-img{
-       background: url({{ user.get_profile.get_mugshot_url }} ) no-repeat center;
-       background-size: contain;
-   }
+        <style>
+            .circle-img {
+                background: url({{ user.get_profile.get_mugshot_url }} ) no-repeat center;
+                background-size: contain;
+            }
 
 
-   </style>
+        </style>
 
-    {% block add_styles %}
-    {% endblock %}
+        {% block add_styles %}
+        {% endblock %}
     {% endblock %}
 
     <title>  {% block title %}{% endblock %} </title>
+
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
+
 </head>
 <body>
 <div id="top" class="row">
@@ -51,18 +55,21 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         {% for site in user.get_profile.sites.all %}
-                                            <li><a href="http://{{ site.domain }}/carts/tickets/download/">{{ site.name }}</a></li>
+                                            <li>
+                                                <a href="http://{{ site.domain }}/carts/tickets/download/">{{ site.name }}</a>
+                                            </li>
                                         {% endfor %}
                                     </ul>
                                 </li>
                             </ul>
                             <div>
 
-                                 <a href="{% url 'userena_profile_detail' user %}">
-                                <img class="circle-img-display circle-img-small circle-img"  alt="profile" width="40" height="40"/>
+                                <a href="{% url 'userena_profile_detail' user %}">
+                                    <img class="circle-img-display circle-img-small circle-img" alt="profile" width="40"
+                                         height="40"/>
 
-                                  {{ user.username }}
-                                    </a>  |  <a href="{% url "userena_signout" %}">Logout</a>
+                                    {{ user.username }}
+                                </a> | <a href="{% url "userena_signout" %}">Logout</a>
                             </div>
 
                         {% else %}
@@ -141,7 +148,7 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url "customer_app_new" %}" data-target="#modal_window"
                                            data-toggle="modal">New</a></li>
-                                           <li><a href="{% url 'report_list' %}collectioncustomer">Reports</a></li>
+                                    <li><a href="{% url 'report_list' %}collectioncustomer">Reports</a></li>
 
                                 </ul>
 
@@ -173,6 +180,12 @@
                                         <li><a href="{% url "route_uploads" %}">Route upload</a></li>
                                         <li><a href="{% url "customer_uploads" %}">Customers upload</a></li>
                                         <li><a href="{% url "cart_uploads" %}">Carts upload</a></li>
+                                        <li>
+                                            <button id="start-togetherjs" class="btn-small btn-info"
+                                                    style="margin-left: 15px" type="button"
+                                                    onclick="TogetherJS(this); return false"
+                                              data-end-togetherjs-html="End TogetherJS"> Collaborate</button>
+                                        </li>
                                     </ul>
                                 </li>
                             {% endif %}
@@ -231,6 +244,7 @@
             </div>
 
         </div>
+
     </div>
 {% endblock %}
 
