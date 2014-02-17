@@ -17,6 +17,7 @@
     <header>
       <div id="report_id" data-id="{{ object.id }}">
         <div style="display:table; width:100%;">
+          <a href="{% url 'admin:report_builder_report_changelist' %}">Admin</a>
           <div style="display:table-cell; width:25em;">
             Set report fields for {{ form.name }}   
           </div>
