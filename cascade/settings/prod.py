@@ -17,11 +17,12 @@ if os.environ.has_key('DATABASE_URL'):
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 STATICFILES_STORAGE = 'cascade.libs.storage.S3PipelineStorage'
+
 AWS_ACCESS_KEY_ID = os.environ['AWS_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET']
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_BUCKET']  #adding storage location from environmental variable
-AWS_PRELOAD_METADATA = True
-AWS_QUERYSTRING_AUTH = False
+#AWS_PRELOAD_METADATA = True
+#AWS_QUERYSTRING_AUTH = False
 STATIC_URL = "http://%s.s3-website-us-east-1.amazonaws.com/" % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
@@ -72,7 +73,10 @@ RQ_QUEUES = {
 PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.slimit.SlimItCompressor'
 PIPELINE_CSS_COMPRESSOR = None
 
-EMAIL_SUBJECT_PREFIX = '[CartLogic]'
+if os.environ.has_key('APPSITE'):
+    EMAIL_SUBJECT_PREFIX = '[CartLogic %s]' % os.environ['APPSITE']
+else:
+    EMAIL_SUBJECT_PREFIX = '[CartLogic-No site given]'
 
 #enable pipeline
 PIPELINE = True
