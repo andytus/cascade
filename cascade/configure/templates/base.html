@@ -13,7 +13,6 @@
     {% block styles %}
         <style>
             .circle-img {
-                background: url({{ profile.get_mugshot_url }} ) no-repeat center;
                 background-size: contain;
             }
 
@@ -66,7 +65,7 @@
 
                                 <a href="{% url 'userena_profile_detail' user %}">
                                     <img class="circle-img-display circle-img-small circle-img" alt="profile" width="40"
-                                         height="40"/>
+                                         height="40" src="{{ user.get_profile.get_mugshot_url }}"/>
 
                                     {{ user.username }}
                                 </a> | <a href="{% url "userena_signout" %}">Logout</a>
