@@ -125,11 +125,12 @@
             if (this.id == 'download_csv') {
                 //if it is a csv format just load in the window (no ajax needed).
                 var data = {};
-                data.status = [];
+               // data.status = [];
                 data.cart_size = self.cart_size();
                 data.cart_type = self.cart_type();
                 data.service = self.service();
-                data.status.push(self.status());
+               /// data.status.push(self.status());
+                data.status = ko.toJSON(self.status());
                 data.route_type = self.route_type();
                 data.route_day = self.route_day();
                 data.route = self.route();
