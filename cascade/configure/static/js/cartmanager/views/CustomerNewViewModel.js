@@ -8,7 +8,6 @@
         self.server_message_type = ko.observable();
 
         //creates a blank customer
-
         self.customer = ko.observable(new cartlogic.Customer);
         self.location = ko.observable(new cartlogic.Location);
         //location information
@@ -123,8 +122,7 @@
                 });
                 self.default_zipcodes(zipcodes);
                 //adding blank at the beginning
-                self.default_zipcodes.unshift('Select One');
-                //$("#cart-info-edit-status option[value='" + self.cart().current_status_id() + "']").attr("selected", "selected");
+               //$("#cart-info-edit-status option[value='" + self.cart().current_status_id() + "']").attr("selected", "selected");
             });
         };
 
@@ -186,11 +184,11 @@
         };
 
         self.saveCustomer = function () {
-
-            if (self.location().zipcode() == 'Select One') {
-                alert("Please Select a Zipcode");
-                self.currentStep(self.stepModels()[1]);
-                return;
+            if (self.customer().first_name() == " "){
+                self.customer().first_name("RESIDENT")
+            }
+            if (self.customer().last_name() == " "){
+                self.customer().last_name("RESIDENT")
             }
 
             data = ko.toJSON(self.customer);

@@ -33,7 +33,6 @@
 
             //define a function to do required and validate patterns if needed
             function check(newValue, start) {
-
                  if (options.required === true) {
                     target.hasError(newValue ? false : true);
                     target.hasFocus(newValue ? false : true);
@@ -43,9 +42,8 @@
                     }
 
                 //check for a test pattern type (i.e. email or phone) and for the target value
-                if (options.pattern) {
+                if (options.pattern && newValue) {
                      //get the appropriate filter to test
-                    // console.log(options.pattern);
                     var filter = $.grep(self.filters, function (item) {
                         return item.type == options.pattern
                     });

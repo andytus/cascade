@@ -149,7 +149,7 @@
                     <input id="street_suffix" name="street_suffix" class="typeahead input-mini"
                            type="text" placeholder="(i.e. AVE)"
                            data-bind="typeahead: $root.create.suffix_defaults, value: street_suffix" data-modal="true"/>
-                    <input id="unit" name="unit" type="text" placeholder="" data-bind="value: unit" class="input-small">
+                    <input id="unit" name="unit" type="text" placeholder="APT 4" data-bind="value: unit" class="input-small">
                     <br>
 
                 </div>
@@ -249,10 +249,12 @@
 
 
 </script>
-
 <script id="ConfirmSave" type="text/html">
     <div id="confirm-new-customer" data-bind="with:$root.create.customer">
-        <p data-bind="html: '<b>CUSTOMER NAME:</b> ' + first_name() + ' ' + last_name()"></p>
+    <div data-bind="visible: !$root.create.location().valid()">
+    <b class="text-error"> Missing or incorrect values for address, please correct to save address</b><br><br>
+    </div>
+       <p data-bind="html: '<b>CUSTOMER NAME:</b> ' + first_name() + ' ' + last_name()"></p>
 
         <p data-bind="html: '<b>EMAIL:</b> ' + email()"></p>
 

@@ -20,6 +20,7 @@ if os.environ.has_key('DATABASE_URL'):
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 STATICFILES_STORAGE = 'cascade.libs.storage.S3PipelineStorage'
+
 AWS_ACCESS_KEY_ID = os.environ['AWS_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET']
 AWS_STORAGE_BUCKET_NAME = "cartlogic"

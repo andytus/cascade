@@ -1,7 +1,7 @@
 __author__ = 'jbennett'
 from cascade.apps.cartmanager.models import Cart, Ticket, TicketComments, CollectionCustomer, \
     CollectionAddress, Route, DataErrors, CustomersUploadFile, \
-    CartsUploadFile, TicketsCompleteUploadFile, RouteUploadFile
+    CartsUploadFile, TicketsCompleteUploadFile, RouteUploadFile, ZipCodes, AdminDefaults
 
 from django.contrib.sites.models import Site
 
@@ -53,7 +53,17 @@ class RemoveData:
         ca = CartsUploadFile.objects.objects.filter(site=self.site)
         print "Deleting %s customer, %s tickets, %s routes, %s and cart upload files" % (c.count(),
                                                                                          t.count(), r.count(),
-                                                                                         ca.count())
+                                                                                     ca.count())
+    def remove_zipcodes(self):
+        z = ZipCodes.objects.filter(site=self.site)
+        print "Deleting: %s zipcodes" % z.count()
+        z.delete()
+
+    def remove_admin_defaults(self):
+        a = AdminDefaults.objects.filter(site=self.site)
+        print "Removing AdminDefaults"
+        a.delete()
+
 
     def remove_all(self):
         self.remove_carts()

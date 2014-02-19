@@ -131,8 +131,8 @@ class ZipCodes(models.Model):
 
 
 class CartStatus(models.Model):
-    LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"), ("label-success","Success" ),
-             ("label-inverse", "Default"), ('label', 'Inverse'))
+    LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"),
+             ("label-success", "Success"), ("label-inverse", "Default"), ('label', 'Inverse'))
     level = models.CharField(max_length=25, choices=LEVEL)
     label = models.CharField(max_length=35)
 
@@ -149,7 +149,6 @@ class CartStatus(models.Model):
 
 
 class CartType(models.Model):
-    #TODO define a unique for size and name
     name = models.CharField(max_length=20)
     size = models.IntegerField()
     #model managers:
@@ -158,6 +157,7 @@ class CartType(models.Model):
     on_site = CurrentSiteManager()
 
     class Meta:
+        unique_together = (('name', 'size'))
         ordering = ["-name", "-size"]
 
     def get_info(self):
@@ -189,7 +189,7 @@ class CartParts(models.Model):
 class TicketStatus(models.Model):
 
     LEVEL = (("label-warning", "Warning"), ("label-info", "Info"), ("label-important", "Alert"),
-             ("label-success", "Success" ), ("label-inverse", "Default"), ('label', 'Inverse'))
+             ("label-success", "Success"), ("label-inverse", "Default"), ('label', 'Inverse'))
     level = models.CharField(max_length=35, choices=LEVEL)
     service_status = models.CharField(max_length=30)
 
@@ -275,7 +275,7 @@ class Route(models.Model):
     def __unicode__(self):
         return "Route: %s, Day: %s, Route Type: %s" % (self.route, self.route_day, self.route_type)
 
-    class meta:
+    class Meta:
         unique_together = (('route', 'route_day', 'route_type'))
 
 
@@ -288,7 +288,7 @@ class Address(models.Model):
     unit = models.CharField(max_length=15, blank=True)
     city = models.CharField(max_length=25, default=CITY)
     state = models.CharField(max_length=2, default=ST)
-    zipcode = models.IntegerField()
+    zipcode = models.CharField(max_length=10, null=True, blank=True)
     latitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     geocode_status = models.CharField(max_length=20, null=True, blank=True)
@@ -296,7 +296,8 @@ class Address(models.Model):
     property_type = models.CharField(max_length=25, null=True, choices=(('Residential', 'Residential'),
                                                                         ('Business', 'Business'),
                                                                         ('Unoccupied', 'Unoccupied'),
-                                                                        ('Vacant Lot', 'Vacant Lot')
+                                                                        ('Vacant Lot', 'Vacant Lot'),
+                                                                        ('Multi-Use', 'Multi-Use'),
                                                                         ))
     route = models.ManyToManyField(Route, null=True, blank=True)
 
@@ -328,8 +329,6 @@ class Address(models.Model):
 
         return full_address
 
-    #TODO def get_absolute_url
-
     class Meta:
         abstract = True
         #Do not want to add a new address that already exist
@@ -337,8 +336,8 @@ class Address(models.Model):
 
 
 class CollectionCustomer(models.Model):
-    first_name = models.CharField(max_length=25, default="UNKNOWN", null=True)
-    last_name = models.CharField(max_length=50, default="UNKNOWN", null=True)
+    first_name = models.CharField(max_length=25, default="RESIDENT", null=True)
+    last_name = models.CharField(max_length=50, default="RESIDENT", null=True)
     phone_number = PhoneNumberField(max_length=15, null=True, blank=True)
     email = models.EmailField(max_length=75, null=True, blank=True)
 
@@ -406,8 +405,10 @@ class InventoryAddress(Address):
     default = models.BooleanField(default=False)
 
     def get_info(self):
-        info = {"properties":{"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,  "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                              "city":self.city, "state":self.state, "zipcode":self.zipcode, "geocode_type":self.geocode_type, "geocode_status": self.geocode_status,
+        info = {"properties": {"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,
+                               "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
+                               "city":self.city, "state":self.state, "zipcode":self.zipcode,
+                               "geocode_type":self.geocode_type, "geocode_status": self.geocode_status,
                               },"type":"Feature", "geometry":
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
 
@@ -433,7 +434,8 @@ class Cart(models.Model):
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
     serial_number = models.CharField(max_length=30, null=False, blank=False, unique=True)
-    current_status = models.ForeignKey(CartStatus, null=True, blank=True)
+    current_status = models.ForeignKey(CartStatus, null=True, blank=True,
+                                       default=CartStatus.objects.get(label='Inventory'))
     cart_type = models.ForeignKey(CartType, null=True, blank=True, default=1)
     last_updated = models.DateTimeField(auto_now=datetime.now)
     born_date = models.DateTimeField(null=True, blank=True)
@@ -492,7 +494,8 @@ class Ticket(models.Model):
     audit_status = models.CharField(max_length=15, null=True, blank=True, choices=AUDIT_STATUS)
     reason_codes = models.ForeignKey(ServiceReasonCodes, null=True, blank=True)
     processed = models.BooleanField(default=False)
-    file_upload = models.ForeignKey(TicketsCompleteUploadFile, null=True, blank=True, related_name="tickets_upload_file")
+    file_upload = models.ForeignKey(TicketsCompleteUploadFile, null=True, blank=True,
+                                    related_name="tickets_upload_file")
 
     created_by = models.ForeignKey(User, related_name='created_by_user', null=True, blank=True)
     updated_by = models.ForeignKey(User, related_name="updated_by_user", null=True, blank=True)
@@ -512,7 +515,7 @@ class Ticket(models.Model):
     def save(self, *args, **kwargs):
         current_site = Site.objects.get_current()
         self.site = current_site
-        super(Ticket,self).save(*args, **kwargs)
+        super(Ticket, self).save(*args, **kwargs)
 
 
 class TicketComments(models.Model):
@@ -528,14 +531,6 @@ class TicketComments(models.Model):
     def get_info(self):
         info = {'text': self.text, 'date_created': self.date_created, 'ticket': self.ticket}
         return info
-
-
-# class UserAccountProfile(models.Model):
-#     user = models.OneToOneField(User)
-#     sites = models.ManyToManyField(Site)
-#     company = models.CharField(max_length=50, null=True)
-#     objects = models.Manager()
-#     on_site = CurrentSiteManager()
 
 
 class DataErrors(models.Model):

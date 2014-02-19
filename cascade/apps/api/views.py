@@ -772,11 +772,11 @@ class CustomerProfileAPI(APIView):
         else:
             customer = self.get_object(customer_id)
 
-        if first_name and last_name and phone_number:
+        if first_name and last_name:
             customer.first_name = first_name.upper()
             customer.last_name = last_name.upper()
-            customer.email = email.upper()
-            customer.phone_number = phone_number
+            customer.email = email.upper() or None
+            customer.phone_number = phone_number or None
             customer.save()
             return RestResponse({"details": {"message": "Changes saved for customer: %s" % (customer._get_full_name()),
                                              "customer_id": customer.id, "message_type": "Success"}},
