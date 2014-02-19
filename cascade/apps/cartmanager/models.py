@@ -285,7 +285,7 @@ class Address(models.Model):
     ST = "NA"
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
-    unit = models.CharField(max_length=15, blank=True)
+    unit = models.CharField(max_length=15, null=True, blank=True)
     city = models.CharField(max_length=25, default=CITY)
     state = models.CharField(max_length=2, default=ST)
     zipcode = models.CharField(max_length=10, null=True, blank=True)

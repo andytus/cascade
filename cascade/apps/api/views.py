@@ -305,6 +305,8 @@ class LocationAPI(APIView):
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('unit', None)
+                if unit:
+                    unit = unit.strip()
                 zipcode = json_data.get('zipcode', None)
                 property_type = json_data.get('property_type', None)
                 city = json_data.get('city', None)
@@ -314,7 +316,7 @@ class LocationAPI(APIView):
                 geocode_status = json_data.get('geocode_status', None)
                 location = CollectionAddress(site=get_current_site(self.request), house_number=house_number.strip(),
                                              street_name=street_name.strip().upper(),
-                                             unit=unit.strip(""), zipcode=zipcode, property_type=property_type, city=city,
+                                             unit=unit, zipcode=zipcode, property_type=property_type, city=city,
                                              state=state, latitude=latitude, longitude=longitude,
                                              geocode_status=geocode_status, customer=customer)
                 location.save()
