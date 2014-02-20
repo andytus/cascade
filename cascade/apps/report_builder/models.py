@@ -212,6 +212,8 @@ class Report(models.Model):
         report_file.save()
 
     def generate_report(self, user, site):
+        from django.db import connection
+        connection.close()
         import cStringIO as StringIO
         from openpyxl.workbook import Workbook
         from openpyxl.writer.excel import save_virtual_workbook
