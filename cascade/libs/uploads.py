@@ -196,6 +196,7 @@ def save_ticket_records(line, file_record):
                             cart.last_longitude = cart.inventory_location.longitude
                             #cart.current_status = ticket.service_type.complete_cart_status_change
                 cart.save()
+            ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
             ticket.save()
             file_record.num_good += 1
 
