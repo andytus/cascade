@@ -113,7 +113,7 @@ class AdminDefaults(models.Model):
 
 class ZipCodes(models.Model):
     zipcode = models.CharField(max_length=5)
-    plus_four = models.CharField(max_length=4)
+    plus_four = models.CharField(max_length=4, null=True, blank=True)
     defaults = models.ForeignKey(AdminDefaults, related_name='default_zipcodes', blank=True, null=True)
 
     site = models.ForeignKey(Site)

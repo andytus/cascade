@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 #from django.db import transaction
 from cascade.apps.cartmanager.models import Cart, CartStatus, CartType, InventoryAddress, DataErrors, Ticket, \
     TicketStatus, TicketComments, CollectionCustomer, CartServiceType, \
-    CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route, CartParts
+    CollectionAddress, ForeignSystemCustomerID, ServiceReasonCodes, Route, CartParts, ZipCodes, AdminDefaults
 from django.utils import timezone
 from datetime import datetime
 from django.conf import settings
@@ -230,6 +230,11 @@ def save_customer_records(line, file_record):
 
         collection_address.full_clean()
         collection_address.save()
+
+        add_zipcode, created = ZipCodes.on_site.get_or_create(zipcode=zipcode,
+                                                              defaults=AdminDefaults.objects.get(site=file_record.site))
+        if created:
+            print "Added Zipcode: %s" % add_zipcode
 
 
         # systemid should be zero as default if not used
