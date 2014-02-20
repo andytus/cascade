@@ -286,7 +286,7 @@ class Address(models.Model):
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
     suffix = models.CharField(max_length=8, null=True, blank=True)
-    street_direction = models.CharField(max_length=3, null=True, blank=True)
+    direction = models.CharField(max_length=3, null=True, blank=True)
     unit = models.CharField(max_length=15, null=True, blank=True)
     city = models.CharField(max_length=25, default=CITY)
     state = models.CharField(max_length=2, default=ST)
@@ -332,8 +332,8 @@ class Address(models.Model):
         if self.suffix:
             full_address = full_address + " " + self.suffix
 
-        if self.street_direction:
-            full_address = full_address + " " + self.street_direction
+        if self.direction:
+            full_address = full_address + " " + self.direction
 
         return full_address
 
@@ -398,7 +398,7 @@ class CollectionAddress(Address):
     def get_info(self):
         info = {"properties": {"url": self.get_absolute_url(), "id": self.id, "property_type": self.property_type,
                 "house_number": self.house_number, "unit": self.unit, "street_name": self.street_name,
-                "suffix": self.suffix, "direction": self.street_direction, "city": self.city,
+                "suffix": self.suffix, "direction": self.direction, "city": self.city,
                 "state": self.state, "zipcode": self.zipcode, "geocode_type": self.geocode_type,
                 "geocode_status": self.geocode_status, "carts": self.location.values("id", "serial_number",
                 "cart_type__size", "cart_type__name")}, "type": "Feature", "geometry": {"type": "Point", "coordinates":
@@ -415,10 +415,11 @@ class InventoryAddress(Address):
 
     def get_info(self):
         info = {"properties": {"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,
-                               "house_number":self.house_number, "unit":self.unit, "street_name":self.street_name,
-                               "city":self.city, "state":self.state, "zipcode":self.zipcode,
-                               "geocode_type":self.geocode_type, "geocode_status": self.geocode_status,
-                              },"type":"Feature", "geometry":
+                               "house_number": self.house_number, "unit": self.unit, "street_name": self.street_name,
+                               "suffix": self.suffix, "direction": self.direction, "city": self.city,
+                               "state":self.state, "zipcode":self.zipcode,
+                               "geocode_type": self.geocode_type, "geocode_status": self.geocode_status,
+                              },"type": "Feature", "geometry":
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}
 
         return info

@@ -101,8 +101,8 @@ class CartSearchAddressSerializer(serializers.Serializer, NullSerializerPatch):
     class Meta:
         fields = ('cart', 'customer', 'location', 'inventory_location')
 
-    #def get_none(self, obj):
-     #   return None
+    def get_none(self, obj):
+        return None
 
 class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPatch):
     serviced_cart__serial_number = CleanRelatedField(source='serviced_cart.serial_number')

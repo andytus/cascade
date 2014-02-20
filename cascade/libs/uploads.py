@@ -209,10 +209,11 @@ def save_ticket_records(line, file_record):
 def save_customer_records(line, file_record):
     try:
         #Customer setup & save:
-        systemid, system_name, first_name, last_name, phone, email, house_number, street_name, unit, city,\
-        state, zipcode, property_type, latitude, longitude, recycle, recycle_size, refuse, refuse_size, yard_organics,\
-        yard_organics_size, unassigned, unassigned_size, refuse_route, refuse_route_day,\
-        recycle_route, recycle_route_day, yard_organics_route, yard_organics_route_day = line.split(',')
+        systemid, system_name, first_name, last_name, phone, email, house_number, street_name, suffix, \
+        street_direction, unit, city, state, zipcode, property_type, latitude, longitude, recycle, \
+        recycle_size, refuse, refuse_size, yard_organics, yard_organics_size, unassigned,\
+        unassigned_size, refuse_route, refuse_route_day, recycle_route, recycle_route_day, \
+        yard_organics_route, yard_organics_route_day = line.split(',')
 
         customer = CollectionCustomer(site=file_record.site, first_name=first_name[:25].upper(),
                                       last_name=last_name[:50].upper(), email=email.strip(), phone_number=phone)
@@ -225,8 +226,9 @@ def save_customer_records(line, file_record):
         collection_address = CollectionAddress(site=file_record.site, customer=customer,
                                                house_number=house_number.strip(),
                                                street_name=street_name.strip().upper(), unit=unit.strip(),
-                                               city=city, zipcode=zipcode, state=state, latitude=latitude,
-                                               longitude=longitude, property_type=property_type)
+                                               street_direction=street_direction.strip().upper(),
+                                               suffix=suffix.strip().upper(), city=city, zipcode=zipcode, state=state,
+                                               latitude=latitude, longitude=longitude, property_type=property_type)
 
         collection_address.full_clean()
         collection_address.save()
