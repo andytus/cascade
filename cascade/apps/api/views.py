@@ -305,8 +305,6 @@ class LocationAPI(APIView):
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('unit', None)
-                if unit:
-                    unit = unit.strip()
                 zipcode = json_data.get('zipcode', None)
                 property_type = json_data.get('property_type', None)
                 city = json_data.get('city', None)
@@ -319,7 +317,11 @@ class LocationAPI(APIView):
                                              unit=unit, zipcode=zipcode, property_type=property_type, city=city,
                                              state=state, latitude=latitude, longitude=longitude,
                                              geocode_status=geocode_status, customer=customer)
+                if unit:
+                    location.unit = unit.strip()
+
                 location.save()
+                print location.customer
 
                 #add routes
                 if route_list:
