@@ -18,7 +18,7 @@
         self.suffix = ko.observable("");
         self.direction = ko.observable("");
         self.unit = ko.observable("");
-        self.full_address = ko.computed(function () {
+/*        self.full_address = ko.computed(function () {
             var full_address = self.house_number() + " " + self.street_name();
             if (self.suffix() != null) {
                 full_address = full_address + " " + self.suffix();
@@ -30,12 +30,29 @@
                 full_address = full_address + " " + self.unit();
             }
             return full_address.trim();
-        });
+        });*/
+
+        self.full_address = ko.observable("")
+
         self.zipcode = ko.observable("");
         self.city = ko.observable("");
         self.state = ko.observable("");
         self.full_address_ci_st_zip = ko.computed(function () {
-            return  self.full_address() + " " + self.city() + " " + self.state() + ", " + self.zipcode()
+            var full_address = self.house_number() + " " + self.street_name();
+            if (self.suffix() != null) {
+                full_address = full_address + " " + self.suffix();
+            }
+            if (self.direction() != null) {
+                full_address = full_address + " " + self.direction();
+            }
+            if (self.unit() != null && self.unit().length > 0) {
+                full_address = full_address + " " + self.unit();
+            }
+
+            full_address =  full_address + " " + self.city() + " " + self.state() + ", " + self.zipcode()
+
+            return full_address.trim();
+
         });
         self.carts = ko.observableArray([]);
         self.latitude = ko.observable(null);
@@ -50,6 +67,7 @@
         if (data) {
             self.id(data.info.properties.id);
             self.property_type(data.info.properties.property_type);
+            self.full_address(data.info.properties.full_address);
             self.house_number(data.info.properties.house_number);
             self.street_name(data.info.properties.street_name);
             self.unit(data.info.properties.unit);

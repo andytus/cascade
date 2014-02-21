@@ -50,6 +50,7 @@ class CartTypeSerializer(serializers.ModelSerializer, NullSerializerPatch):
 
 class AddressCartProfileSerializer(serializers.ModelSerializer, NullSerializerPatch):
     customer = CustomerInfoSerializer()
+    full_address = serializers.Field()
 
     class Meta:
         model = CollectionAddress
@@ -128,6 +129,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
     location__house_number = CleanRelatedField(source='location.house_number')
     location__street_name = CleanRelatedField(source='location.street_name')
     location__unit = serializers.RelatedField(source='location.unit')
+    location__full_address = serializers.RelatedField(source='location.full_address')
     route = CleanRelatedField(source='route.route')
     location__customer__get_absolute_url = CleanRelatedField(source='location.customer.get_absolute_url')
     location__customer__get_app_url = CleanRelatedField(source='location.customer.get_app_url')
@@ -143,7 +145,7 @@ class CartServiceTicketSerializer(serializers.ModelSerializer, NullSerializerPat
                   'serviced_cart__cart_type__name', 'expected_cart__serial_number', 'status__service_status',
                   'status__level', 'reason_code__description', 'processed', 'date_completed', 'date_created',
                   'date_processed', 'date_last_attempted', 'longitude', 'latitude', 'device_name', 'audit_status',
-                  'location__house_number', 'location__street_name', 'location__unit', 'route',
+                  'location__full_address','location__house_number', 'location__street_name', 'location__unit', 'route',
                   'location__customer__get_absolute_url', 'location__customer__get_app_url', 'cart_type__name',
                   'cart_type__size', 'created_by__username', 'updated_by__username')
 

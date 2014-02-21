@@ -6,6 +6,7 @@ body {
 
 }
 
+
 html {
     height: 100%
 }
@@ -89,6 +90,10 @@ body {
     margin-left: 20px;
     font-size: 1.5em;
     background-color: white;
+}
+
+#search-dropdown a{
+    cursor:pointer;
 }
 
 #result-header-page {

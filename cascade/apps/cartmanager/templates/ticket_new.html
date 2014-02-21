@@ -62,14 +62,11 @@
 
         <input type="text"
                data-bind="value: cart_address_search, valueUpdate: 'afterkeyup', event:{keyup: searchAddress}">
-
-
         <div data-bind="foreach: addressList" class="address-list">
-
             <label>
-
-                <input type="radio" data-bind="attr:{id: id, value: full_address, name: 'full_address' }, checked: $root.create.cart_address_search,
-                   click: function(data, event){$root.create.set_address_cart_list(data, event); return true}, clickBubble: false"/>
+                <input type="radio" data-bind="attr:{id: id, value: full_address, name: 'full_address' },
+                   checked: $root.create.cart_address_search, click: function(data, event)
+                   {$root.create.set_address_cart_list(data, event); return true}, clickBubble: false"/>
                 <span data-bind="text: full_address"></span>
 
             </label>
@@ -232,8 +229,10 @@
     var cart_address_unit = '{{ cart_address_unit }}' || null;
 
     var cart_address_street_name = '{{ cart_address_street_name }}'.replace('&#39;', "'") || null;
-
     var cart_address_house_number = '{{ cart_address_house_number }}' || null;
+    var cart_full_address = '{{ cart_full_address }}' || null;
+
+
     var ticket_id = '{{ticket_id }}' || null;
     var ticket_api = '{% url "ticket_api" %}';
     var location_api_search = "{% url "location_api_search"  %}";

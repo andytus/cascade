@@ -12,7 +12,7 @@
         self.location = ko.observable(new cartlogic.Location);
         //location information
 
-        self.street_suffix = ko.observable();
+        self.suffix = ko.observable();
         // #Deprecitated  self.suffix_defaults = new cartlogic.streetSuffix().get_abbreviated();
 
         //state and city, can use a default
@@ -128,9 +128,10 @@
 
         self.saveAddress = function () {
             data = {customer_id: self.customer().customer_id(), house_number: self.location().house_number(),
-                street_name: self.location().street_name() + " " + self.location().street_suffix(),
-                city: self.location().city(), state: self.location().state(), zipcode: self.location().zipcode(),
-                property_type: self.location().property_type(), geocode_status: self.location().geocode_status()};
+                street_name: self.location().street_name(), suffix: self.location().suffix(),
+                direction: self.location().direction(), city: self.location().city(), state: self.location().state(),
+                zipcode: self.location().zipcode(), property_type: self.location().property_type(),
+                geocode_status: self.location().geocode_status()};
 
             if (self.location().unit()) {
                 data.unit = self.location().unit()

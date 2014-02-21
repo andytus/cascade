@@ -27,7 +27,10 @@
         self.cart_house_number = ko.observable(cart_address_house_number);
         self.cart_street_name = ko.observable(cart_address_street_name);
         self.cart_unit = ko.observable(cart_address_unit);
-        self.cart_full_address = ko.computed(function () {
+        self.cart_full_address = ko.observable(cart_full_address);
+
+
+      /*  self.cart_full_address = ko.computed(function () {
             if (cart_address_house_number) {
                 var address = cart_address_house_number + " " + cart_address_street_name;
                 if (cart_address_unit) {
@@ -42,7 +45,7 @@
                     return address_unit
                 }
             }
-        });
+        });*/
 
         //select parts for repairs
         self.selected_cart_parts = ko.observableArray([]);
@@ -176,6 +179,7 @@
            self.cart_house_number(data.house_number());
            self.cart_street_name(data.street_name());
            self.cart_unit(data.unit());
+           self.cart_full_address(data.full_address());
            if (data.carts().length) {
                self.cartSerialList(data.carts());
             }

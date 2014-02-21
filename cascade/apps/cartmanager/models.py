@@ -308,6 +308,24 @@ class Address(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
+    def _full_address(self):
+        full_address = "%s %s" % (self.house_number, self.street_name)
+
+        if self.suffix:
+            full_address = full_address + " " + self.suffix
+
+        if self.direction:
+            full_address = full_address + " " + self.direction
+
+        if self.unit:
+            full_address = full_address + " " + self.unit
+
+        return full_address
+
+    full_address = property(_full_address)
+
+
+
     def get_routes(self):
         routes = []
         for route in self.route.all():
@@ -323,19 +341,7 @@ class Address(models.Model):
         return reverse('location_api_profile', args=[str(self.id)])
 
     def __unicode__(self):
-
-        full_address = "%s %s" % (self.house_number, self.street_name)
-
-        if self.unit:
-            full_address = full_address + " " + self.unit
-
-        if self.suffix:
-            full_address = full_address + " " + self.suffix
-
-        if self.direction:
-            full_address = full_address + " " + self.direction
-
-        return full_address
+        return self._full_address()
 
     class Meta:
         abstract = True
@@ -397,9 +403,10 @@ class CollectionAddress(Address):
 
     def get_info(self):
         info = {"properties": {"url": self.get_absolute_url(), "id": self.id, "property_type": self.property_type,
-                "house_number": self.house_number, "unit": self.unit, "street_name": self.street_name,
-                "suffix": self.suffix, "direction": self.direction, "city": self.city,
-                "state": self.state, "zipcode": self.zipcode, "geocode_type": self.geocode_type,
+                "full_address": self.full_address, "house_number": self.house_number,
+                "unit": self.unit, "street_name": self.street_name, "suffix": self.suffix,
+                "direction": self.direction, "city": self.city, "state": self.state,
+                "zipcode": self.zipcode, "geocode_type": self.geocode_type,
                 "geocode_status": self.geocode_status, "carts": self.location.values("id", "serial_number",
                 "cart_type__size", "cart_type__name")}, "type": "Feature", "geometry": {"type": "Point", "coordinates":
                 [float(self.latitude or 0), float(self.longitude or 0)]}, "routes": self.get_routes()}
@@ -415,9 +422,10 @@ class InventoryAddress(Address):
 
     def get_info(self):
         info = {"properties": {"url": self.get_absolute_url(),"id":self.id, "property_type": self.property_type,
-                               "house_number": self.house_number, "unit": self.unit, "street_name": self.street_name,
+                               "full_address": self.full_address, "house_number": self.house_number,
+                               "unit": self.unit, "street_name": self.street_name,
                                "suffix": self.suffix, "direction": self.direction, "city": self.city,
-                               "state":self.state, "zipcode":self.zipcode,
+                               "state": self.state, "zipcode": self.zipcode,
                                "geocode_type": self.geocode_type, "geocode_status": self.geocode_status,
                               },"type": "Feature", "geometry":
                     {"type": "Point", "coordinates": [float(self.latitude or 0), float(self.longitude or 0)]},}

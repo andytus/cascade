@@ -54,7 +54,7 @@
 
                 <input type="radio" name="address"
                        data-bind="id: id, value: full_address, checked: $root.search_address.input_address, click: $root.change_address.setAddressId">
-                <span data-bind="text: house_number() +' '+ street_name()+' '+ unit()"></span><br><br>
+                <span data-bind="text: full_address"></span><br><br>
             </label>
         </div>
     </div>

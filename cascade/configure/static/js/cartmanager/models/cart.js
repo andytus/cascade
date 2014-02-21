@@ -56,19 +56,13 @@
 
         //Checking for location information
         if (data.location) {
-            self.address = ko.observable(data.location.properties.house_number + " " + data.location.properties.street_name);
-            if (data.location.properties.unit) {
-                this.address(this.address() + " " + "Unit: " + data.location.properties.unit);
-            }
+            self.address = ko.observable(data.location.properties.full_address);
             self.latitude = ko.observable((data.location.geometry.coordinates[1]) || 0);
             self.longitude = ko.observable((data.location.geometry.coordinates[0]) || 0);
 
         } else {
 
-            self.address = ko.observable(data.inventory_location.properties.house_number + " " + data.inventory_location.properties.street_name);
-            if (data.inventory_location.properties.unit) {
-                this.address(this.address() + " " + "Unit: " + data.inventory_location.properties.unit);
-            }
+            self.address = ko.observable(data.inventory_location.properties.full_address);
             self.latitude = ko.observable((data.inventory_location.geometry.coordinates[1]) || 0);
             self.longitude = ko.observable((data.inventory_location.geometry.coordinates[0]) || 0);
         }

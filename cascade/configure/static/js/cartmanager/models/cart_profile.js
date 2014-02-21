@@ -39,20 +39,7 @@
             self.location_house_number = ko.observable(data.location.house_number);
             self.location_street_name = ko.observable(data.location.street_name);
             self.location_unit = ko.observable(data.location.unit);
-            self.location_address = ko.computed(function () {
-                address = self.location_house_number() + " " + self.location_street_name();
-                if (data.location.suffix != null) {
-                    address = address + " " + data.location.suffix;
-                }
-                if (data.location.direction != null) {
-                    address = address + " "  +data.location.direction;
-                }
-                if (self.location_unit()) {
-                    address = address + " Unit: " + self.location_unit();
-                }
-
-                return address
-            });
+            self.location_address = ko.observable(data.location.full_address);
 
             self.location_latitude = ko.observable(data.location.latitude);
             self.location_longitude = ko.observable(data.location.longitude);

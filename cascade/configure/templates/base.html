@@ -88,7 +88,7 @@
                         <form id="cart_search_form" class="navbar-form pull-left" action="{% url "cart_search" %}">
                             <input id="search_query" name="search_query" type="hidden" data-bind="value: search_query"/>
 
-                            <div class="input-append input-prepend">
+                            <div id="search-dropdown" class="input-append input-prepend">
                                 <!--Search Button Group-->
                                 <div class="btn-group">
                                     <a tabindex="1" class="btn dropdown-toggle" data-toggle="dropdown">
@@ -96,19 +96,20 @@
                                     </a>
                                     <ul class="dropdown-menu pull-left span3">
                                         <!--dropdown menu links  -->
-                                        <li><a id="serial_number" title="e.g. 9600001" data-bind="click: getSearchInfo"><i
-                                                class="icon-barcode"></i>Serial</a></li>
+                                        <li><a id="serial_number" title="e.g. 9600001" data-bind="click: getSearchInfo, clickBubble: false">
+                                            <i style="pointer-events: none;" class="icon-barcode"></i>Serial</a></li>
                                         <li><a id="address" title="e.g. 201 Market St SW"
-                                               data-bind="click: getSearchInfo"><i class="icon-home"></i>Address</a>
+                                               data-bind="click: getSearchInfo">
+                                            <i style="pointer-events: none;" class="icon-home"></i>Address</a>
                                         </li>
                                         <li><a id="size" title="e.g. 35, 64, 96" data-bind="click: getSearchInfo"><i
-                                                class="icon-trash"></i>Size</a></li>
+                                                class="icon-trash"  style="pointer-events: none;"></i>Size</a></li>
                                         <li><a id="type" title="e.g. Recycle, Refuse"
                                                data-bind="click: getSearchInfo"><i
-                                                class="icon-asterisk"></i>Type</a></li>
+                                                class="icon-asterisk"  style="pointer-events: none;"></i>Type</a></li>
                                         <li><a id="status" title="e.g. Delivered, Produced, Lost, ect.."
                                                data-bind="click: getSearchInfo"><i
-                                                class="icon-flag"></i>Status</a></li>
+                                                class="icon-flag"  style="pointer-events: none;"></i>Status</a></li>
                                     </ul>
                                     <input tabindex="2" id="cart_search_input" class="span3" type="text"
                                            placeholder="Search Carts"

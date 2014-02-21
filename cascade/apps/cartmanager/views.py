@@ -232,6 +232,7 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                     if cart.location:
                         context['cart_address_house_number'] = cart.location.house_number
                         context['cart_address_street_name'] = cart.location.street_name
+                        context['cart_full_address'] = cart.location.full_address
                         if cart.location.unit:
                             context['cart_address_unit'] = cart.location.unit
         else:

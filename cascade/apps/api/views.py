@@ -64,8 +64,7 @@ def write_pdf(template_src, context_dict, file_name):
 
 def write_kml(template_src, context_dict, file_name, agent):
     if agent.split("/")[0] != 'GoogleEarth':
-        print "not google earth"
-        # if not equal to google earth provide the login link
+       # if not equal to google earth provide the login link
         template_src = 'kml/login_network_link.kml'
 
     template = loader.get_template(template_src)
@@ -304,6 +303,8 @@ class LocationAPI(APIView):
                 route_list = json_data.get('routes', None)
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
+                direction = json_data.get('direction', None)
+                suffix = json_data.get('suffix', None)
                 unit = json_data.get('unit', None)
                 zipcode = json_data.get('zipcode', None)
                 property_type = json_data.get('property_type', None)
@@ -319,9 +320,12 @@ class LocationAPI(APIView):
                                              geocode_status=geocode_status, customer=customer)
                 if unit:
                     location.unit = unit.strip()
+                if suffix:
+                    location.suffix = suffix.strip()
+                if direction:
+                    location.direction = direction.strip()
 
                 location.save()
-                print location.customer
 
                 #add routes
                 if route_list:
@@ -528,7 +532,6 @@ class TicketAPI(APIView):
                 street_name = json_data.get('street_name', None)
                 unit = json_data.get('address_unit', None)
                 service_charge = json_data.get('service_charge', 0.00)
-
                 #excepts both location id and address for the Collection Address
                 #client built for address information, we want this flexibility as I may not know the address_id
                 if location_id:
@@ -562,7 +565,6 @@ class TicketAPI(APIView):
                     route = None
 
                 #If we have an expected cart serial number it is a remove, exchange, repair or audit
-                #TODO put repair or audits in here
                 if expected_cart_serial_number:
                     expected_cart = Cart.on_site.get(serial_number=expected_cart_serial_number)
                     remove_or_repair_ticket = Ticket(created_by=request.user, location=location,
@@ -624,7 +626,6 @@ class TicketAPI(APIView):
                         exchange_del_ticket.route = route
 
                     exchange_del_ticket.save()
-
 
                 return RestResponse({'details': {
                     'message': 'Success! New %s Ticket(s) created for %s' % (requested_service_type, location),

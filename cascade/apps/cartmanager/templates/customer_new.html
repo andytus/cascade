@@ -143,12 +143,16 @@
             <!-- Text input-->
             <div class="control-group">
 
-                <label class="control-label">Street suffix\Unit: </label>
+                <label class="control-label">Suffix\Direction\Unit: </label>
 
                 <div class="controls form-inline">
-                    <input id="street_suffix" name="street_suffix" class="typeahead input-mini"
+                    <input id="suffix" name="suffix" class="input-mini"
                            type="text" placeholder="(i.e. AVE)"
                            data-bind="value: suffix" data-modal="true"/>
+
+                   <input id="direction" name="direction" type="text"
+                    placeholder="SW" data-bind="value: direction" class="input-mini">
+
                     <input id="unit" name="unit" type="text"
                     placeholder="APT 4" data-bind="value: unit" class="input-small">
                     <br>

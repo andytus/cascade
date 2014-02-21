@@ -34,6 +34,7 @@ function Ticket(data) {
 
 
     //location of ticket
+    self.location_address = ko.observable();
     self.location__house_number = ko.observable();
     self.location__street_name = ko.observable();
     self.location__unit = ko.observable();
@@ -88,13 +89,7 @@ function Ticket(data) {
         self.location__house_number(data.location__house_number);
         self.location__street_name(data.location__street_name);
         self.location__unit(data.location__unit);
-        self.location_address = ko.computed(function () {
-            var address = self.location__house_number() + " " + self.location__street_name();
-            if (self.location__unit()) {
-                address = address + " Unit: " + self.location__unit();
-            }
-            return address;
-        });
+        self.location_address(data.location__full_address);
         self.location__customer__get_app_url(data.location__customer__get_app_url);
 
         self.serviced_cart__serial_number(data.serviced_cart__serial_number);
