@@ -22,7 +22,7 @@ AWS_ACCESS_KEY_ID = os.environ['AWS_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET']
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_BUCKET']  #adding storage location from environmental variable
 #AWS_PRELOAD_METADATA = True
-#AWS_QUERYSTRING_AUTH = False
+AWS_QUERYSTRING_AUTH = False
 STATIC_URL = "http://%s.s3-website-us-east-1.amazonaws.com/" % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
