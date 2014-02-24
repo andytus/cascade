@@ -20,14 +20,6 @@ RQ_QUEUES = {
         }
 }
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'redis_cache.cache.RedisCache',
-#         'LOCATION': 'localhost:6379',
-#         'OPTIONS': {'DB': 0},
-#     }
-#
-# }
 
 CACHES = {
     'default': {

@@ -4,6 +4,7 @@ __author__ = 'jbennett'
 import os
 from django.conf import global_settings as settings
 
+
 ROOT_DIR = os.path.dirname(__file__)
 
 REPORT_BUILDER_MODEL_MANAGER = 'on_site'
@@ -20,16 +21,14 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-
     ),
 
        'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-
    ),
 }
-#import rest_framework.permissions
 
+#import rest_framework.permissions
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
     ('Joe', 'joe.bennett@cascadeng.com'),
@@ -182,6 +181,7 @@ INSTALLED_APPS = (
     'userena',
     'guardian',
     'easy_thumbnails',
+    'djcelery',
     'cascade.apps.report_builder',
     'cascade.apps.accounts',
     'cascade.apps.api',
@@ -503,3 +503,7 @@ AUTH_PROFILE_MODULE = 'accounts.Profile'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+#celery settings
+BROKER_URL = os.environ.get('CLOUDAMQP_URL', 'amqp://guest:guest@localhost//')
+CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'

@@ -19,7 +19,7 @@ from django import forms
 import datetime
 import inspect
 import copy
-from django_rq import enqueue
+from cascade.apps.report_builder.tasks import task_generate_report, task_generate_all_reports
 
 
 class ReportForm(forms.ModelForm):
@@ -467,7 +467,8 @@ def export_to_report(request):
 @staff_member_required
 def generate_reports_admin(request, pk):
     report = Report.objects.get(pk=pk)
-    enqueue(func=report.generate_report_sites, args=(request.user,), timeout=50000)
+    task_generate_all_reports.delay(request.user)
+    #enqueue(func=report.generate_report_sites, args=(request.user,), timeout=50000)
     return redirect('/admin/report_builder/report/')
 
 
@@ -476,10 +477,13 @@ def generate_report(request, pk):
     generate = request.GET['generate']
     site = get_current_site(request)
     report_file = report.report_file.get(site=site, file_extension='xlsx')
+    #number = mul.delay(2, 8)
+    #print number
     if generate == 'true':
         report_file.update_in_progress = 'Yes'
         report_file.save()
-        enqueue(func=report.generate_report, args=(request.user, site), timeout=5000)
+        task_generate_report.delay(int(pk), request.user, site)
+        #enqueue(func=report.generate_report, args=(request.user, site), timeout=5000)
 
     return HttpResponse(simplejson.dumps({'last_generated':report_file.last_generated.strftime('%Y-%m-%d %H:%M'),
                                           'update_in_progress': report_file.update_in_progress

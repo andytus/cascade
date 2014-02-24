@@ -881,7 +881,9 @@ class FileUploadAPI(APIView):
             upload_file.uploaded_by = self.request.user
             upload_file.save()
             #Here the records are processed
-            enqueue(func=process_upload_records, args=(model_type, upload_file.id), timeout=50000)
+            from tasks import task_upload_records
+            task_upload_records.delay(model_type, upload_file.id)
+            #enqueue(func=process_upload_records, args=(model_type, upload_file.id), timeout=50000)
             return RestResponse({'details': {'message': "Saved %s" % file_type,
                                                               'file_id': upload_file.id, 'message_type': 'Success'}},
                                 status=django_rest_status.HTTP_200_OK)

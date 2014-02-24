@@ -8,6 +8,7 @@ from cascade.apps.report_builder.models import Report, Format, ReportFiles
 from django.conf import settings
 from cascade.libs.admin import SiteAdmin
 from django.utils.safestring import mark_safe
+from tasks import task_generate_all_reports
 from django_rq import enqueue
 
 static_url = getattr(settings, 'STATIC_URL', '/static/')
@@ -41,7 +42,8 @@ class ReportAdmin(SiteAdmin):
 
     def generate_reports_action(self, request, queryset):
         for obj in queryset:
-            enqueue(func=obj.generate_report_sites, args=(request.user,), timeout=50000)
+            task_generate_all_reports.delay(obj, request.user)
+            #enqueue(func=obj.generate_report_sites, args=(request.user,), timeout=50000)
         self.message_user(request, "Generating reports now: (may take a while depending on amount of data and sites)")
     generate_reports_action.short_description = "Generate reports for all sites"
 
