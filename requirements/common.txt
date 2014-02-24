@@ -34,5 +34,5 @@ easy_thumbnails==1.4
 openpyxl==1.8.1
 docutils==0.11
 waitress==0.8.8
-celery=3.1.9
-django-celery=3.1.9
+celery==3.1.9
+django-celery==3.1.9
