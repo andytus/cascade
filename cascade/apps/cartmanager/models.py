@@ -112,7 +112,7 @@ class AdminDefaults(models.Model):
 
 
 class ZipCodes(models.Model):
-    zipcode = models.CharField(max_length=5)
+    zipcode = models.CharField(max_length=10)
     plus_four = models.CharField(max_length=4, null=True, blank=True)
     defaults = models.ForeignKey(AdminDefaults, related_name='default_zipcodes', blank=True, null=True)
 
@@ -283,6 +283,13 @@ class Address(models.Model):
     #Over ride defaults with instance applications.
     CITY = "NA"
     ST = "NA"
+    PROPERTY_TYPES = (
+                      ('Residential', 'Residential'),
+                      ('Business', 'Business'),
+                      ('Unoccupied', 'Unoccupied'),
+                      ('Vacant Lot', 'Vacant Lot'),
+                      ('Multi-Use', 'Multi-Use'),
+                     )
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
     suffix = models.CharField(max_length=8, null=True, blank=True)
@@ -295,12 +302,8 @@ class Address(models.Model):
     longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     geocode_status = models.CharField(max_length=20, null=True, blank=True)
     geocode_type = models.CharField(max_length=20, null=True, blank=True)
-    property_type = models.CharField(max_length=25, null=True, choices=(('Residential', 'Residential'),
-                                                                        ('Business', 'Business'),
-                                                                        ('Unoccupied', 'Unoccupied'),
-                                                                        ('Vacant Lot', 'Vacant Lot'),
-                                                                        ('Multi-Use', 'Multi-Use'),
-                                                                        ))
+    property_type = models.CharField(max_length=25, null=True, blank=True,
+                                     choices=PROPERTY_TYPES, default=PROPERTY_TYPES[0][0])
     route = models.ManyToManyField(Route, null=True, blank=True)
 
     #model managers:
@@ -346,7 +349,7 @@ class Address(models.Model):
     class Meta:
         abstract = True
         #Do not want to add a new address that already exist
-        unique_together = (('house_number', 'street_name', 'unit'))
+        unique_together = (('house_number', 'street_name', 'unit', 'direction', 'suffix'))
 
 
 class CollectionCustomer(models.Model):

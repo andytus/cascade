@@ -22,11 +22,14 @@ def save_error(e, line, site):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), (str(value)))
     Site.objects.clear_cache()
-    error = DataErrors(error_message=error_message, error_type=e.__class__.__name__,
-                       failed_data=line, site=site)
     logger.error("Error Message: %s, Error Type: %s, Failed Data: %s, Site: %s" % (error_message, e.__class__.__name__,
-                                                                                   line, site))
-    error.save()
+                                                                                  line, site))
+    try:
+        error = DataErrors(error_message=error_message, error_type=e.__class__.__name__,
+                           failed_data=line, site=site)
+        error.save()
+    except DataErrors as e:
+        logger.error("%s : error when attempting to save record error" % e)
 
 
 def save_cart_records(line, file_record):
@@ -226,48 +229,51 @@ def save_customer_records(line, file_record):
         collection_address = CollectionAddress(site=file_record.site, customer=customer,
                                                house_number=house_number.strip(),
                                                street_name=street_name.strip().upper(), unit=unit.strip(),
-                                               street_direction=street_direction.strip().upper(),
+                                               direction=street_direction.strip().upper(),
                                                suffix=suffix.strip().upper(), city=city, zipcode=zipcode, state=state,
-                                               latitude=latitude, longitude=longitude, property_type=property_type)
+                                               latitude=latitude, longitude=longitude,
+                                               )
+        if property_type:
+            collection_address.property_type = property_type
 
         collection_address.full_clean()
         collection_address.save()
-
-        add_zipcode, created = ZipCodes.on_site.get_or_create(zipcode=zipcode,
-                                                              defaults=AdminDefaults.objects.get(site=file_record.site))
+        add_zipcode, created = ZipCodes.objects.get_or_create(zipcode=zipcode, site=file_record.site)
         if created:
-            print "Added Zipcode: %s" % add_zipcode
-
+            logger.info("***zipcode***")
+            admin_defaults = AdminDefaults.on_site.get(site=file_record.site)
+            add_zipcode.defaults = admin_defaults
+            add_zipcode.save()
+            logger.info("Added Zipcode: %s" % add_zipcode)
 
         # systemid should be zero as default if not used
         # saves ForeignSystemCustomerID and assigns to customer, customer can have multiple ids but id can not
         # belong to multiple customers
         if systemid:
+            logger("system id test...")
             new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer,
                                                             system_name=system_name, site=file_record.site)
             new_foreign_system_id.save()
-
-
 
         refuse_address_route = None
         recycle_address_route = None
         yard_organics_address_route = None
 
-        if refuse_route != 'Null':
+        if refuse_route:
 
             refuse_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=refuse_route,
                                                                         route_day=refuse_route_day,
                                                                         defaults={'route_type': 'Refuse'})
             collection_address.route.add(refuse_address_route)
 
-        if recycle_route != 'Null':
+        if recycle_route:
 
             recycle_address_route, created = Route.on_site.get_or_create(site=file_record.site, route=recycle_route,
                                                                          route_day=recycle_route_day,
                                                                          defaults={'route_type': 'Recycle'})
             collection_address.route.add(recycle_address_route)
 
-        if yard_organics_route != 'Null':
+        if yard_organics_route:
 
             yard_organics_address_route, created = Route.on_site.get_or_create(site=file_record.site,
                                                                                route=yard_organics_route,
@@ -290,6 +296,7 @@ def save_customer_records(line, file_record):
                 t.save()
 
         if recycle.isdigit():
+
             for x in range(int(recycle)):
                 t = Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Recycle", size=int(recycle_size))
                            , service_type=delivery, location=collection_address, status=requested, created_by=user)
@@ -316,7 +323,7 @@ def save_customer_records(line, file_record):
 
         file_record.num_good += 1
 
-    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist, DataErrors) as e:
         file_record.status = "FAILED"
         logger.error(e)
         file_record.num_error += 1

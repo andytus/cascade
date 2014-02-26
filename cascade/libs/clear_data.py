@@ -49,11 +49,16 @@ class RemoveData:
     def remove_uploaded_files(self):
         c = CustomersUploadFile.objects.filter(site=self.site)
         t = TicketsCompleteUploadFile.objects.filter(site=self.site)
-        r = RouteUploadFile.objects.objects.filter(site=self.site)
-        ca = CartsUploadFile.objects.objects.filter(site=self.site)
+        r = RouteUploadFile.objects.filter(site=self.site)
+        ca = CartsUploadFile.objects.filter(site=self.site)
         print "Deleting %s customer, %s tickets, %s routes, %s and cart upload files" % (c.count(),
                                                                                          t.count(), r.count(),
-                                                                                     ca.count())
+                                                                                          ca.count())
+        c.delete()
+        t.delete()
+        r.delete()
+        ca.delete()
+
     def remove_zipcodes(self):
         z = ZipCodes.objects.filter(site=self.site)
         print "Deleting: %s zipcodes" % z.count()
