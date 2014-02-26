@@ -257,7 +257,7 @@ def save_customer_records(line, file_record):
         # saves ForeignSystemCustomerID and assigns to customer, customer can have multiple ids but id can not
         # belong to multiple customers
         if systemid:
-            logger("system id test...")
+            logger.info("system id test...")
             new_foreign_system_id = ForeignSystemCustomerID(identity=systemid, customer=customer,
                                                             system_name=system_name, site=file_record.site)
             new_foreign_system_id.save()
