@@ -218,8 +218,15 @@ def save_customer_records(line, file_record):
         unassigned_size, refuse_route, refuse_route_day, recycle_route, recycle_route_day, \
         yard_organics_route, yard_organics_route_day = line.split(',')
 
-        customer = CollectionCustomer(site=file_record.site, first_name=first_name[:25].upper(),
-                                      last_name=last_name[:50].upper(), email=email.strip(), phone_number=phone)
+        customer = CollectionCustomer(site=file_record.site)
+        if first_name:
+            customer.first_name = first_name[:25].upper()
+        if last_name:
+            customer.last_name = last_name[:50].upper()
+        if email:
+            customer.email = email.strip()
+        if phone:
+            customer.phone_number = phone
 
         #full_clean checks for the correct data
         customer.full_clean()
