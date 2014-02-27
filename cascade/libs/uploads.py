@@ -109,8 +109,9 @@ def save_ticket_records(line, file_record):
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
                             updated_by=file_record.uploaded_by)
             cart.save()
-        else:
-            raise ValidationError(message="RFID: %s is not valid" % rfid)
+        #else:
+            #pass
+            #raise ValidationError(message="RFID: %s is not valid" % rfid)
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
@@ -125,7 +126,7 @@ def save_ticket_records(line, file_record):
 
             if upload_ticket_status.split("-")[0] == "UNSUCCESSFUL":
                 if "-" in upload_ticket_status:
-                    ticket.reason_codes = ServiceReasonCodes.objects.get(description=upload_ticket_status.split("-")[1])
+                    ticket.reason_codes = ServiceReasonCodes.objects.get(code=upload_ticket_status.split("-")[1])
                 file_record.unsuccessful += 1
                 ticket.success_attempts += 1
                 ticket.date_last_attempted = datetime.strptime(complete_datetime.strip(), time_format)
