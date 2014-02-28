@@ -255,7 +255,7 @@ class TicketSearchAPI(ListAPIView):
             header = {}
             if self.report_type == 'service_tickets':
                 #using OrderedDict to maintain column order
-                header = OrderedDict([('id','ID'), ('location.street_name', 'Street Name'),
+                header = OrderedDict([('id','ID'), ('location.full_address', 'Street Name'),
                                       ('location.house_number', 'House Number'), ('location.unit', 'Unit'),
                                       ('service_type.code', 'Service'),('expected_cart.rfid', 'RFID'), ('cart_type.size', 'Cart Size'),
                                       ('cart_type.name', 'Cart Type')])
