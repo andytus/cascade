@@ -27,7 +27,7 @@ CACHES = {
     }
 }
 
-INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar', )
 
 
 PIPELINE_ENABLED = False

@@ -17,26 +17,19 @@ urlpatterns = patterns('',
 
                        (r'^api/', include('cascade.apps.api.urls')),
 
-                      #url(r'^api/docs/', include('rest_framework_swagger.urls')),
+                       url(r'^api/docs/', include('rest_framework_swagger.urls')),
 
                        url(r'^about/', TemplateView.as_view(template_name="about.html")),
-
                        url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
                        url(r'^admin/', include(admin.site.urls)),
-
-
                        url(r'^accounts/(?P<username>[\.\w-]+)/edit/$',
                            'userena.views.profile_edit',
                            {'edit_profile_form': CustomEditProfileForm},
                            name='userena_profile_edit'),
 
                        (r'^accounts/', include('userena.urls')),
-
                        url(r'^report_builder/', include('cascade.apps.report_builder.urls')),
-
                        url(r'^api/token/$', 'rest_framework.authtoken.views.obtain_auth_token'),
-
 
                        # url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
                        #
@@ -45,7 +38,6 @@ urlpatterns = patterns('',
                        # url(r'^accounts/register/$', 'cascade.libs.views.register_user'),
                        #
                        # url(r'^accounts/register/success/$', 'cascade.libs.views.register_success'),
-
 )
 
 urlpatterns += patterns('',
