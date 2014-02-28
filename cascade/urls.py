@@ -17,6 +17,8 @@ urlpatterns = patterns('',
 
                        (r'^api/', include('cascade.apps.api.urls')),
 
+                       url(r'^api/docs/', include('rest_framework_swagger.urls')),
+
                        url(r'^about/', TemplateView.as_view(template_name="about.html")),
 
                        url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
