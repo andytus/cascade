@@ -262,7 +262,7 @@ class TicketSearchAPI(ListAPIView):
 
             elif self.report_type == 'service_charges':
                 header = OrderedDict([('id', 'ID'), ('charge', 'Charge'), ('location.house_number', 'House Number'),
-                                      ('location.street_name', 'Street Name'), ('location.unit', 'Unit'),
+                                      ('location.full_address', 'Street Name'), ('location.unit', 'Unit'),
                                       ('service_type.service', 'Service Type'), ('serviced_cart.rfid', 'Serviced Cart'),
                                       ('expected_cart.rfid','Expected Cart'), ('cart_type.name', 'Cart Type'),
                                       ('cart_type.size', 'Cart Size'), ('date_completed', 'Date Completed'),
