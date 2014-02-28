@@ -312,16 +312,13 @@ class Address(models.Model):
     on_site = CurrentSiteManager()
 
     def _full_street(self):
-        full_street = "%s %s" % (self.house_number, self.street_name)
+        full_street = self.street_name
 
         if self.suffix:
             full_street = full_street + " " + self.suffix
 
         if self.direction:
             full_street = full_street + " " + self.direction
-
-        if self.unit:
-            full_street = full_street + " " + self.unit
 
         return full_street
 
