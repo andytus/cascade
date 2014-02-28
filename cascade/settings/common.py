@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     'django_rq',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_swagger',
     'south',
     'pipeline',
     'storages',
