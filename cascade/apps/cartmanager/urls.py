@@ -36,7 +36,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
                            cache_page(60 * 3)(LocationSearch.as_view()), name='location_app_search'),
 
                        url(r'^upload/files/$',
-                           cache_page(60 * 3)(FileUploadListView.as_view()), name='upload_file_list'),
+                           (FileUploadListView.as_view()), name='upload_file_list'),
 
                        url(r'^tickets/download/$',
                            TicketReport.as_view(), name='ticket_app_report'),
