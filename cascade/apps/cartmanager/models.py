@@ -311,6 +311,23 @@ class Address(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
+    def _full_street(self):
+        full_street = "%s %s" % (self.house_number, self.street_name)
+
+        if self.suffix:
+            full_street = full_street + " " + self.suffix
+
+        if self.direction:
+            full_street = full_street + " " + self.direction
+
+        if self.unit:
+            full_street = full_street + " " + self.unit
+
+        return full_street
+
+    full_street = property(_full_street)
+
+
     def _full_address(self):
         full_address = "%s %s" % (self.house_number, self.street_name)
 
@@ -326,7 +343,6 @@ class Address(models.Model):
         return full_address
 
     full_address = property(_full_address)
-
 
 
     def get_routes(self):
