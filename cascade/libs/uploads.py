@@ -108,7 +108,7 @@ def save_ticket_records(line, file_record):
                             serial_number=clean_rfid,  #rfid.strip('=').strip('"')[-12:],
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
                             updated_by=file_record.uploaded_by,
-                            current_status=CartStatus.onsite.get(label='Inventory'))
+                            current_status=CartStatus.on_site.get(label='Inventory'))
             cart.save()
         #else:
             #pass
