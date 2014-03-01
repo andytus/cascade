@@ -468,8 +468,7 @@ class Cart(models.Model):
     last_longitude = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     rfid = models.CharField(max_length=30, unique=True)
     serial_number = models.CharField(max_length=30, null=False, blank=False, unique=True)
-    current_status = models.ForeignKey(CartStatus, null=True, blank=True,
-                                       default=CartStatus.objects.get(label='Inventory'))
+    current_status = models.ForeignKey(CartStatus, null=True, blank=True)
     cart_type = models.ForeignKey(CartType, null=True, blank=True, default=1)
     last_updated = models.DateTimeField(auto_now=datetime.now)
     born_date = models.DateTimeField(null=True, blank=True)
