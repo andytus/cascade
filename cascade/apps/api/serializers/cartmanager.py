@@ -10,8 +10,6 @@ class CartLocationCustomerField(serializers.Field):
         else:
             return value.customer.get_info()
 
-
-
 class CustomerInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
     info = serializers.Field('get_info')
 
@@ -26,7 +24,6 @@ class LocationInfoSerializer(serializers.ModelSerializer, NullSerializerPatch):
         exclude = ('site',)
         fields = ('info',)
         ############################################
-
 
 class CartServiceChargeSerializer(serializers.ModelSerializer, NullSerializerPatch):
     class Meta:

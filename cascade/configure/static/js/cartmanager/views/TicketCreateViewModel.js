@@ -26,28 +26,11 @@
         //address info to send to the server
         self.cart_house_number = ko.observable(cart_address_house_number);
         self.cart_street_name = ko.observable(cart_address_street_name);
+       // self.cart_street_suffix = ko.observable(cart_address_suffix);
+       // self.cart_street_direction = ko.observable(cart_address_direction);
         self.cart_unit = ko.observable(cart_address_unit);
         self.cart_full_address = ko.observable(cart_full_address);
 
-
-      /*  self.cart_full_address = ko.computed(function () {
-            if (cart_address_house_number) {
-                var address = cart_address_house_number + " " + cart_address_street_name;
-                if (cart_address_unit) {
-                    address = address + " " + cart_address_unit;
-                }
-                return address
-
-            } else {
-                var address_unit = self.cart_house_number() + " " + self.cart_street_name();
-                if (self.cart_unit) {
-                    address_unit = address_unit + " " + self.cart_unit();
-                    return address_unit
-                }
-            }
-        });*/
-
-        //select parts for repairs
         self.selected_cart_parts = ko.observableArray([]);
 
         self.addressList = ko.observableArray([]);
@@ -179,6 +162,8 @@
            self.cart_house_number(data.house_number());
            self.cart_street_name(data.street_name());
            self.cart_unit(data.unit());
+          // self.cart_street_direction(data.direction());
+          // self.cart_street_suffix(data.suffix());
            self.cart_full_address(data.full_address());
            if (data.carts().length) {
                self.cartSerialList(data.carts());
@@ -313,6 +298,14 @@
                 data.address_unit = self.cart_unit();
             }
 
+/*            if (self.cart_street_suffix() && self.cart_street_suffix() != " "){
+                data.street_suffix = self.cart_street_suffix();
+            }*/
+
+/*            if (self.cart_street_direction() && self.cart_street_direction() != " "){
+                data.street_direction = self.cart_street_direction();
+            }*/
+
             if (self.service_type() == 'Delivery' || self.service_type() == 'Exchange') {
                 data.cart_size = self.cart_size();
                 data.cart_type = self.cart_type();
@@ -320,7 +313,6 @@
 
             if (self.service_type() != 'Delivery') {
                 data.cart_serial_number = self.cart_serial_number();
-
             }
 
             if (self.service_type() != 0.00) {

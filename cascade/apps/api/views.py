@@ -2,7 +2,6 @@
 # CartManager API VIEWS: Used to render, create and update content to applications                                   #
 ######################################################################################################################
 
-import csv
 from datetime import datetime, timedelta
 import cStringIO as StringIO
 
@@ -530,6 +529,8 @@ class TicketAPI(APIView):
                 location_id = json_data.get('location_id', None)
                 house_number = json_data.get('house_number', None)
                 street_name = json_data.get('street_name', None)
+                #suffix = json_data.get('street_suffix', None)
+                #direction = json_data.get('street_direction', None)
                 unit = json_data.get('address_unit', None)
                 service_charge = json_data.get('service_charge', 0.00)
                 #excepts both location id and address for the Collection Address
@@ -543,9 +544,9 @@ class TicketAPI(APIView):
                         location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name,
                                                                  unit=unit)
                     else:
-                        #ok no unit so just get the address using the house number and street name
-                        location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name)
-
+                            #no suffix just get the address from house number and street name
+                            location = CollectionAddress.on_site.get(house_number=house_number, street_name=street_name,
+                                                                     )
                 else:
                     return RestResponse({"details": {'message': "No address information given",
                                         'message_type': 'Failed'},

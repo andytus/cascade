@@ -29,7 +29,6 @@ function CartSearchViewModel() {
         self.search_type(event.target.id);
         // Just clearing the value of the search input and changing the placeholder of the text to help the user.
         self.search_placeholder(event.target.title);
-        $()
      };
 
   }

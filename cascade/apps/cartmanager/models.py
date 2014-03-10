@@ -311,6 +311,8 @@ class Address(models.Model):
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
+    #full_street = models.CharField(max_length=200)
+
     def _full_street(self):
         full_street = self.street_name
 
@@ -322,17 +324,8 @@ class Address(models.Model):
 
         return full_street
 
-    full_street = property(_full_street)
-
-
     def _full_address(self):
         full_address = "%s %s" % (self.house_number, self.street_name)
-
-        if self.suffix:
-            full_address = full_address + " " + self.suffix
-
-        if self.direction:
-            full_address = full_address + " " + self.direction
 
         if self.unit:
             full_address = full_address + " " + self.unit
@@ -341,6 +334,9 @@ class Address(models.Model):
 
     full_address = property(_full_address)
 
+    def save(self, *args, **kwargs):
+        self.street_name = self._full_street()
+        super(Address, self).save(*args, **kwargs)
 
     def get_routes(self):
         routes = []
@@ -527,6 +523,8 @@ class Ticket(models.Model):
     audit_status = models.CharField(max_length=15, null=True, blank=True, choices=AUDIT_STATUS)
     reason_codes = models.ForeignKey(ServiceReasonCodes, null=True, blank=True)
     processed = models.BooleanField(default=False)
+    created_online = models.BooleanField(default=True)
+
     file_upload = models.ForeignKey(TicketsCompleteUploadFile, null=True, blank=True,
                                     related_name="tickets_upload_file")
 
@@ -585,7 +583,6 @@ class DataErrors(models.Model):
     def __unicode__(self):
         return "%s, %s" % (self.error_date, self.error_message)
 
-
 class TicketsCompletedUploadFileForm(forms.Form):
     ticket_file = forms.FileField()
     process = forms.BooleanField(label="Process Records", initial=True,  required=False)
@@ -604,8 +601,3 @@ class CustomerUploadFileForm(forms.Form):
 class RouteUploadForm(forms.Form):
     route_file = forms.FileField()
     process = forms.BooleanField(label="Process Records", initial=True, required=False)
-
-
-
-
-

@@ -39,12 +39,12 @@
         self.state = ko.observable("");
         self.full_address_ci_st_zip = ko.computed(function () {
             var full_address = self.house_number() + " " + self.street_name();
-            if (self.suffix() != null) {
+/*            if (self.suffix() != null) {
                 full_address = full_address + " " + self.suffix();
             }
             if (self.direction() != null) {
                 full_address = full_address + " " + self.direction();
-            }
+            }*/
             if (self.unit() != null && self.unit().length > 0) {
                 full_address = full_address + " " + self.unit();
             }

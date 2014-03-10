@@ -235,6 +235,11 @@ class TicketNew(LoginSiteRequiredMixin, TemplateView):
                         context['cart_full_address'] = cart.location.full_address
                         if cart.location.unit:
                             context['cart_address_unit'] = cart.location.unit
+                        if cart.location.suffix:
+                            context['cart_address_suffix'] = cart.location.suffix
+                        if cart.location.direction:
+                            context['cart_address_direction'] = cart.location.direction
+
         else:
             raise Http404
         return context

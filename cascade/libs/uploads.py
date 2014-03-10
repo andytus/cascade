@@ -16,6 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
 def save_error(e, line, site):
     error_message = ""
     if hasattr(e, 'message_dict'):
@@ -30,7 +31,6 @@ def save_error(e, line, site):
         error.save()
     except DataErrors as e:
         logger.error("%s : error when attempting to save record error" % e)
-
 
 def save_cart_records(line, file_record):
     try:
@@ -87,16 +87,54 @@ def save_ticket_records(line, file_record):
         # TODO Change names to actual headers: SystemID,StreetName,HouseNumber,UnitNumber,ServiceType,
         # TODO..  RFID, ContainerSize, ContainerType, TicketStatus, DateTime, UserName, Latitude, Longitude,
         # TODO.. BrokenComponent, Comments
-        # TODO.. Process ADHOC
+
         system_id, street, house_number, unit_number, service_type, rfid, container_size, container_type, \
             upload_ticket_status, complete_datetime, device_name, lat, lon, broken_component, comment = line.split(',')
-
-        ticket = Ticket.on_site.get(pk=system_id)
-         #matches time as 11/1/2012 15:20
+                 #matches time as 11/1/2012 15:20
         time_format = '%m/%d/%Y %H:%M:%S'
+        time_stamp = datetime.strptime(complete_datetime.strip(), time_format)
+        if 'AD' in system_id:
+            logger.info("IN ADD")
+            #TODO check gun serial and timestamp before creating this ticket
+            #TODO ... need to do a try except must have a location first ... could get locaiton first too.
+
+            if unit_number.strip():
+                logger.info("*** IN UNIT ***")
+                #check by address and unit
+                location, address_created = CollectionAddress.objects.get_or_create(house_number=house_number,
+                                                                                    street_name=street,
+                                                                                    site=file_record.site,
+                                                                                    unit=unit_number)
+            else:
+                logger.info("*** IN ADDRESS ***")
+                #check by address
+                location, address_created = CollectionAddress.objects.get_or_create(house_number=house_number,
+                                                                                    site=file_record.site,
+                                                                                    street_name=street)
+            if address_created:
+                #If we created a collection address then
+                #No customer for this address ...add a generic one.
+                customer = CollectionCustomer(site=file_record.site)
+                customer.save()
+                customer.customer_location.add(location)
+
+            ticket, ticket_created = Ticket.objects.get_or_create(site=file_record.site, date_completed=time_stamp,
+                                                                  location=location, created_online=False)
+            #Add the created information
+            if ticket_created:
+                logger.info("IN CREATED TICKET")
+                logger.info("Ticket Created %s" % ticket_created)
+                ticket.cart_type = CartType.on_site.get(name=container_type, size=int(container_size))
+                ticket.service_type = CartServiceType.on_site.get(site=file_record.site, code=service_type)
+                ticket.status = TicketStatus.on_site.get(site=file_record.site, service_status="Requested")
+                ticket.created_by = file_record.uploaded_by
+                ticket.save()
+        else:
+            logger.info("IN SELECT TICKET")
+            ticket = Ticket.on_site.get(pk=system_id)
+
 
         #get or create cart
-        #len check to remove ADHOC or other errors
         if len(rfid) > 4:
             try:
                 clean_rfid = rfid.strip('=').strip('"')
@@ -110,9 +148,6 @@ def save_ticket_records(line, file_record):
                             updated_by=file_record.uploaded_by,
                             current_status=CartStatus.on_site.get(label='Inventory'))
             cart.save()
-        #else:
-            #pass
-            #raise ValidationError(message="RFID: %s is not valid" % rfid)
 
         # check for status uploaded or complete, because you don't want to over write already completed tickets.
         if ticket.status.service_status != 'Completed':
@@ -165,6 +200,9 @@ def save_ticket_records(line, file_record):
                         #TODO need the ability to fix multiple parts (i.e.for loop)
                         part = CartParts.on_site.get(name=str(broken_component))
                         ticket.damaged_parts.add(part)
+                        #if not created online then add expected cart for "offline" ticket
+                        if not ticket.created_online:
+                            ticket.expected_cart = ticket.serviced_cart
                         # check to see if the expected cart is not the same as the serviced cart
                         # this means the expected cart was removed and should be placed in inventory
                         if ticket.expected_cart != ticket.serviced_cart:
@@ -175,6 +213,10 @@ def save_ticket_records(line, file_record):
                             ticket.expected_cart.last_longitude = ticket.expected_cart.inventory_location.longitude
 
                 elif ticket.service_type.code == "EX-REM" or ticket.service_type.code == "REM":
+                    #if not created online then add expected cart for "offline" ticket
+                    if not ticket.created_online:
+                        ticket.expected_cart = ticket.serviced_cart
+
                     # check to see if the expected cart is the same as the serviced cart
                     if ticket.expected_cart == ticket.serviced_cart:
                         # check to see if the removed cart is still at the ticket location before removing
