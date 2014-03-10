@@ -120,19 +120,23 @@ def save_ticket_records(line, file_record):
 
             ticket, ticket_created = Ticket.objects.get_or_create(site=file_record.site, date_completed=time_stamp,
                                                                   location=location, created_online=False)
+
+            logger.info("Ticket Created %s, %s" % (ticket_created, ticket.id))
+
             #Add the created information
             if ticket_created:
                 logger.info("IN CREATED TICKET")
-                logger.info("Ticket Created %s" % ticket_created)
-                ticket.cart_type = CartType.on_site.get(name=container_type, size=int(container_size))
                 ticket.service_type = CartServiceType.on_site.get(site=file_record.site, code=service_type)
                 ticket.status = TicketStatus.on_site.get(site=file_record.site, service_status="Requested")
+                #check if ADD ticket provided a container type && size
+                if container_type.strip() and container_size.strip():
+                    ticket.cart_type = CartType.on_site.get(name=container_type, size=int(container_size))
                 ticket.created_by = file_record.uploaded_by
                 ticket.save()
+                logger.info("Created Ticket id: %s" % ticket.id)
         else:
             logger.info("IN SELECT TICKET")
             ticket = Ticket.on_site.get(pk=system_id)
-
 
         #get or create cart
         if len(rfid) > 4:

@@ -48,8 +48,8 @@ class TicketAdmin(admin.ModelAdmin):
     search_fields = ['serviced_cart__serial_number', 'serviced_cart__rfid',
                      'expected_cart__serial_number', 'expected_cart__rfid',
                      'location__street_name', 'location__house_number']
-    list_filter = ['service_type__code', 'status__service_status']
-    list_display = ['__str__', 'site']
+    list_filter = ['service_type__code', 'status__service_status', 'created_online']
+    list_display = ['__str__', 'site', 'created_online']
 
 
 admin.site.register(InventoryAddress)
