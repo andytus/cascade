@@ -1,6 +1,6 @@
 __author__ = 'jbennett'
 
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError, ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.utils import IntegrityError, DatabaseError
 from django.contrib.sites.models import Site
 #from django.db import transaction
@@ -22,6 +22,8 @@ def save_error(e, line, site):
     if hasattr(e, 'message_dict'):
         for key, value in e.message_dict.iteritems():
             error_message += "%s: %s " % (str(key).upper(), (str(value)))
+    else:
+        error_message = e
     Site.objects.clear_cache()
     logger.error("Error Message: %s, Error Type: %s, Failed Data: %s, Site: %s" % (error_message, e.__class__.__name__,
                                                                                   line, site))
@@ -251,7 +253,8 @@ def save_ticket_records(line, file_record):
             ticket.save()
             file_record.num_good += 1
 
-    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist,
+            MultipleObjectsReturned) as e:
         logger.error(e)
         file_record.status = "FAILED"
         file_record.num_error += 1
@@ -383,9 +386,6 @@ def save_customer_records(line, file_record):
         logger.error(e)
         file_record.num_error += 1
         save_error(e, line, file_record.site)
-        #error = DataErrors(site=file_record.site, error_message=e, error_type=e.__class__.__name__, failed_data=line)
-        #error.save()
-
 
 def save_route_records(line, file_record):
     try:
