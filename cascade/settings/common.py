@@ -187,6 +187,7 @@ INSTALLED_APPS = (
     'cascade.apps.accounts',
     'cascade.apps.api',
     'cascade.apps.cartmanager',
+    'cascade.apps.collection_manager',
 
 )
 
