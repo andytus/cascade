@@ -149,7 +149,7 @@ def save_ticket_records(line, file_record):
                 #if we don't have a cart we should create it
                 logger.info("Cart %s does not exist...creating one now" % clean_rfid)
                 cart = Cart(site=file_record.site, rfid=clean_rfid,
-                            serial_number=clean_rfid,  #rfid.strip('=').strip('"')[-12:],
+                            serial_number=clean_rfid,
                             cart_type=CartType.objects.get(name=container_type, size=container_size),
                             updated_by=file_record.uploaded_by,
                             current_status=CartStatus.on_site.get(label='Inventory'))

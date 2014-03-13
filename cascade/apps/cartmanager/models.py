@@ -57,9 +57,9 @@ class UploadFile(models.Model):
     file_kind = models.CharField(max_length=10, choices=FILE_KIND)
     message = models.CharField(max_length=200, null=True, blank=True)
     records_processed = models.BooleanField(default=False)
+    site = models.ForeignKey(Site)
 
     #model managers
-    site = models.ForeignKey(Site)
     objects = models.Manager()
     on_site = CurrentSiteManager()
 
