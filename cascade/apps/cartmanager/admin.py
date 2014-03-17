@@ -3,11 +3,18 @@ from django.contrib import admin
 from cascade.libs.admin import SiteAdmin
 from models import CartServiceType, CartStatus, CartType, TicketStatus,\
     AdminDefaults, ZipCodes, ServiceReasonCodes, Route, CollectionAddress, Cart, Ticket, CollectionCustomer,\
-    CartServiceCharge, CartParts, InventoryAddress
+    CartServiceCharge, CartParts, InventoryAddress, DataErrors
 
 
 class CartServiceChargeAdmin(admin.ModelAdmin):
     search_fields = ['amount', 'description']
+
+
+class DataErrorsAdmin(admin.ModelAdmin):
+    search_fields = ['error_type', 'failed_data']
+    list_display = ['id', 'error_type', 'failed_data']
+    list_filter = ['error_type', 'failed_data']
+
 
 
 class CollectionCustomerAdmin(admin.ModelAdmin):
@@ -51,7 +58,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ['service_type__code', 'status__service_status', 'created_online']
     list_display = ['__str__', 'site', 'created_online']
 
-
+admin.site.register(DataErrors, DataErrorsAdmin)
 admin.site.register(InventoryAddress)
 admin.site.register(CartServiceType)
 admin.site.register(CartStatus)
