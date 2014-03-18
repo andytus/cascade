@@ -100,19 +100,27 @@ def save_ticket_records(line, file_record):
             #TODO check gun serial and timestamp before creating this ticket
             #TODO ... need to do a try except must have a location first ... could get locaiton first too.
 
-            if unit_number.strip():
-                logger.info("*** IN UNIT ***")
-                #check by address and unit
+            try:
+                if unit_number.strip():
+                    logger.info("*** IN UNIT ***")
+                    #check by address and unit
+                    location, address_created = CollectionAddress.objects.get_or_create(house_number=house_number,
+                                                                                        street_name=street,
+                                                                                        site=file_record.site,
+                                                                                        unit=unit_number)
+                else:
+                    logger.info("*** IN ADDRESS ***")
+                    #check by address
+                    location, address_created = CollectionAddress.objects.get_or_create(house_number=house_number,
+                                                                                        site=file_record.site,
+                                                                                        street_name=street)
+            except MultipleObjectsReturned:
+                logger.info("***RETURN MORE THAN 1***")
+                logger.info("***Setting to 'Unknown Unit'***")
                 location, address_created = CollectionAddress.objects.get_or_create(house_number=house_number,
+                                                                                    site=file_record.site,
                                                                                     street_name=street,
-                                                                                    site=file_record.site,
-                                                                                    unit=unit_number)
-            else:
-                logger.info("*** IN ADDRESS ***")
-                #check by address
-                location, address_created = CollectionAddress.objects.get_or_create(house_number=house_number,
-                                                                                    site=file_record.site,
-                                                                                    street_name=street)
+                                                                                    unit='?')
             if address_created:
                 #If we created a collection address then
                 #No customer for this address ...add a generic one.
@@ -253,8 +261,7 @@ def save_ticket_records(line, file_record):
             ticket.save()
             file_record.num_good += 1
 
-    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist,
-            MultipleObjectsReturned) as e:
+    except (ValidationError, ValueError, IntegrityError, DatabaseError, ObjectDoesNotExist) as e:
         logger.error(e)
         file_record.status = "FAILED"
         file_record.num_error += 1
