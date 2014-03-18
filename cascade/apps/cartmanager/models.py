@@ -358,7 +358,7 @@ class Address(models.Model):
     class Meta:
         abstract = True
         #Do not want to add a new address that already exist
-        unique_together = (('house_number', 'street_name', 'unit', 'direction', 'suffix'))
+        unique_together = (('house_number', 'street_name', 'unit', 'city',))
 
 
 class CollectionCustomer(models.Model):
