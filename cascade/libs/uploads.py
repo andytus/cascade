@@ -11,6 +11,8 @@ from django.utils import timezone
 from datetime import datetime
 from django.conf import settings
 import logging
+from django.db import transaction
+
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -18,6 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 def save_error(e, line, site):
+    logger.info("e: %s", e)
+    logger.info(line)
+    logger.info(site)
     error_message = ""
     if hasattr(e, 'message_dict'):
         for key, value in e.message_dict.iteritems():
@@ -28,10 +33,14 @@ def save_error(e, line, site):
     logger.error("Error Message: %s, Error Type: %s, Failed Data: %s, Site: %s" % (error_message, e.__class__.__name__,
                                                                                   line, site))
     try:
-        error = DataErrors(error_message=error_message, error_type=e.__class__.__name__,
+        if e.__class__.__name__ == 'DatabaseError':
+            #Need to rollback Database errors because postgres will hang
+            transaction.rollback()
+
+        error = DataErrors(error_message=error_message[0:200], error_type=e.__class__.__name__,
                            failed_data=line, site=site)
         error.save()
-    except DataErrors as e:
+    except Exception as e:
         logger.error("%s : error when attempting to save record error" % e)
 
 def save_cart_records(line, file_record):
