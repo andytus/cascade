@@ -363,7 +363,7 @@ def save_customer_records(line, file_record):
 
         if trash.isdigit():
             for x in range(int(trash)):
-                t = Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Refuse", size=int(trash_size)),
+                t = Ticket(cart_type=CartType.on_site.get(site=file_record.site, name="Trash", size=int(trash_size)),
                            service_type=delivery, location=collection_address, status=requested, created_by=user)
                 if trash_address_route:
                     t.route = trash_address_route
