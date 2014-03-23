@@ -257,7 +257,7 @@ class ServiceReasonCodes(models.Model):
 class Route(models.Model):
 
     ROUTE_TYPE = (("General", "General"), ("Recycling", "Recycling"),
-                  ("Refuse", "Refuse"), ("Yard-Organics", "Yard-Organics"))
+                  ("Trash", "Trash"), ("Yard-Organics", "Yard-Organics"))
 
     #May turn this into a GeoManaged model for GIS capabilities
     route = models.CharField(max_length=15, null=True)
@@ -285,10 +285,11 @@ class Address(models.Model):
     ST = "NA"
     PROPERTY_TYPES = (
                       ('Residential', 'Residential'),
+                      ('Commercial', 'Commercial'),
                       ('Business', 'Business'),
                       ('Unoccupied', 'Unoccupied'),
                       ('Vacant Lot', 'Vacant Lot'),
-                      ('Multi-Use', 'Multi-Use'),
+                      ('Multi-use', 'Multi-use'),
                      )
     house_number = models.CharField(max_length=8)
     street_name = models.CharField(max_length=50)
@@ -581,7 +582,7 @@ class DataErrors(models.Model):
         ordering = ["-error_date"]
 
     def __unicode__(self):
-        return "%s, %s" % (self.error_date, self.error_message)
+        return " %s, %s, %s" % (self.error_type, self.error_date, self.error_message)
 
 class TicketsCompletedUploadFileForm(forms.Form):
     ticket_file = forms.FileField()

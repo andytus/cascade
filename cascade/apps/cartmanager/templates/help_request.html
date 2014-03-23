@@ -1,0 +1,42 @@
+<div class="modal-header">
+    <div class="modal-body">
+        <div id="wrapper_help_form">
+            <p class="text-info modal-font text">How can we help?</p>
+            <p><i></i></p>
+
+            <textarea name="help_comment" rows="4" class="field span5"
+                    placeholder="Describe what you need help with or report any errors then click send."></textarea>
+       </div>
+        <div class="modal-footer">
+            <button class="pull-left btn btn-large btn-success"
+                    id="send_request"><i class="icon-envelope"></i>Send</button>
+            <button class="btn btn-large btn-primary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var help_request_url = "{% url 'help_request_api' %}";
+        var send_request = $("#send_request");
+        send_request.click(function(){
+            $.ajax(help_request_url, {
+                        data: {'help_comment': $('[name="help_comment"]').val()},
+                        type: 'post',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log("success");
+                            $("#wrapper_help_form").html("<h3 class='text-success'>"+data.details.message+"</h3><br><br>")
+                            $("#send_request").hide()
+                        },
+                        error: function (jqXHR, status, error) {
+                            console.log(jqXHR)
+                             $("#wrapper_help_form").html("<p class='success'>"+data.details.message+"</p>")
+                        }
+                    }
+                  )
+
+        });
+    });
+
+</script>

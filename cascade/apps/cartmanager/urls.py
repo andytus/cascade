@@ -4,7 +4,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from cascade.apps.cartmanager.views import CartUploadView, UploadErrorsView, CustomerUploadView, \
     TicketsCompletedUploadView, CartSearch, CartProfile, TicketReport, TicketNew, TicketProfile, \
     CustomerReport, CartReport, LocationSearch, CustomerProfile, CustomerNew,  FileUploadListView, \
-    CartAddressChange, CartNew, RouteUploadView, GetUploadTemplate, ReportListView
+    CartAddressChange, CartNew, RouteUploadView, GetUploadTemplate, ReportListView, RequestHelp
 
 from django.views.decorators.cache import cache_page
 
@@ -70,6 +70,7 @@ urlpatterns = patterns('cascade.apps.cartmanager.views',
                        url(r'^reports/(?P<report_type>[a-zA-Z0-9]+)?$',
                            ReportListView.as_view(),
                            name='report_list'),
+                       url(r'^help/', RequestHelp.as_view(), name='help_request'),
 
                        )
 

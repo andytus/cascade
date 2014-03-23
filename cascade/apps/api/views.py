@@ -13,6 +13,7 @@ from django.http import HttpResponse, StreamingHttpResponse
 # Depreciated in Django 1.5 (from django.utils import simplejson)
 import json as simplejson
 from django.template import Context, loader
+from django.core.mail import mail_admins
 
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response as RestResponse
@@ -986,4 +987,23 @@ class ProfileAPI(APIView):
         user = self.get_object(request.user)
         serializer = self.serializer(user)
         return RestResponse(serializer.data)
+
+class HelpRequestAPIView(APIView):
+
+    def post(self, request, **kwargs):
+        help_comment = self.request.POST.get('help_comment', None)
+        if help_comment:
+
+            mail_admins('%s from Site: %s, needs help with....' % (request.user.username.upper(), get_current_site(request).name),
+                      "user email: %s, message: %s" % (request.user.email, help_comment),
+                       fail_silently=False)
+
+
+            response = RestResponse({'details': {'message': 'Success: Thank you, Your message was sent.'}}, status=django_rest_status.HTTP_200_OK)
+
+        else:
+            response = RestResponse({'details': {'message': 'Darn! We didn\'t get that ...'
+                                                 'please try again'}}, status=django_rest_status.HTTP_200_OK)
+
+        return response
 

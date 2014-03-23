@@ -68,7 +68,10 @@
                                          height="40" src="{{ user.get_profile.get_mugshot_url }}"/>
 
                                     {{ user.username }}
-                                </a> | <a href="{% url "userena_signout" %}">Logout</a>
+                                </a> | <a href="{% url "userena_signout" %}">Logout</a> |
+                            <a href="{% url "help_request" %}" data-target="#modal_window" data-toggle="modal">
+                            <i class="icon-question-sign"> </i> Support</a>
+
                             </div>
 
                         {% else %}

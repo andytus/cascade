@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from cascade.apps.api.views import TicketSearchAPI, CartProfileAPI, CartSearchAPI, CustomerProfileAPI, \
     LocationSearchAPI, CartStatusAPI, CartTypeAPI, TicketAPI, LocationAPI, AdminDefaultLocation, TicketStatusAPI, \
     TicketCommentAPI, TicketServiceTypeAPI, FileUploadListAPI, RouteListAPI, CartServiceChargesAPI, CartPartsAPI, \
-    FileUploadAPI, ProfileAPI, ReportFileListAPI
+    FileUploadAPI, ProfileAPI, ReportFileListAPI, HelpRequestAPIView
 
 
 from django.views.decorators.cache import cache_page
@@ -41,6 +41,8 @@ urlpatterns = patterns('cascade.apps.api.views',
                        url(r'^route/search/$', RouteListAPI.as_view(), name='route_search_api'),
                        url(r'^profile/$', ProfileAPI.as_view(), name='profile_api'),
                        url(r'^reports/(?P<report_type>[a-zA-Z0-9]+)?$', ReportFileListAPI.as_view(), name='report_list_api'),
+                       url(r'^help/', HelpRequestAPIView.as_view(), name='help_request_api')
+
                        )
 
 urlpatterns = format_suffix_patterns(urlpatterns)
