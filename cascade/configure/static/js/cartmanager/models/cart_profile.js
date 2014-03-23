@@ -3,6 +3,8 @@
  * User: jbennett
  * Date: 2/27/13
  * Time: 7:50 PM
+ * Summary
+ * This model is intended to give a full set of Cart attributes.
  *
  */
 
