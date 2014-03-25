@@ -164,10 +164,10 @@
                     return item.service_status;
                 });
                 self.ticket_status_options(ticketStatusOptions);
-                var match = ko.utils.arrayFirst(self.ticket_status_options(), function (item) {
+/*                var match = ko.utils.arrayFirst(self.ticket_status_options(), function (item) {
                     return item === 'Requested';
                 });
-                self.selected_status(match);
+                self.selected_status(match);*/
 
                  $('.multiselect').multiselect({ includeSelectAllOption: true }).multiselect('select', 'Requested');
 

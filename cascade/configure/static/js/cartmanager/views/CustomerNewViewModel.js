@@ -13,14 +13,14 @@
         //location information
 
         self.suffix = ko.observable();
-        // #Deprecitated  self.suffix_defaults = new cartlogic.streetSuffix().get_abbreviated();
+
 
         //state and city, can use a default
         self.use_default_state_city = ko.observable(true);
 
         self.default_zipcodes = ko.observableArray([]);
 
-        //#TODO Pull from admin config
+
         self.default_property_type = ko.observableArray(['Residential', 'Business']);
         self.selected_route_day = ko.observable();
         self.selected_route_type = ko.observable();
